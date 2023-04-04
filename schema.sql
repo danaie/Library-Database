@@ -52,7 +52,7 @@ create table review (
 	username varchar(15),
     ISBN varchar(13),
     review_text varchar(50),
-    rating smallint,
+    rating tinyint,
     foreign key (username) references lib_user(username) on delete cascade on update cascade,
     foreign key (ISBN) references book(ISBN) on delete cascade on update cascade
 );
