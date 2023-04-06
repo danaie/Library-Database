@@ -89,7 +89,7 @@ from lib_user;
 
 create table availability (
 	school_id int,
-    ISBN varchar(13),
+	ISBN varchar(13),
 	copies int,
 	foreign key(school_id) references school_unit(school_id) on delete cascade on update cascade,
 	foreign key(ISBN) references book(ISBN) on delete cascade on update cascade
@@ -97,7 +97,7 @@ create table availability (
 
 create table service (
 	username varchar(15),
-    ISBN varchar(13),
+ 	ISBN varchar(13),
 	service_type varchar(1),
 	service_date date,
 	foreign key(username) references lib_user(username) on delete cascade on update cascade,
@@ -106,7 +106,7 @@ create table service (
 
 create table borrow_log (
 	username varchar(15),
-    ISBN varchar(13),
+ 	ISBN varchar(13),
 	borrow_date date,
 	foreign key(username) references lib_user(username) on delete cascade on update cascade,
 	foreign key(ISBN) references book(ISBN) on delete cascade on update cascade
