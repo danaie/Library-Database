@@ -1,16 +1,16 @@
 create table book (
 	ISBN varchar(13) primary key,
-	title varchar(40),
-	page_number int,
-	summary varchar(200),
-	lang varchar(15),
+	title varchar(40) not null,
+	page_number int not null,
+	summary varchar(200) not null,
+	lang varchar(15) not null,
 	image_path varchar(50),
 	key_words varchar(40)
 );
 
 create table publisher (
 	publisher_id int auto_increment,
-	publisher_name varchar(20),
+	publisher_name varchar(20) not null,
 	primary key(publisher_id)
 );
 
@@ -77,6 +77,8 @@ create table lib_user (
 	birth_date date,
 	user_role varchar(1),
 	age int,
+	pending boolean,
+	active boolean,
 	foreign key(school_id) references school_unit(school_id) on delete cascade on update cascade
 );
 
@@ -90,7 +92,7 @@ from lib_user;
 create table availability (
 	school_id int,
 	ISBN varchar(13),
-	copies int,
+	copies int check(copies>=0),
 	foreign key(school_id) references school_unit(school_id) on delete cascade on update cascade,
 	foreign key(ISBN) references book(ISBN) on delete cascade on update cascade
 );
@@ -98,7 +100,7 @@ create table availability (
 create table service (
 	username varchar(15),
  	ISBN varchar(13),
-	service_type varchar(1),
+	service_type boolean, -- 0 <-> reserved, 1 <-> borrowed
 	service_date date,
 	foreign key(username) references lib_user(username) on delete cascade on update cascade,
 	foreign key(ISBN) references book(ISBN) on delete cascade on update cascade
