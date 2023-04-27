@@ -52,3 +52,17 @@ VALUES (
 	('9783596906265', 'Siddhartha', 144, 'Ein spiritueller Roman über einen Mann, der auf der Suche nach Erleuchtung durch Indien reist und schließlich zu sich selbst findet.', 'German', 'path/to/image39.jpg', 'Spiritualität, Selbstfindung, Indien'),
 	('9783423126888', 'Narziß und Goldmund', 448, 'Ein Roman über zwei Freunde, die unterschiedlicher nicht sein könnten: Der eine ist ein asketischer Mönch, der andere ein lebenslustiger Künstler.', 'German', 'path/to/image40.jpg', 'Freundschaft, Kunst, Spiritualität'),
 );
+
+
+INSERT INTO category (category_name) VALUES (
+    ('Fiction'),
+    ('Non-fiction'),
+    ('Mystery'),
+    ('Romance'),
+    ('Sci-Fi'),
+    ('Fantasy'),
+    ('Biography'),
+    ('History'),
+    ('Self-help'),
+    ('Travel')
+);
