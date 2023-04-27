@@ -58,25 +58,25 @@ CREATE TABLE author (
 
 CREATE TABLE book_author (
     author_id INT,
-    ISBN VARCHAR(13),
+    book_id INT,
     FOREIGN KEY (author_id)
         REFERENCES author (author_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (ISBN)
-        REFERENCES book (ISBN)
+    FOREIGN KEY (book_id)
+        REFERENCES book (book_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE review (
     user_id INT,
-    ISBN VARCHAR(13),
+    book_id INT,
     review_text VARCHAR(50),
     rating TINYINT,
     FOREIGN KEY (user_id)
         REFERENCES lib_user (user_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (ISBN)
-        REFERENCES book (ISBN)
+    FOREIGN KEY (book_id)
+        REFERENCES book (book_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -135,25 +135,25 @@ CREATE TABLE availability (
 
 CREATE TABLE service (
     username VARCHAR(15),
-    ISBN VARCHAR(13),
+    book_id INT,
     service_type VARCHAR(1),
     service_date DATE,
     FOREIGN KEY (username)
         REFERENCES lib_user (username)
         ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (ISBN)
-        REFERENCES book (ISBN)
+    FOREIGN KEY (book_id)
+        REFERENCES book (book_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE borrow_log (
     username VARCHAR(15),
-    ISBN VARCHAR(13),
+    book_id INT,
     borrow_date DATE,
     FOREIGN KEY (username)
         REFERENCES lib_user (username)
         ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (ISBN)
-        REFERENCES book (ISBN)
+    FOREIGN KEY (book_id)
+        REFERENCES book (book_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
