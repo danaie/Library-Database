@@ -1,115 +1,158 @@
-create table book (
-	ISBN varchar(13) primary key,
-	title varchar(40) not null,
-	page_number int not null,
-	summary varchar(200) not null,
-	lang varchar(15) not null,
-	image_path varchar(50),
-	key_words varchar(40)
+create database library;
+use library;
+
+CREATE TABLE book (
+    ISBN VARCHAR(13) PRIMARY KEY,
+    title VARCHAR(40),
+    page_number INT,
+    summary VARCHAR(200),
+    lang VARCHAR(15),
+    image_path VARCHAR(50),
+    key_words VARCHAR(40),
+    INDEX title_idx (title)
 );
 
-create table publisher (
-	publisher_id int auto_increment,
-	publisher_name varchar(20) not null,
-	primary key(publisher_id)
+CREATE TABLE publisher (
+    publisher_id INT AUTO_INCREMENT,
+    publisher_name VARCHAR(20),
+    PRIMARY KEY (publisher_id),
+    INDEX publisher_idx (publisher_name)
 );
 
-create table book_publisher (
-	publisher_id int,
-	ISBN int,
-	foreign key (publisher_id) references publisher(publisher_id) on delete cascade on update cascade,
-	foreign key (ISBN) references book(ISBN) on delete cascade on update cascade
+CREATE TABLE book_publisher (
+    publisher_id INT,
+    ISBN VARCHAR(13),
+    FOREIGN KEY (publisher_id)
+        REFERENCES publisher (publisher_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ISBN)
+        REFERENCES book (ISBN)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table category (
-	category_id int not null auto_increment,
-	category_name varchar(15),
-	primary key(category_id)
+CREATE TABLE category (
+    category_id INT NOT NULL AUTO_INCREMENT,
+    category_name VARCHAR(15),
+    PRIMARY KEY (category_id),
+    INDEX category_idx (category_name)
 );
 
-create table book_category (
-	category_id int,
-	ISBN int,
-	foreign key (category_id) references category(category_id) on delete cascade on update cascade,
-	foreign key (ISBN) references book(ISBN) on delete cascade on update cascade
+CREATE TABLE book_category (
+    category_id INT,
+    ISBN INT,
+    FOREIGN KEY (category_id)
+        REFERENCES category (category_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ISBN)
+        REFERENCES book (ISBN)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table author (
-	author_id int not null auto_increment,
- 	author_first_name varchar(20),
-	author_last_name varchar(20),
- 	primary key(author_id)
+CREATE TABLE author (
+    author_id INT NOT NULL AUTO_INCREMENT,
+    author_first_name VARCHAR(20),
+    author_last_name VARCHAR(20),
+    PRIMARY KEY (author_id),
+    INDEX author_idx (author_last_name)
 );
 
-create table book_author (
-	author_id int,
-	ISBN int,
-	foreign key (author_id) references author(author_id) on delete cascade on update cascade,
-	foreign key (ISBN) references book(ISBN) on delete cascade on update cascade
+CREATE TABLE book_author (
+    author_id INT,
+    ISBN VARCHAR(13),
+    FOREIGN KEY (author_id)
+        REFERENCES author (author_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ISBN)
+        REFERENCES book (ISBN)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table review (
-	username varchar(15),
-	ISBN varchar(13),
-	review_text varchar(50),
-	rating tinyint,
-	foreign key (username) references lib_user(username) on delete cascade on update cascade,
-	foreign key (ISBN) references book(ISBN) on delete cascade on update cascade
+CREATE TABLE review (
+    username VARCHAR(15),
+    ISBN VARCHAR(13),
+    review_text VARCHAR(50),
+    rating TINYINT,
+    FOREIGN KEY (username)
+        REFERENCES lib_user (username)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (ISBN)
+        REFERENCES book (ISBN)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table school_unit (
-	school_id int primary key,
-	name varchar(20),
-	city varchar(20),
-	address varchar(20),
-	phone_number varchar(10),
-	email varchar(20),
-	principle varchar(20),
-	handler varchar(20)
+CREATE TABLE school_unit (
+    school_id INT PRIMARY KEY,
+    name VARCHAR(20),
+    city VARCHAR(20),
+    address VARCHAR(20),
+    phone_number VARCHAR(10),
+    email VARCHAR(20),
+    principal VARCHAR(20),
+    handler VARCHAR(20)
 );
 
-create table lib_user (
-	username varchar(15) primary key,
-	password varchar(20),
-	school_id int,
-	first_name varchar(20),
-	last_name varchar(20),
-	birth_date date,
-	user_role varchar(1),
-	age int,
-	pending boolean,
-	active boolean,
-	foreign key(school_id) references school_unit(school_id) on delete cascade on update cascade
+CREATE TABLE lib_user (
+    username VARCHAR(15) PRIMARY KEY,
+    password VARCHAR(20),
+    school_id INT,
+    first_name VARCHAR(20),
+    last_name VARCHAR(20),
+    birth_date DATE,
+    user_role VARCHAR(1),
+    age INT,
+    active BOOLEAN,
+    pending BOOLEAN,
+    FOREIGN KEY (school_id)
+        REFERENCES school_unit (school_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-select datediff(yy,birth_date,getdate())-
-	case
-		when dateadd(yy,datediff(yy,birth_date,getdate()),birth_date) > getdate() then 1
-        else 0
-	end
-from lib_user;
+SELECT 
+    DATEDIFF(yy, birth_date, GETDATE()) - CASE
+        WHEN
+            DATEADD(yy,
+                    DATEDIFF(yy, birth_date, GETDATE()),
+                    birth_date) > GETDATE()
+        THEN
+            1
+        ELSE 0
+    END
+FROM
+    lib_user;
 
-create table availability (
-	school_id int,
-	ISBN varchar(13),
-	copies int check(copies>=0),
-	foreign key(school_id) references school_unit(school_id) on delete cascade on update cascade,
-	foreign key(ISBN) references book(ISBN) on delete cascade on update cascade
+CREATE TABLE availability (
+    school_id INT,
+    ISBN VARCHAR(13),
+    copies INT,
+    FOREIGN KEY (school_id)
+        REFERENCES school_unit (school_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ISBN)
+        REFERENCES book (ISBN)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table service (
-	username varchar(15),
- 	ISBN varchar(13),
-	service_type boolean, -- 0 <-> reserved, 1 <-> borrowed
-	service_date date,
-	foreign key(username) references lib_user(username) on delete cascade on update cascade,
-	foreign key(ISBN) references book(ISBN) on delete cascade on update cascade
+CREATE TABLE service (
+    username VARCHAR(15),
+    ISBN VARCHAR(13),
+    service_type VARCHAR(1),
+    service_date DATE,
+    FOREIGN KEY (username)
+        REFERENCES lib_user (username)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (ISBN)
+        REFERENCES book (ISBN)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-create table borrow_log (
-	username varchar(15),
- 	ISBN varchar(13),
-	borrow_date date,
-	foreign key(username) references lib_user(username) on delete cascade on update cascade,
-	foreign key(ISBN) references book(ISBN) on delete cascade on update cascade
+CREATE TABLE borrow_log (
+    username VARCHAR(15),
+    ISBN VARCHAR(13),
+    borrow_date DATE,
+    FOREIGN KEY (username)
+        REFERENCES lib_user (username)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (ISBN)
+        REFERENCES book (ISBN)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
