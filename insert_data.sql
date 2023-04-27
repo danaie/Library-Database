@@ -1,5 +1,5 @@
 INSERT INTO book (ISBN, title, page_number, summary, lang, image_path, key_words)
-VALUES (
+VALUES
 	('9781788399081', 'Learning PHP 7', 320, 'Learn PHP 7 with this practical and easy-to-follow guide.', 'English', '/images/php.jpg', 'PHP, web development'),
 	('9780132350884', 'Clean Code', 464, 'A handbook of agile software craftsmanship.', 'English', '/images/cleancode.jpg', 'Software development, programming'),
 	('9781593275990', 'Eloquent JavaScript', 472, 'A modern introduction to programming with JavaScript.', 'English', '/images/javascript.jpg', 'JavaScript, web development'),
@@ -50,19 +50,17 @@ VALUES (
 	('9783458328334', 'Der Steppenwolf', 320, 'Ein Roman über einen Mann, der sich zwischen seinem bürgerlichen Leben und seiner Sehnsucht nach Freiheit und Individualität zerrissen fühlt.', 'German', 'path/to/image37.jpg', 'Existenzialismus, Individualität, Selbstfindung'),
 	('9783423130595', 'Die Blechtrommel', 592, 'Ein grotesker Roman über einen Jungen, der beschließt, nicht weiter zu wachsen und seine Umwelt durch seine Trommel zum Wahnsinn treibt.', 'German', 'path/to/image38.jpg', 'Groteske, Kindheit, Krieg'),
 	('9783596906265', 'Siddhartha', 144, 'Ein spiritueller Roman über einen Mann, der auf der Suche nach Erleuchtung durch Indien reist und schließlich zu sich selbst findet.', 'German', 'path/to/image39.jpg', 'Spiritualität, Selbstfindung, Indien'),
-	('9783423126888', 'Narziß und Goldmund', 448, 'Ein Roman über zwei Freunde, die unterschiedlicher nicht sein könnten: Der eine ist ein asketischer Mönch, der andere ein lebenslustiger Künstler.', 'German', 'path/to/image40.jpg', 'Freundschaft, Kunst, Spiritualität'),
-);
+	('9783423126888', 'Narziß und Goldmund', 448, 'Ein Roman über zwei Freunde, die unterschiedlicher nicht sein könnten: Der eine ist ein asketischer Mönch, der andere ein lebenslustiger Künstler.', 'German', 'path/to/image40.jpg', 'Freundschaft, Kunst, Spiritualität');
 
 
-INSERT INTO publisher (publisher_name) VALUES (
+INSERT INTO publisher (publisher_name) VALUES
 	('Penguin Random House'),
 	('HarperCollins'),
 	('Simon & Schuster'),
 	('Hachette Livre'),
-	('Macmillan Publishers')
-);
+	('Macmillan Publishers');
 
-INSERT INTO book_publisher (publisher_id, ISBN) VALUES (
+INSERT INTO book_publisher (publisher_id, ISBN) VALUES
 (4,1),
 (2,2),
 (3,3),
@@ -112,12 +110,11 @@ INSERT INTO book_publisher (publisher_id, ISBN) VALUES (
 (4,47),
 (5,48),
 (1,49),
-(1,50)
-);
+(1,50);
 
 
 
-INSERT INTO category (category_name) VALUES (
+INSERT INTO category (category_name) VALUES
     ('Fiction'),
     ('Non-fiction'),
     ('Mystery'),
@@ -127,8 +124,7 @@ INSERT INTO category (category_name) VALUES (
     ('Biography'),
     ('History'),
     ('Self-help'),
-    ('Travel')
-);
+    ('Travel');
 
 INSERT INTO book_category(category_id, book_id) VALUES
 (4,1),
@@ -176,7 +172,7 @@ INSERT INTO book_category(category_id, book_id) VALUES
 (7,38),
 (2,39),
 (3,40),
-(6,40)
+(6,40),
 (10,41),
 (4,42),
 (2,43),
@@ -188,7 +184,7 @@ INSERT INTO book_category(category_id, book_id) VALUES
 (6,49),
 (1,50);
 
-INSERT INTO author (author_first_name, author_last_name) VALUES (
+INSERT INTO author (author_first_name, author_last_name) VALUES
     ('J.K.', 'Rowling'),
     ('Stephen', 'King'),
     ('George R.R.', 'Martin'),
@@ -208,8 +204,7 @@ INSERT INTO author (author_first_name, author_last_name) VALUES (
     ('Mary', 'Shelley'),
     ('Herman', 'Melville'),
     ('Leo', 'Tolstoy'),
-    ('Fyodor', 'Dostoevsky')
-);
+    ('Fyodor', 'Dostoevsky');
 
 
 INSERT INTO book_author(author_id, book_id) VALUES
@@ -294,15 +289,14 @@ VALUES (1, 2, 'This book was a page-turner', 4),
        (20, 49, 'This book was a bit slow-paced', 3);
 
 
-INSERT INTO school_unit (school_id, name, city, address, phone_number, email, principal, lib_manager) VALUES (
+INSERT INTO school_unit (school_id, name, city, address, phone_number, email, principal, lib_manager) VALUES
     (1, 'High School', 'New York', '123 Main St', '2101234567', 'highschool@school.edu', 'David Johnson', 'Dick Brown'),
     (2, 'Middle School', 'Los Angeles', '456 Oak St', '2102345678', 'middleschool@school.edu', 'Felicity Smith', 'Bruce Lee'),
-	(3, 'Primary School', 'Philadelphia', '789 St Paddy\'s St', '2103456789', 'primaryschool@school.edu', 'Ronald McDonald', 'Charlie Kelly')
-);
-
+    (3, 'Primary School', 'Philadelphia', '789 St Paddy\'s St', '2103456789', 'primaryschool@school.edu', 'Ronald McDonald', 'Charlie Kelly')
+    
 
 INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role, age, active, pending)
-VALUES (
+VALUES 
 ('user01', 'p@ssword1', 1, 'John', 'Doe', '1990-01-01', 's', 31, TRUE, FALSE),
 ('user02', 'p@ssword2', 2, 'Jane', 'Doe', '1995-05-05', 's', 26, TRUE, FALSE),
 ('user03', 'p@ssword3', 1, 'Bob', 'Smith', '1985-12-25', 'l', 36, TRUE, FALSE),
@@ -358,7 +352,6 @@ VALUES (
 ('user53', 'p@ssword53', 1, 'Aubrey', 'Wright', '2000-06-18', 's', 23, TRUE, FALSE),
 ('user54', 'p@ssword54', 3, 'Logan', 'Nelson', '1991-04-14', 's', 32, TRUE, FALSE),
 ('user55', 'p@ssword55', 2, 'Luna', 'Lee', '2004-09-02', 's', 19, TRUE, FALSE)
-);
 
 
 INSERT INTO availability(school_id, book_id, copies) VALUES
