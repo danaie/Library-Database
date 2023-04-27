@@ -123,13 +123,13 @@ FROM
 
 CREATE TABLE availability (
     school_id INT,
-    ISBN VARCHAR(13),
+    book_id INT,
     copies INT,
     FOREIGN KEY (school_id)
         REFERENCES school_unit (school_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (ISBN)
-        REFERENCES book (ISBN)
+    FOREIGN KEY (book_id)
+        REFERENCES book (book_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
