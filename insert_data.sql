@@ -1,27 +1,27 @@
+
 INSERT INTO book (ISBN, title, page_number, summary, lang, image_path, key_words)
 VALUES
-	('9781788399081', 'Learning PHP 7', 320, 'Learn PHP 7 with this practical and easy-to-follow guide.', 'English', '/images/php.jpg', 'PHP, web development'),
-	('9780132350884', 'Clean Code', 464, 'A handbook of agile software craftsmanship.', 'English', '/images/cleancode.jpg', 'Software development, programming'),
-	('9781593275990', 'Eloquent JavaScript', 472, 'A modern introduction to programming with JavaScript.', 'English', '/images/javascript.jpg', 'JavaScript, web development'),
-	('9781492040408', 'Python for Data Analysis', 544, 'A practical guide to processing, analyzing, and visualizing data using Python.', 'English', '/images/python.jpg', 'Python, data analysis'),
-	('9780134350884', 'Head First Design Patterns', 676, 'A brain-friendly guide to understanding design patterns in software development.', 'English', '/images/designpatterns.jpg', 'Software development, programming'),
-	('9780262033848', 'Introduction to Algorithms', 1312, 'A comprehensive introduction to algorithms and their analysis.', 'English', '/images/algorithms.jpg', 'Algorithms, computer science'),
-	('9780132340884', 'Refactoring', 448, 'Improving the design of existing code.', 'English', '/images/refactoring.jpg', 'Software development, programming'),
-	('9780321933883', 'Effective Java', 416, 'A guide to writing high-quality, robust Java code.', 'English', '/images/effectivejava.jpg', 'Java, programming'),
-	('9781449343033', 'Learning Python', 384, 'Powerful Object-Oriented Programming', 'English', '/images/learningpython.jpg', 'Python, programming'),
-	('9781262033848', 'The C Programming Language', 272, 'A classic introduction to C programming.', 'English', '/images/c.jpg', 'C programming, computer science'),
-	('9780321205681', 'Agile Software Development', 624, 'The Cooperative Game', 'English', '/images/agile.jpg', 'Agile software development, project management'),
-	('9781789349868', 'Deep Learning with TensorFlow 2 and Keras', 596, 'Beginner\'s Guide to Artificial Intelligence and Machine Learning', 'English', '/images/deeplearning.jpg', 'Deep learning, artificial intelligence'),
-	('9781491989388', 'Hands-On Machine Learning with Scikit-Learn and TensorFlow', 596, 'Concepts, Tools, and Techniques to Build Intelligent Systems', 'English', '/images/hands-on-ml.jpg', 'Machine learning, artificial intelligence'),
-	('9781839213470', 'Java 17 Quick Start Guide', 266, 'Get up to speed with Java programming in a quick and effective way', 'English', '/images/java17.jpg', 'Java, programming'),
-	('9781838559333', 'Hands-On Microservices with Spring Boot and Spring Cloud', 374, 'Discover the world of microservices with Spring Boot and Spring Cloud', 'English', '/images/microservices.jpg', 'Microservices, Spring Boot, Spring Cloud'),
-	('9781492078722', 'Hands-On Rust', 444, 'Effective learning through practical projects, recipes, and examples', 'English', '/images/rust.jpg', 'Rust programming, programming'),
-	('9780262033748', 'Introduction to Algorithms', 1312, 'A comprehensive introduction to algorithms and their analysis.', 'English', '/images/algorithms.jpg', 'Algorithms, computer science'),
-	('9781617294136', 'Deep Learning with PyTorch', 520, 'A practical approach to building neural network models with PyTorch.', 'English', '/images/pytorch.jpg', 'Deep learning, artificial intelligence'),
-	('9780134706054', 'Java Concurrency in Practice', 432, 'A guide to developing safe and scalable concurrent applications in Java.', 'English', '/images/javaconcurrency.jpg', 'Java, concurrency'),
+    ('9781788399081', 'Learning PHP 7', 320, 'Learn PHP 7 with this practical and easy-to-follow guide.', 'English', '/images/php.jpg', 'PHP, web development'),
+    ('9781593275990', 'Eloquent JavaScript', 472, 'A modern introduction to programming with JavaScript.', 'English', '/images/javascript.jpg', 'JavaScript, web development'),
+    ('9781492040408', 'Python for Data Analysis', 544, 'A practical guide to processing, analyzing, and visualizing data using Python.', 'English', '/images/python.jpg', 'Python, data analysis'),
+    ('9780132350884', 'Head First Design Patterns', 676, 'A brain-friendly guide to understanding design patterns in software development.', 'English', '/images/designpatterns.jpg', 'Software development, programming'),
+    ('9780262033858', 'Introduction to Algorithms', 1312, 'A comprehensive introduction to algorithms and their analysis.', 'English', '/images/algorithms.jpg', 'Algorithms, computer science'),
+    ('9780132350874', 'Refactoring', 448, 'Improving the design of existing code.', 'English', '/images/refactoring.jpg', 'Software development, programming'),
+    ('9780321933883', 'Effective Java', 416, 'A guide to writing high-quality, robust Java code.', 'English', '/images/effectivejava.jpg', 'Java, programming'),
+    ('9781449343033', 'Learning Python', 384, 'Powerful Object-Oriented Programming', 'English', '/images/learningpython.jpg', 'Python, programming'),
+    ('9780262033898', 'The C Programming Language', 272, 'A classic introduction to C programming.', 'English', '/images/c.jpg', 'C programming, computer science'),
+    ('9780321205681', 'Agile Software Development', 624, 'The Cooperative Game', 'English', '/images/agile.jpg', 'Agile software development, project management'),
+    ('9781789349868', 'Deep Learning with TensorFlow 2 and Keras', 596, 'Beginner\'s Guide to Artificial Intelligence and Machine Learning', 'English', '/images/deeplearning.jpg', 'Deep learning, artificial intelligence'),
+    ('9781491989388', 'Hands-On Machine Learning with Scikit-Learn and TensorFlow', 596, 'Concepts, Tools, and Techniques to Build Intelligent Systems', 'English', '/images/hands-on-ml.jpg', 'Machine learning, artificial intelligence'),
+    ('9781839213470', 'Java 17 Quick Start Guide', 266, 'Get up to speed with Java programming in a quick and effective way', 'English', '/images/java17.jpg', 'Java, programming'),
+    ('9781838559333', 'Hands-On Microservices with Spring Boot and Spring Cloud', 374, 'Discover the world of microservices with Spring Boot and Spring Cloud', 'English', '/images/microservices.jpg', 'Microservices, Spring Boot, Spring Cloud'),
+    ('9781492078722', 'Hands-On Rust', 444, 'Effective learning through practical projects, recipes, and examples', 'English', '/images/rust.jpg', 'Rust programming, programming'),
+    ('9780262033848', 'Introduction to Algorithms', 1312, 'A comprehensive introduction to algorithms and their analysis.', 'English', '/images/algorithms.jpg', 'Algorithms, computer science'),
+    ('9781617294136', 'Deep Learning with PyTorch', 520, 'A practical approach to building neural network models with PyTorch.', 'English', '/images/pytorch.jpg', 'Deep learning, artificial intelligence'),
+    ('9780134706054', 'Java Concurrency in Practice', 432, 'A guide to developing safe and scalable concurrent applications in Java.', 'English', '/images/javaconcurrency.jpg', 'Java, concurrency'),
 	('9781617295492', 'Grokking Deep Learning', 536, 'A beginner-friendly introduction to deep learning with TensorFlow and Keras.', 'English', '/images/grokkingdl.jpg', 'Deep learning, artificial intelligence'),
-	('9781491978917', 'Kubernetes: Up and Running', 202, 'A guide to deploying, scaling, and managing containerized applications with Kubernetes.', 'English', '/images/kubernetes.jpg', 'Kubernetes, containerization'),
-	('9781838987641', 'Mastering TypeScript 4', 638, 'A comprehensive guide to TypeScript, including advanced concepts like decorators and generics.', 'English', '/images/typescript.jpg', 'TypeScript, programming'),
+    ('9781491978917', 'Kubernetes: Up and Running', 202, 'A guide to deploying, scaling, and managing containerized applications with Kubernetes.', 'English', '/images/kubernetes.jpg', 'Kubernetes, containerization'),
+    ('9781838987641', 'Mastering TypeScript 4', 638, 'A comprehensive guide to TypeScript, including advanced concepts like decorators and generics.', 'English', '/images/typescript.jpg', 'TypeScript, programming'),
 	('9780141182801', 'To Kill a Mockingbird', 281, 'A classic novel set in the American South during the 1930s.', 'English', 'path/to/image1.jpg', 'racism, justice'),
 	('9780679745587', 'One Hundred Years of Solitude', 417, 'A landmark novel in the magical realism genre.', 'Spanish', 'path/to/image2.jpg', 'family, history'),
 	('9780385472579', 'The Alchemist', 163, 'A spiritual tale about a shepherd boy on a journey to find treasure.', 'Portuguese', 'path/to/image3.jpg', 'adventure, self-discovery'),
@@ -60,7 +60,7 @@ INSERT INTO publisher (publisher_name) VALUES
 	('Hachette Livre'),
 	('Macmillan Publishers');
 
-INSERT INTO book_publisher (publisher_id, ISBN) VALUES
+INSERT INTO book_publisher (publisher_id, book_id) VALUES
 (4,1),
 (2,2),
 (3,3),
@@ -265,45 +265,21 @@ INSERT INTO book_author(author_id, book_id) VALUES
 (16,49),
 (11,50);
 
-
-INSERT INTO review (user_id, book_id, review_text, rating)
-VALUES (1, 2, 'This book was a page-turner', 4),
-       (2, 5, 'One of the best books I\'ve ever read', 5),
-       (3, 8, 'Didn\'t live up to the hype', 2),
-       (4, 12, 'A good book, but not my favorite', 3),
-       (5, 20, 'I couldn\'t put this book down', 5),
-       (6, 25, 'The ending left me wanting more', 4),
-       (7, 30, 'The writing was beautiful, but the plot was slow', 3),
-       (8, 35, 'This book made me cry', 5),
-       (9, 40, 'I found this book to be very thought-provoking', 4),
-       (10, 45, 'The characters were well-developed', 4),
-       (11, 50, 'This book was a bit predictable', 3),
-       (12, 15, 'A great coming-of-age story', 4),
-       (13, 18, 'The twists and turns kept me on the edge of my seat', 5),
-       (14, 23, 'I wasn\'t a fan of the writing style', 2),
-       (15, 27, 'This book was an emotional rollercoaster', 5),
-       (16, 33, 'I would recommend this book to anyone', 5),
-       (17, 39, 'The world-building was fantastic', 4),
-       (18, 42, 'This book fell short of my expectations', 3),
-       (19, 46, 'I couldn\'t connect with the main character', 2),
-       (20, 49, 'This book was a bit slow-paced', 3);
-
-
 INSERT INTO school_unit (school_id, name, city, address, phone_number, email, principal, lib_manager) VALUES
     (1, 'High School', 'New York', '123 Main St', '2101234567', 'highschool@school.edu', 'David Johnson', 'Dick Brown'),
     (2, 'Middle School', 'Los Angeles', '456 Oak St', '2102345678', 'middleschool@school.edu', 'Felicity Smith', 'Bruce Lee'),
-    (3, 'Primary School', 'Philadelphia', '789 St Paddy\'s St', '2103456789', 'primaryschool@school.edu', 'Ronald McDonald', 'Charlie Kelly')
-    
+	(3, 'Primary School', 'Philadelphia', '789 St Paddy\'s St', '2103456789', 'primaryschool@school.edu', 'Ronald McDonald', 'Charlie Kelly');
+
 
 INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role, age, active, pending)
-VALUES 
-('user01', 'p@ssword1', 1, 'John', 'Doe', '1990-01-01', 'm', 31, TRUE, FALSE),
-('user02', 'p@ssword2', 2, 'Jane', 'Doe', '1995-05-05', 'm', 26, TRUE, FALSE),
-('user03', 'p@ssword3', 1, 'Bob', 'Smith', '1985-12-25', 's', 36, TRUE, FALSE),
-('user04', 'p@ssword4', 2, 'Sarah', 'Johnson', '1980-10-10', 's', 41, TRUE, FALSE),
-('user05', 'p@ssword5', 3, 'Michael', 'Brown', '1999-02-28', 'm', 24, TRUE, FALSE),
+VALUES
+('user01', 'p@ssword1', 1, 'John', 'Doe', '1990-01-01', 's', 31, TRUE, FALSE),
+('user02', 'p@ssword2', 2, 'Jane', 'Doe', '1995-05-05', 's', 26, TRUE, FALSE),
+('user03', 'p@ssword3', 1, 'Bob', 'Smith', '1985-12-25', 'l', 36, TRUE, FALSE),
+('user04', 'p@ssword4', 2, 'Sarah', 'Johnson', '1980-10-10', 'l', 41, TRUE, FALSE),
+('user05', 'p@ssword5', 3, 'Michael', 'Brown', '1999-02-28', 's', 24, TRUE, FALSE),
 ('user06', 'p@ssword6', 1, 'Emily', 'Davis', '2000-11-11', 't', 23, TRUE, FALSE),
-('user07', 'p@ssword7', 3, 'William', 'Wilson', '1975-07-15', 's', 48, TRUE, FALSE),
+('user07', 'p@ssword7', 3, 'William', 'Wilson', '1975-07-15', 'l', 48, TRUE, FALSE),
 ('user08', 'p@ssword8', 2, 'Sophie', 'Green', '2002-04-20', 't', 21, TRUE, FALSE),
 ('user09', 'p@ssword9', 1, 'Oliver', 'Taylor', '1988-08-08', 's', 33, TRUE, FALSE),
 ('user10', 'p@ssword10', 3, 'Isabella', 'Anderson', '2005-09-16', 't', 18, TRUE, FALSE),
@@ -351,7 +327,30 @@ VALUES
 ('user52', 'p@ssword52', 2, 'Aiden', 'Young', '1997-12-06', 't', 26, TRUE, FALSE),
 ('user53', 'p@ssword53', 1, 'Aubrey', 'Wright', '2000-06-18', 's', 23, TRUE, FALSE),
 ('user54', 'p@ssword54', 3, 'Logan', 'Nelson', '1991-04-14', 's', 32, TRUE, FALSE),
-('user55', 'p@ssword55', 2, 'Luna', 'Lee', '2004-09-02', 's', 19, TRUE, FALSE)
+('user55', 'p@ssword55', 2, 'Luna', 'Lee', '2004-09-02', 's', 19, TRUE, FALSE);
+
+INSERT INTO review (user_id, book_id, review_text, rating)
+VALUES (1, 2, 'This book was a page-turner', 4),
+       (2, 5, 'One of the best books I\'ve ever read', 5),
+       (3, 8, 'Didn\'t live up to the hype', 2),
+       (4, 12, 'A good book, but not my favorite', 3),
+       (5, 20, 'I couldn\'t put this book down', 5),
+       (6, 25, 'The ending left me wanting more', 4),
+       (7, 30, 'The writing was beautiful, but the plot was slow', 3),
+       (8, 35, 'This book made me cry', 5),
+       (9, 40, 'I found this book to be very thought-provoking', 4),
+       (10, 45, 'The characters were well-developed', 4),
+       (11, 50, 'This book was a bit predictable', 3),
+       (12, 15, 'A great coming-of-age story', 4),
+       (13, 18, 'The twists and turns kept me on the edge of my seat', 5),
+       (14, 23, 'I wasn\'t a fan of the writing style', 2),
+       (15, 27, 'This book was an emotional rollercoaster', 5),
+       (16, 33, 'I would recommend this book to anyone', 5),
+       (17, 39, 'The world-building was fantastic', 4),
+       (18, 42, 'This book fell short of my expectations', 3),
+       (19, 46, 'I couldn\'t connect with the main character', 2),
+       (20, 49, 'This book was a bit slow-paced', 3);
+
 
 
 INSERT INTO availability(school_id, book_id, copies) VALUES
