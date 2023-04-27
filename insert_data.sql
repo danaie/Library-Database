@@ -219,10 +219,10 @@ INSERT INTO book_author(author_id, book_id) VALUES
 
 INSERT INTO review (user_id, book_id, review_text, rating)
 VALUES (1, 2, 'This book was a page-turner', 4),
-       (2, 5, 'One of the best books I''ve ever read', 5),
-       (3, 8, 'Didn''t live up to the hype', 2),
+       (2, 5, 'One of the best books I\'ve ever read', 5),
+       (3, 8, 'Didn\'t live up to the hype', 2),
        (4, 12, 'A good book, but not my favorite', 3),
-       (5, 20, 'I couldn''t put this book down', 5),
+       (5, 20, 'I couldn\'t put this book down', 5),
        (6, 25, 'The ending left me wanting more', 4),
        (7, 30, 'The writing was beautiful, but the plot was slow', 3),
        (8, 35, 'This book made me cry', 5),
@@ -231,12 +231,12 @@ VALUES (1, 2, 'This book was a page-turner', 4),
        (11, 50, 'This book was a bit predictable', 3),
        (12, 15, 'A great coming-of-age story', 4),
        (13, 18, 'The twists and turns kept me on the edge of my seat', 5),
-       (14, 23, 'I wasn''t a fan of the writing style', 2),
+       (14, 23, 'I wasn\'t a fan of the writing style', 2),
        (15, 27, 'This book was an emotional rollercoaster', 5),
        (16, 33, 'I would recommend this book to anyone', 5),
        (17, 39, 'The world-building was fantastic', 4),
        (18, 42, 'This book fell short of my expectations', 3),
-       (19, 46, 'I couldn''t connect with the main character', 2),
+       (19, 46, 'I couldn\'t connect with the main character', 2),
        (20, 49, 'This book was a bit slow-paced', 3);
 
 
