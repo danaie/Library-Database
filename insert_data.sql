@@ -1,4 +1,3 @@
-
 INSERT INTO book (ISBN, title, page_number, summary, lang, image_path, key_words)
 VALUES
     ('9781788399081', 'Learning PHP 7', 320, 'Learn PHP 7 with this practical and easy-to-follow guide.', 'English', '/images/php.jpg', 'PHP, web development'),
@@ -274,12 +273,12 @@ INSERT INTO school_unit (school_id, name, city, address, phone_number, email, pr
 INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role, age, active, pending)
 VALUES
 ('user01', 'p@ssword1', 1, 'John', 'Doe', '1990-01-01', 's', 31, TRUE, FALSE),
-('user02', 'p@ssword2', 2, 'Jane', 'Doe', '1995-05-05', 'm', 26, TRUE, FALSE),
-('user03', 'p@ssword3', 1, 'Bob', 'Smith', '1985-12-25', 'm', 36, TRUE, FALSE),
-('user04', 'p@ssword4', 2, 'Sarah', 'Johnson', '1980-10-10', 's', 41, TRUE, FALSE),
-('user05', 'p@ssword5', 3, 'Michael', 'Brown', '1999-02-28', 'm', 24, TRUE, FALSE),
+('user02', 'p@ssword2', 2, 'Jane', 'Doe', '1995-05-05', 's', 26, TRUE, FALSE),
+('user03', 'p@ssword3', 1, 'Bob', 'Smith', '1985-12-25', 'l', 36, TRUE, FALSE),
+('user04', 'p@ssword4', 2, 'Sarah', 'Johnson', '1980-10-10', 'l', 41, TRUE, FALSE),
+('user05', 'p@ssword5', 3, 'Michael', 'Brown', '1999-02-28', 's', 24, TRUE, FALSE),
 ('user06', 'p@ssword6', 1, 'Emily', 'Davis', '2000-11-11', 't', 23, TRUE, FALSE),
-('user07', 'p@ssword7', 3, 'William', 'Wilson', '1975-07-15', 's', 48, TRUE, FALSE),
+('user07', 'p@ssword7', 3, 'William', 'Wilson', '1975-07-15', 'l', 48, TRUE, FALSE),
 ('user08', 'p@ssword8', 2, 'Sophie', 'Green', '2002-04-20', 't', 21, TRUE, FALSE),
 ('user09', 'p@ssword9', 1, 'Oliver', 'Taylor', '1988-08-08', 's', 33, TRUE, FALSE),
 ('user10', 'p@ssword10', 3, 'Isabella', 'Anderson', '2005-09-16', 't', 18, TRUE, FALSE),
@@ -454,3 +453,21 @@ INSERT INTO availability(school_id, book_id, copies) VALUES
 (1,14,19),
 (3,46,27),
 (3,35,91);
+
+INSERT INTO service (user_id, book_id, service_type, service_date) VALUES
+	(2, 45, 'b', '2023-04-20'),
+    (10, 3, 'b', '2023-04-10'),
+    (25, 18, 'b', '2023-04-18'),
+    (36, 34, 'b', '2023-04-21'),
+    (47, 9, 'r', '2023-04-14'),
+    (20, 39, 'r', '2023-04-01'),
+    (50, 49, 'b', '2023-04-12');
+    
+INSERT INTO borrow_log (user_id, book_id, borrow_date) VALUES
+	(2, 45, '2022-04-20'),
+    (10, 3, '2021-03-10'),
+    (25, 18, '2020-09-18'),
+    (36, 34, '2021-05-21'),
+    (47, 9, '2019-12-14'),
+    (20, 39, '2018-02-01'),
+    (50, 49, '2016-01-12');
