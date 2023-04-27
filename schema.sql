@@ -39,12 +39,12 @@ CREATE TABLE category (
 
 CREATE TABLE book_category (
     category_id INT,
-    ISBN INT,
+    book_id INT,
     FOREIGN KEY (category_id)
         REFERENCES category (category_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (ISBN)
-        REFERENCES book (ISBN)
+    FOREIGN KEY (book_id)
+        REFERENCES book (book_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
