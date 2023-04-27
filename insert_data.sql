@@ -54,6 +54,15 @@ VALUES (
 );
 
 
+INSERT INTO publisher (publisher_name) VALUES (
+	('Penguin Random House'),
+	('HarperCollins'),
+	('Simon & Schuster'),
+	('Hachette Livre'),
+	('Macmillan Publishers')
+);
+
+
 INSERT INTO category (category_name) VALUES (
     ('Fiction'),
     ('Non-fiction'),
