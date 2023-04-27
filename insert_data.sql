@@ -66,3 +66,27 @@ INSERT INTO category (category_name) VALUES (
     ('Self-help'),
     ('Travel')
 );
+
+INSERT INTO author (author_first_name, author_last_name) VALUES (
+    ('J.K.', 'Rowling'),
+    ('Stephen', 'King'),
+    ('George R.R.', 'Martin'),
+    ('John', 'Grisham'),
+    ('Dan', 'Brown'),
+    ('Haruki', 'Murakami'),
+    ('Margaret', 'Atwood'),
+    ('Agatha', 'Christie'),
+    ('Toni', 'Morrison'),
+    ('Jane', 'Austen'),
+    ('Mark', 'Twain'),
+    ('Ernest', 'Hemingway'),
+    ('Gabriel', 'García Márquez'),
+    ('Khaled', 'Hosseini'),
+    ('Philip', 'Roth'),
+    ('J.D.', 'Salinger'),
+    ('Mary', 'Shelley'),
+    ('Herman', 'Melville'),
+    ('Leo', 'Tolstoy'),
+    ('Fyodor', 'Dostoevsky')
+);
+
