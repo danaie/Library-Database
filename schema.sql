@@ -21,12 +21,12 @@ CREATE TABLE publisher (
 
 CREATE TABLE book_publisher (
     publisher_id INT,
-    ISBN VARCHAR(13),
+    book_id INT,
     FOREIGN KEY (publisher_id)
         REFERENCES publisher (publisher_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (ISBN)
-        REFERENCES book (ISBN)
+    FOREIGN KEY (book_id)
+        REFERENCES book (book_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
