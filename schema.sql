@@ -92,7 +92,8 @@ CREATE TABLE school_unit (
 );
 
 CREATE TABLE lib_user (
-    username VARCHAR(15) PRIMARY KEY,
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(15) UNIQUE,
     password VARCHAR(20),
     school_id INT,
     first_name VARCHAR(20),
