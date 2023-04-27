@@ -4,12 +4,12 @@ use library;
 CREATE TABLE book (
     book_id INT PRIMARY KEY AUTO_INCREMENT,
     ISBN VARCHAR(13) UNIQUE,
-    title VARCHAR(40),
+    title VARCHAR(100),
     page_number INT,
     summary VARCHAR(200),
     lang VARCHAR(15),
     image_path VARCHAR(50),
-    key_words VARCHAR(40),
+    key_words VARCHAR(100),
     INDEX title_idx (title)
 );
 
@@ -68,17 +68,15 @@ CREATE TABLE book_author (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE review (
-    user_id INT,
-    book_id INT,
-    review_text VARCHAR(50),
-    rating TINYINT,
-    FOREIGN KEY (user_id)
-        REFERENCES lib_user (user_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (book_id)
-        REFERENCES book (book_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+CREATE TABLE school_unit (
+    school_id INT PRIMARY KEY,
+    name VARCHAR(20),
+    city VARCHAR(20),
+    address VARCHAR(20),
+    phone_number VARCHAR(10),
+    email VARCHAR(50),
+    principal VARCHAR(20),
+    lib_manager VARCHAR(20)
 );
 
 CREATE TABLE lib_user (
@@ -98,30 +96,18 @@ CREATE TABLE lib_user (
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-
-CREATE TABLE school_unit (
-    school_id INT PRIMARY KEY,
-    name VARCHAR(20),
-    city VARCHAR(20),
-    address VARCHAR(20),
-    phone_number VARCHAR(10),
-    email VARCHAR(20),
-    principal VARCHAR(20),
-    handler VARCHAR(20)
+CREATE TABLE review (
+    user_id INT,
+    book_id INT,
+    review_text VARCHAR(200),
+    rating TINYINT,
+    FOREIGN KEY (user_id)
+        REFERENCES lib_user (user_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (book_id)
+        REFERENCES book (book_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
-
-SELECT 
-    DATEDIFF(yy, birth_date, GETDATE()) - CASE
-        WHEN
-            DATEADD(yy,
-                    DATEDIFF(yy, birth_date, GETDATE()),
-                    birth_date) > GETDATE()
-        THEN
-            1
-        ELSE 0
-    END
-FROM
-    lib_user;
 
 CREATE TABLE availability (
     school_id INT,
