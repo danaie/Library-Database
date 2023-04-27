@@ -81,17 +81,6 @@ CREATE TABLE review (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE school_unit (
-    school_id INT PRIMARY KEY,
-    name VARCHAR(20),
-    city VARCHAR(20),
-    address VARCHAR(20),
-    phone_number VARCHAR(10),
-    email VARCHAR(20),
-    principal VARCHAR(20),
-    handler VARCHAR(20)
-);
-
 CREATE TABLE lib_user (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(15) UNIQUE,
@@ -107,6 +96,18 @@ CREATE TABLE lib_user (
     FOREIGN KEY (school_id)
         REFERENCES school_unit (school_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+
+CREATE TABLE school_unit (
+    school_id INT PRIMARY KEY,
+    name VARCHAR(20),
+    city VARCHAR(20),
+    address VARCHAR(20),
+    phone_number VARCHAR(10),
+    email VARCHAR(20),
+    principal VARCHAR(20),
+    handler VARCHAR(20)
 );
 
 SELECT 
