@@ -2,7 +2,7 @@ create database library;
 use library;
 
 CREATE TABLE book (
-    book_id INT PRIMARY KEY,
+    book_id INT PRIMARY KEY AUTO_INCREMENT,
     ISBN VARCHAR(13) UNIQUE,
     title VARCHAR(40),
     page_number INT,
