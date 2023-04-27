@@ -2,7 +2,8 @@ create database library;
 use library;
 
 CREATE TABLE book (
-    ISBN VARCHAR(13) PRIMARY KEY,
+    book_id INT PRIMARY KEY,
+    ISBN VARCHAR(13) UNIQUE,
     title VARCHAR(40),
     page_number INT,
     summary VARCHAR(200),
@@ -134,12 +135,12 @@ CREATE TABLE availability (
 );
 
 CREATE TABLE service (
-    username VARCHAR(15),
+    user_id INT,
     book_id INT,
     service_type VARCHAR(1),
     service_date DATE,
-    FOREIGN KEY (username)
-        REFERENCES lib_user (username)
+    FOREIGN KEY (user_id)
+        REFERENCES lib_user (user_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
@@ -147,11 +148,11 @@ CREATE TABLE service (
 );
 
 CREATE TABLE borrow_log (
-    username VARCHAR(15),
+    user_id INT,
     book_id INT,
     borrow_date DATE,
-    FOREIGN KEY (username)
-        REFERENCES lib_user (username)
+    FOREIGN KEY (user_id)
+        REFERENCES lib_user (user_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
