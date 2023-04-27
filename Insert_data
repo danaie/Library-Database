@@ -1,0 +1,12 @@
+INSERT INTO category (category_name) VALUES (
+    ('Fiction'),
+    ('Non-fiction'),
+    ('Mystery'),
+    ('Romance'),
+    ('Sci-Fi'),
+    ('Fantasy'),
+    ('Biography'),
+    ('History'),
+    ('Self-help'),
+    ('Travel')
+);
