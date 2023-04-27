@@ -68,12 +68,12 @@ CREATE TABLE book_author (
 );
 
 CREATE TABLE review (
-    username VARCHAR(15),
+    user_id INT,
     ISBN VARCHAR(13),
     review_text VARCHAR(50),
     rating TINYINT,
-    FOREIGN KEY (username)
-        REFERENCES lib_user (username)
+    FOREIGN KEY (user_id)
+        REFERENCES lib_user (user_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (ISBN)
         REFERENCES book (ISBN)
