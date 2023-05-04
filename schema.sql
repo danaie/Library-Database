@@ -170,15 +170,21 @@ CREATE UNIQUE INDEX category_idx ON category (category_name);
 
 CREATE VIEW school_books AS
     (SELECT 
-        * from book b
+        b.title, CONCAT(auth.author_first_name, ' ', auth.author_last_name), pub.publisher_name, sch.name, a.copies 
+		from book b
         inner join availability a
-        on a.book_id = b.book_id
+        on b.book_id = a.book_id
         inner join school_unit sch
         on sch.school_id = a.school_id
-        inner join lib_user u
-        where u.school_id = sch.school_id
+        inner join book_publisher bp
+        on b.book_id = bp.book_id
+        inner join publisher pub
+        on pub.publisher_id = bp.publisher_id
+        inner join book_author ba
+        on ba.book_id = b.book_id
+        inner join author auth
+        on auth.author_id = ba.author_id
 	);
-
 
 -- --------
 -- Triggers
