@@ -13,7 +13,7 @@ def about():
 	return render_template('about.html')
 
 @app.route("/login")
-def about():
+def login():
 	return render_template('login.html')
 
 if (__name__ == '__main__'):
