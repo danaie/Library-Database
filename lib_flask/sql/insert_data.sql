@@ -329,7 +329,6 @@ VALUES
 ('user54', 'p@ssword54', 3, 'Logan', 'Nelson', '1991-04-14', 's', TRUE, FALSE),
 ('user55', 'p@ssword55', 2, 'Luna', 'Lee', '2004-09-02', 's', TRUE, FALSE);
 
-ALTER TABLE lib_user DROP COLUMN age;
 
 INSERT INTO review (user_id, book_id, review_text, rating)
 VALUES (1, 2, 'This book was a page-turner', 4),
