@@ -1,0 +1,18 @@
+{% extends "layout.html"%}
+
+{% block content %}
+	<h1>Available books</h1>
+	{% for book in books %}
+		<h2>{{ book.title }}</h2>
+	<p>	{% for auth in book.author %}
+			Author {{ auth }}
+		{% endfor %}
+		Publisher: {{ book.publisher }} <br>
+		Category: {{ book.category }}
+		Summary: {{ book.summary }} <br>
+		{% for key in book.keys %}
+			Key words: {{ key }}
+		{% endfor %}
+		Available copies: {{ book.copies }}
+	{% endfor %}
+{% endblock %}
