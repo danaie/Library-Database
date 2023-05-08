@@ -4,24 +4,23 @@
 create database library;
 use library;
 
-
 -- -------------
 -- Create tables
 ----------------
 CREATE TABLE book (
     book_id INT PRIMARY KEY auto_increment,
-    ISBN VARCHAR(13) UNIQUE,
-    title VARCHAR(100),
-    page_number INT,
-    summary VARCHAR(200),
-    lang VARCHAR(15),
-    image_path VARCHAR(50),
+    ISBN VARCHAR(13) UNIQUE NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    page_number INT NOT NULL,
+    summary VARCHAR(200) DEFAULT 'No summary available.',
+    lang VARCHAR(15) NOT NULL,
+    image_path VARCHAR(100) GENERATED ALWAYS AS (CONCAT('https://covers.openlibrary.org/b/isbn/', ISBN, '-L.jpg')),
     key_words VARCHAR(100)
 );
 
 CREATE TABLE publisher (
     publisher_id INT AUTO_INCREMENT,
-    publisher_name VARCHAR(20),
+    publisher_name VARCHAR(20) UNIQUE NOT NULL,
     PRIMARY KEY (publisher_id)
 );
 
@@ -38,7 +37,7 @@ CREATE TABLE book_publisher (
 
 CREATE TABLE category (
     category_id INT NOT NULL AUTO_INCREMENT,
-    category_name VARCHAR(15),
+    category_name VARCHAR(15) UNIQUE NOT NULL,
     PRIMARY KEY (category_id)
 );
 
@@ -55,8 +54,8 @@ CREATE TABLE book_category (
 
 CREATE TABLE author (
     author_id INT NOT NULL AUTO_INCREMENT,
-    author_first_name VARCHAR(20),
-    author_last_name VARCHAR(20),
+    author_first_name VARCHAR(20) NOT NULL,
+    author_last_name VARCHAR(20) NOT NULL,
     PRIMARY KEY (author_id)
 );
 
@@ -73,27 +72,27 @@ CREATE TABLE book_author (
 
 CREATE TABLE school_unit (
     school_id INT PRIMARY KEY,
-    name VARCHAR(20),
-    city VARCHAR(20),
-    address VARCHAR(20),
-    phone_number VARCHAR(10),
-    email VARCHAR(50),
-    principal VARCHAR(20),
-    lib_manager VARCHAR(20)
+    name VARCHAR(20) UNIQUE NOT NULL,
+    city VARCHAR(20) NOT NULL,
+    address VARCHAR(20) NOT NULL,
+    phone_number VARCHAR(10) UNIQUE NOT NULL,
+    email VARCHAR(50) UNIQUE NOT NULL,
+    principal VARCHAR(20) NOT NULL,
+    lib_manager VARCHAR(20) NOT NULL,
+    CHECK (email LIKE '%_@_%._%')
 );
 
 CREATE TABLE lib_user (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(15) UNIQUE,
-    password VARCHAR(20),
+    username VARCHAR(15) UNIQUE NOT NULL,
+    password VARCHAR(20) NOT NULL,
     school_id INT,
-    first_name VARCHAR(20),
-    last_name VARCHAR(20),
-    birth_date DATE,
-    user_role VARCHAR(1),
-    age INT,
-    active BOOLEAN,
-    pending BOOLEAN,
+    first_name VARCHAR(20) NOT NULL,
+    last_name VARCHAR(20) NOT NULL,
+    birth_date DATE NOT NULL,
+    user_role VARCHAR(1) NOT NULL,
+    active BOOLEAN DEFAULT 0,
+    pending BOOLEAN DEFAULT 1,
     FOREIGN KEY (school_id)
         REFERENCES school_unit (school_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
@@ -103,7 +102,7 @@ CREATE TABLE review (
     user_id INT,
     book_id INT,
     review_text VARCHAR(200),
-    rating TINYINT,
+    rating TINYINT NOT NULL,
     FOREIGN KEY (user_id)
         REFERENCES lib_user (user_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -121,14 +120,15 @@ CREATE TABLE availability (
         ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT copies_gr_zero CHECK (copies > 0)
 );
 
 CREATE TABLE service (
     user_id INT,
     book_id INT,
-    service_type VARCHAR(1),
-    service_date DATE,
+    service_type VARCHAR(1) NOT NULL,
+    service_date DATE NOT NULL DEFAULT (CURRENT_DATE),
     FOREIGN KEY (user_id)
         REFERENCES lib_user (user_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -140,7 +140,7 @@ CREATE TABLE service (
 CREATE TABLE borrow_log (
     user_id INT,
     book_id INT,
-    borrow_date DATE,
+    borrow_date DATE NOT NULL,
     FOREIGN KEY (user_id)
         REFERENCES lib_user (user_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -150,18 +150,6 @@ CREATE TABLE borrow_log (
 );
 
 
--- -------
--- Indexes
-----------
-CREATE UNIQUE INDEX title_idx ON book (title);
-
-CREATE UNIQUE INDEX publisher_idx ON publisher (publisher_name);
-
-CREATE UNIQUE INDEX author_idx ON author (author_last_name);
-
-CREATE UNIQUE INDEX borrow_log_idx ON borrow_log (user_id);
-
-CREATE UNIQUE INDEX category_idx ON category (category_name);
 
 
 -- -----
@@ -169,32 +157,57 @@ CREATE UNIQUE INDEX category_idx ON category (category_name);
 -- ------
 
 CREATE VIEW school_books AS
+    (SELECT 
+        b.title,
+        sch.name,
+        CONCAT(auth.author_first_name,
+                ' ',
+                auth.author_last_name),
+        pub.publisher_name
+    FROM
+        book b
+            INNER JOIN
+        availability a ON b.book_id = a.book_id
+            INNER JOIN
+        school_unit sch ON sch.school_id = a.school_id
+            INNER JOIN
+        book_publisher bp ON b.book_id = bp.book_id
+            INNER JOIN
+        publisher pub ON pub.publisher_id = bp.publisher_id
+            INNER JOIN
+        book_author ba ON ba.book_id = b.book_id
+            INNER JOIN
+        author auth ON auth.author_id = ba.author_id
+    GROUP BY b.title , sch.name , CONCAT(auth.author_first_name,
+            ' ',
+            auth.author_last_name) , pub.publisher_name , a.copies);
+
+
+CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
     SELECT 
-        * from book b
-        inner join availability a
-        on a.book_id = b.book_id
-        inner join school_unit sch
-        on sch.school_id = a.school_id
-        inner join lib_user u
-        where u.school_id = sch.school_id
-        GROUP BY u.user_id;
-
-
-CREATE VIEW tot_loans AS
-    SELECT
         sch.name AS 'School Name',
-        count(*) AS 'Number of Loans', 
+        COUNT(*) AS 'Number of Loans',
         MONTH(b.borrow_date) AS 'Month',
         YEAR(b.borrow_date) AS 'Year'
-        FROM school_unit sch
-        INNER JOIN lib_user u
-        ON u.school_id = sch.school_id
-        INNER JOIN borrow_log b
-        WHERE b.user_id = u.user_id
-        GROUP BY MONTH(b.borrow_date), sch.name;
+    FROM
+        school_unit sch
+            INNER JOIN
+        lib_user u ON u.school_id = sch.school_id
+            INNER JOIN
+        borrow_log b
+    WHERE
+        b.user_id = u.user_id
+    GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
 
 
+-- -------
+-- Indexes
+----------
+CREATE UNIQUE INDEX title_idx ON book (title);
 
+CREATE UNIQUE INDEX author_idx ON author (author_last_name, author_first_name);
+
+CREATE UNIQUE INDEX borrow_log_idx ON borrow_log (user_id);
 
 -- --------
 -- Triggers
@@ -204,22 +217,15 @@ delimiter $$
 CREATE TRIGGER trans_to_log BEFORE DELETE ON service
 FOR EACH ROW
 BEGIN
-INSERT INTO borrow_log
-VALUES (OLD.user_id, OLD.book_id, OLD.service_date);
+IF (OLD.service_type = 'r') THEN
+	INSERT INTO borrow_log
+	VALUES (OLD.user_id, OLD.book_id, OLD.service_date);
+END IF;
 END; $$
 delimiter ;
 
 
--- ------
--- Events
--- ------
-
 CREATE EVENT reserv_event
 ON SCHEDULE EVERY 1 DAY
 DO
-FOR EACH ROW ON SERVICE
-BEGIN
-   IF (DATEDIFF(DAY, CURRENT_DATE, THIS.service_date) > 7) THEN
-    DELETE ROW;
-    END IF;
-END;
+    DELETE FROM service WHERE DATEDIFF(CURRENT_DATE, service_date) > 7;
