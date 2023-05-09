@@ -31,3 +31,11 @@ def login():
     	else:
     		flash('Login Unsuccesful')
     return render_template('login.html', form=form)
+
+@app.route('/info/<isbn>')
+def info(isbn):
+    cur = db.connect.cursor()
+    cur.execute("SELECT * FROM book_info WHERE ISBN = %s",(isbn,))
+    book = cur.fetchall()
+    cur.close()
+    return render_template("info.html", book=book)
