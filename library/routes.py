@@ -8,9 +8,16 @@ from library.configs import app
 def home():
 	return render_template('home.html')
 
-@app.route("/books")
-def books():
-	return render_template('av_books.html')
+@app.route('/books')
+def new():
+    if session:
+        cur = db.connect.cursor()
+        cur.execute("SELECT ISBN, title, copies FROM school_books WHERE school_id=%s",(session['school_id'],))
+        data = cur.fetchall()
+        cur.close()
+        return render_template("books_av.html",data=data)
+    else:
+        return render_template("home.html") #dummy
 
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
