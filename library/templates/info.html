@@ -1,0 +1,21 @@
+{% extends "layout.html"%}
+
+{% block content %}
+	<h1>Book Info</h1>
+	<h2>{{ book[0][1] }}</h2>
+	<p>	<b>Author:</b>
+		{% for auth in book %} 
+			{{ auth[2] }},
+		{% endfor %} <br>
+		<b>Publisher:</b> {{ book[0][3] }}, <br>
+		<b>Category:</b> {{ book[0][4]}}, <br>
+		<b>Page Number:</b> {{ book[0][5] }}, <br>
+		<b>Summary:</b> {{ book[0][6] }}, <br>
+		<b>Language:</b> {{ book[0][7] }}, <br>
+		<b>Image path:</b> <a href="{{ book[0][8] }}">{{ book[0][8] }} </a> <br>
+		<b>Key words:</b> {{ book[0][9] }} <br>
+
+	</p>
+{% endblock %}
+
+
