@@ -76,6 +76,20 @@
 					{% endif %}
 				</div>
 				<div>
+					{{ form.school.label() }}
+					{% if form.school.errors %}
+						{{ form.school }}
+						<div>
+							{% for error in form.school.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.school }}
+					{% endif %}
+				</div>
+				<div>
 					{{ form.password.label() }}
 					{% if form.password.errors %}
 						{{ form.password }}
