@@ -55,8 +55,11 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear()
-    flash('You have been logged out')
+    if session.get('username'):
+        session.clear()
+        flash('You have been logged out')
+    else:
+        flash("You are not logged in")
     return redirect(url_for('index'))
 
 
