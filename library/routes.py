@@ -28,39 +28,30 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-'''
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    form = Login_form()
-    if form.validate_on_submit():
-    	if form.username.data == 'admin' and form.password.data == 'admin':
-    		flash('You have been logged in', 'success')
-    		return redirect(url_for('home'))
-    	else:
-    		flash('Login Unsuccesful')
-    return render_template('login.html', form=form)
- '''
-
-@app.route("/login", methods=['GET', 'POST'])
-def login():
-    form = Login_form()
-    if (request.method=='POST'):
-        cur = db.connect.cursor()
-        cur.execute("SELECT * FROM lib_user WHERE username=%s AND password=%s",(request.form['username'],request.form['password'],))
-        user = cur.fetchone()
-        if user:
-            session['logged_in'] = True
-            session['username'] = user[1]
-            session['school_id'] = user[3]
-            session['first_name'] = user[4]
-            session['last_name'] = user[5]
-            flash('You have been logged in', 'success')
-            return redirect(url_for("index"))
+    if not session.get('username'): 
+        form = Login_form()
+        if (request.method=='POST'):
+            cur = db.connect.cursor()
+            cur.execute("SELECT * FROM lib_user WHERE username=%s AND password=%s",(request.form['username'],request.form['password'],))                
+            user = cur.fetchone()
+            if user:
+                session['username'] = user[1]
+                session['school_id'] = user[3]          
+                session['first_name'] = user[4]
+                session['last_name'] = user[5]
+                flash('You have been logged in', 'success')
+                return redirect(url_for("index"))
+            else:
+                    flash('Login Unsuccesful')
+                    return render_template('login.html', form=form)
         else:
-            flash('Login Unsuccesful')
             return render_template('login.html', form=form)
     else:
-        return render_template('login.html', form=form)
+        flash('You are already logged in')
+    return redirect(url_for("index"))
+
 
 @app.route('/logout')
 def logout():
