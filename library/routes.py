@@ -21,12 +21,18 @@ def new():
 
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
+    cur = db.connect.cursor()
+    cur.execute("SELECT name, school_id  FROM school_unit")
+    r = cur.fetchall()
+    school = [] # this gets passed into the SelectField() choices
+    for el in r:
+        school.append(el[0])
     form = Signup_form()
+    form.school.choices = school
     if form.validate_on_submit():
     	flash('Account Created', 'success')
     	return redirect(url_for('home'))
     return render_template('signup.html', form=form)
-
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -42,7 +48,7 @@ def login():
                 session['first_name'] = user[4]
                 session['last_name'] = user[5]
                 flash('You have been logged in', 'success')
-                return redirect(url_for("index"))
+                return redirect(url_for("home"))
             else:
                     flash('Login Unsuccesful')
                     return render_template('login.html', form=form)
@@ -50,7 +56,7 @@ def login():
             return render_template('login.html', form=form)
     else:
         flash('You are already logged in')
-    return redirect(url_for("index"))
+    return redirect(url_for("home"))
 
 
 @app.route('/logout')
@@ -60,7 +66,7 @@ def logout():
         flash('You have been logged out')
     else:
         flash("You are not logged in")
-    return redirect(url_for('index'))
+    return redirect(url_for('home'))
 
 
 @app.route('/info/<isbn>')
