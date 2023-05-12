@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign Up</title>
+    <style>
+      body {
+        background-color: #f2f2f2;
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+
+      h1 {
+        color: #333333;
+        font-size: 3em;
+        margin-top: 0;
+        padding-top: 2em;
+      }
+
+      form {
+        background-color: #ffffff;
+        border: 1px solid #cccccc;
+        border-radius: 8px;
+        display: inline-block;
+        margin-top: 2em;
+        padding: 2em;
+        text-align: left;
+      }
+
+      label {
+        display: block;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 0.5em;
+      }
+
+      input[type=text],
+      input[type=date],
+      select {
+        border-radius: 8px;
+        font-size: 1.2em;
+        padding: 0.5em;
+        width: 100%;
+      }
+
+      input[type=submit] {
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-size: 1.2em;
+        padding: 1em 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sign Up</h1>
+    <form action="/submit_form" method="post">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+
+      <label for="password1">Password:</label>
+      <input type="password" id="password1" name="password1" required>
+
+      <label for="password2">Confirm Password:</label>
+      <input type="password" id="password2" name="password2" required>
+
+      <label for="firstname">First Name:</label>
+      <input type="text" id="firstname" name="firstname" required>
+
+      <label for="lastname">Last Name:</label>
+      <input type="text" id="lastname" name="lastname" required>
+
+      <label for="birthdate">Birth Date:</label>
+      <input type="date" id="birthdate" name="birthdate" required>
+
+      <label for="userrole">User Role:</label>
+      <select id="userrole" name="userrole" required>
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+      </select>
+
+      <label for="schoolid">School ID:</label>
+      <select id="schoolid" name="schoolid" required>
+        <option value="1">School 1</option>
+        <option value="2">School 2</option>
+        <option value="3">School 3</option>
+      </select>
+
+      <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        const form = document.querySelector('form');
+        const password1 = document.querySelector('#password1');
+        const password2 = document.querySelector('#password2');
+      
+        form.addEventListener('submit', (event) => {
+          if (password1.value !== password2.value) {
+            event.preventDefault();
+            alert("Passwords don't match!");
+          }
+        });
+      </script>
+  </body>
+</html>
+
+

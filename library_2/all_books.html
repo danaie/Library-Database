@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Library Books</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th, td {
+        text-align: left;
+        padding: 8px;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      th {
+        background-color: #4CAF50;
+        color: white;
+      }
+
+      .search-container {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .search-input {
+        padding: 8px;
+        width: 300px;
+      }
+
+      .search-button {
+        padding: 8px 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Library Books</h1>
+    <div class="search-container">
+      <input type="text" id="search-input" class="search-input" placeholder="Search by title...">
+      <button onclick="searchBooks()" class="search-button">Search</button>
+    </div>
+    <table>
+        <tr>
+          <th>ID</th>
+          <th>ISBN</th>
+          <th>Title</th>
+          <th>Pages</th>
+          <th>Summary</th>
+          <th>Language</th>
+          <th>Image</th>
+          <th>Keywords</th>
+          <th>Action</th> 
+        </tr>
+        {% for book in data %}
+        <tr>
+          <td>{{ book[0] }}</td>
+          <td>{{ book[1] }}</td>
+          <td>{{ book[2] }}</td>
+          <td>{{ book[3] }}</td>
+          <td>{{ book[4] }}</td>
+          <td>{{ book[5] }}</td>
+          <td><img src="{{ book[6] }}" alt="Book Cover"></td>
+          <td>{{ book[7] }}</td>
+          <td>
+            <button onclick="window.location.href='/service?book_id={{ book[0] }}&user_id={{ user_id }}'">Request</button>
+          </td> 
+        </tr>
+        {% endfor %}
+      </table>
+      
+
+    <script>
+      function searchBooks() {
+        var input = document.getElementById("search-input").value.toLowerCase();
+        var table = document.getElementsByTagName("table")[0];
+        var rows = table.getElementsByTagName("tr");
+        
+        for (var i = 1; i < rows.length; i++) {
+          var title = rows[i].getElementsByTagName("td")[2];
+          if (title) {
+            var text = title.textContent || title.innerText;
+            if (text.toLowerCase().indexOf(input) > -1) {
+              rows[i].style.display = "";
+            } else {
+              rows[i].style.display = "none";
+            }
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
+
