@@ -76,3 +76,38 @@ def info(isbn):
     book = cur.fetchall()
     cur.close()
     return render_template("info.html", book=book)
+
+
+@app.route('/search',methods=['GET', 'POST'])
+def search():
+    cur = db.connect.cursor()
+    cur.execute("SELECT category_name FROM category")
+    r = cur.fetchall()
+    cat = [] # this gets passed into the SelectMultipleField() choices
+    for el in r:
+        cat.append(el[0])
+    form = Search_form()
+    form.category.choices = cat
+    if form.validate_on_submit(): 
+        t = form.title.data
+        a = form.author.data
+        if form.title.data == "":
+            t = '.*'
+        elif form.author.data == "":
+            a = '.*'
+        return redirect(url_for('search_for',t=t,a=a))
+    return render_template('search.html', form=form)
+
+
+@app.route('/search/for/<t>+<a>')
+def search_for(t,a):
+    cur = db.connect.cursor()
+    cur.execute("SELECT ISBN, title, copies FROM book_info WHERE school_id = %s AND REGEXP_LIKE(title,%s) AND REGEXP_LIKE(auth,%s)",(session['school_id'],t,a,))
+    data = cur.fetchall()
+    cur.close()
+    if data:
+        return render_template('books_av.html', data = data)
+    else:
+        flash('No results availabe')
+        return redirect(url_for('search'))
+
