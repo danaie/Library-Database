@@ -87,7 +87,7 @@ def search():
     for el in r:
         cat.append(el[0])
     form = Search_form()
-    form.category.choices = cat
+    form.category.choices = cat  #category does not work
     if form.validate_on_submit(): 
         t = form.title.data
         a = form.author.data
