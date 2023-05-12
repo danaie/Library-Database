@@ -24,3 +24,9 @@ class Login_form(FlaskForm):
 		validators=[DataRequired(), Length(min=2, max=15)])
 	password = PasswordField('Password', validators=[DataRequired(),Length(max=20)])
 	submit = SubmitField('Login')
+	
+class Search_form(FlaskForm):
+	title = StringField('title')
+	author = StringField('Author')
+	category = SelectMultipleField('Category',choices=[]) #does not work
+	search = SubmitField('Search')
