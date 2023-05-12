@@ -19,7 +19,7 @@ def new():
     else:
         return render_template("home.html") #dummy
 
-@app.route("/signup", methods=['GET', 'POST'])
+'''@app.route("/signup", methods=['GET', 'POST'])
 def signup():
     cur = db.connect.cursor()
     cur.execute("SELECT name, school_id  FROM school_unit")
@@ -32,7 +32,49 @@ def signup():
     if form.validate_on_submit():
     	flash('Account Created', 'success')
     	return redirect(url_for('home'))
-    return render_template('signup.html', form=form)
+    return render_template('signup.html', form=form)'''
+
+@app.route("/signup", methods=['GET', 'POST'])
+def signup():
+    if not session.get('username'):
+        cur = db.connect.cursor()
+        cur.execute("SELECT school_id, name FROM school_unit")
+        sch = cur.fetchall()
+        cur.close()
+        schools = []
+        for el in sch:
+            schools.append(el)
+        form = Signup_form()
+        form.school.choices=schools
+        if request.method=='POST':
+            cur = db.connect().cursor()
+            cur.execute("SELECT * FROM lib_user WHERE username=%s",(form.username.data,))
+            user = cur.fetchone()
+            if user:
+                flash("Username not available")
+                return render_template('signup.html', form=form)
+            else:
+                try:
+                    cur.execute("INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role) VALUES (%s,%s,%s,%s,%s,%s,%s);",
+                                    (form.username.data,
+                                    form.password.data,
+                                    form.school.data,
+                                    form.first_name.data,
+                                    form.last_name.data,
+                                    form.birth_date.data,
+                                    's',))
+                    db.connect.commit()
+                    flash("""Sign up application has been sent to your school library manager.\n
+                    Please wait for their approval.""")
+                except Exception as e:
+                    print("Problem inserting into db: " + str(e))
+                    return render_template("signup.html", form=form)
+        else:
+            return render_template("signup.html", form=form)
+    else:
+        flash('You must be logged out in order to sign up')
+    return redirect(url_for("home"))
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -40,14 +82,22 @@ def login():
         form = Login_form()
         if (request.method=='POST'):
             cur = db.connect.cursor()
-            cur.execute("SELECT * FROM lib_user WHERE username=%s AND password=%s",(request.form['username'],request.form['password'],))                
+            cur.execute("SELECT * FROM lib_user WHERE username=%s AND password=%s"
+                        ,(request.form['username'],request.form['password'],))                
             user = cur.fetchone()
             if user:
-                session['username'] = user[1]
-                session['school_id'] = user[3]          
-                session['first_name'] = user[4]
-                session['last_name'] = user[5]
-                flash('You have been logged in', 'success')
+                if user[9]:
+                    flash("Your application is pending.")
+                elif not user[8]:
+                    flash("Your account has been deactivated.")
+                else:
+                    session['user_id'] = user[0]
+                    session['username'] = user[1]
+                    session['school_id'] = user[3]          
+                    session['first_name'] = user[4]
+                    session['last_name'] = user[5]
+                    session['user_role'] = user[7]
+                    flash('You have been logged in', 'success')
                 return redirect(url_for("home"))
             else:
                     flash('Login Unsuccesful')
@@ -57,6 +107,7 @@ def login():
     else:
         flash('You are already logged in')
     return redirect(url_for("home"))
+
 
 
 @app.route('/logout')
@@ -110,4 +161,63 @@ def search_for(t,a):
     else:
         flash('No results availabe')
         return redirect(url_for('search'))
+
+@app.route('/info/<int:book_id>')
+def info(book_id):
+    cur = db.connect.cursor()
+    cur.execute("SELECT * FROM book_info WHERE book_id=%s",(str(book_id),))
+    book = cur.fetchall()
+    cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
+    review = cur.fetchall()
+    cur.close()
+    return render_template("info.html", book=book, review = review)
+
+@app.route('/reserve/<int:book_id>')
+def reserve(book_id):
+    cur = db.connect.cursor()
+    cur.execute("UPDATE availability SET copies=copies-1 WHERE book_id=%s",((book_id),))
+    db.connect.commit()
+    cur.execute("INSERT INTO service (user_id, book_id, service_type) VALUES (%s, %s, %s)",
+                (session.get('user_id'),
+                 book_id,
+                 'r',))
+    db.connect.commit()
+    cur.close()
+    return redirect(url_for('books'))
+
+@app.route('/applications')
+def applications():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connect.cursor()
+        cur.execute("SELECT username, first_name, last_name, birth_date, user_role from lib_user WHERE active=FALSE AND pending=TRUE")
+        list = cur.fetchall()
+        cur.close()
+        return render_template("applications.html", list=list)
+    
+@app.route('/accept/<username>')
+def accept(username):
+    if session['user_role'] != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connect.cursor()
+        cur.execute("UPDATE lib_user SET active=TRUE, pending=FALSE WHERE username=%s",(username,))
+        db.connect.commit()
+        cur.close()
+        return redirect(url_for("applications"))
+
+@app.route('/loans')
+def loans():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connect.cursor()
+        cur.execute("SELECT username, first_name, last_name, user_role from lib_user WHERE ")
+        list = cur.fetchall()
+        cur.close()
+        return render_template('loans.html')
 
