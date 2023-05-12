@@ -1,0 +1,54 @@
+
+{% extends "layout.html"%}
+
+{% block content %}
+<div>
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset>
+                <legend>Serch by Title</legend>
+                <div>
+                    {{ form.title.label() }}
+                    {% if form.title.errors %}
+                        {{ form.title }}
+                        <div>
+                            {% for error in form.title.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ form.title }}
+                    {% endif %}
+                </div> 
+                <legend>Serch by Author</legend>
+                <div>
+                    {{ form.author.label() }}
+                    {% if form.author.errors %}
+                        {{ form.title }}
+                        <div>
+                            {% for error in form.author.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ form.author }}
+                    {% endif %}
+                </div> 
+                <div>
+                    {{ form.category.label() }}
+                    {% if form.category.errors %}
+                        {{ form.category }}
+                        <div>
+                            {% for error in form.category.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ form.category }}
+                    {% endif %}
+            </fieldset>
+            <div>
+                {{ form.search }}
+            </div> 
+    </div>
+{% endblock %}
