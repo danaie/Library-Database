@@ -15,7 +15,7 @@ CREATE TABLE book (
     summary VARCHAR(200) DEFAULT 'No summary available.',
     lang VARCHAR(15) NOT NULL,
     image_path VARCHAR(100) GENERATED ALWAYS AS (CONCAT('https://covers.openlibrary.org/b/isbn/', ISBN, '-L.jpg')),
-    key_words VARCHAR(100)
+    key_words VARCHAR(100) DEFAULT 'No key words available'
 );
 
 CREATE TABLE publisher (
