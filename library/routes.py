@@ -229,3 +229,76 @@ def loans():
         cur.close()
         return render_template('loans.html')
 
+@app.route('/add_book',methods=['GET', 'POST'])
+def add_book():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        try:
+            form = Book_form()
+            if request.method=='POST':
+                cur = db.connection.cursor()
+                cur.execute("SELECT book_id FROM book WHERE ISBN = %s",(form.isbn.data,))
+                b = cur.fetchall()
+                if not b:
+                    query = "INSERT INTO book (ISBN,title,page_number,summary,lang,key_words) VALUES (%s,%s,%s,%s,%s,%s)"
+                    values = (form.isbn.data, form.title.data, form.page_number.data, form.summary.data, form.lang.data, form.key_words.data,)
+                    cur.execute(query,values)
+                    print("book")
+                cur.execute("SELECT publisher_id FROM publisher WHERE publisher_name = %s",(form.publisher.data,))
+                pub = cur.fetchall()
+                if not pub:
+                    query = "INSERT INTO publisher (publisher_name) VALUES (%s)"
+                    values = (form.publisher.data,)
+                    cur.execute(query,values)
+                    print("publisher")
+                a = form.author_first_name.data + ' ' + form.author_last_name.data
+                cur.execute("SELECT author_id FROM author WHERE CONCAT(author_first_name, ' ', author_last_name) = %s",(a,))
+                auth = cur.fetchall()
+                if not auth:
+                    query = "INSERT INTO author (author_first_name, author_last_name) VALUES (%s,%s)"
+                    values = (form.author_first_name.data, form.author_last_name.data,)
+                    cur.execute(query,values)
+                    print("author")
+                cur.execute("SELECT category_id FROM category WHERE category_name = %s",(form.category.data,))
+                cat = cur.fetchall()    
+                if not cat:
+                    query = "INSERT INTO category (category_name) VALUES (%s)"
+                    values = (form.category.data,)
+                    cur.execute(query,values)
+                    print("category")
+                db.connection.commit()
+                cur.execute("SELECT book_id FROM book WHERE ISBN = %s",(form.isbn.data,))
+                b = cur.fetchall()
+                cur.execute("SELECT publisher_id FROM publisher WHERE publisher_name = %s",(form.publisher.data,))
+                pub = cur.fetchall()
+                cur.execute("SELECT author_id FROM author WHERE CONCAT(author_first_name, ' ', author_last_name) = %s",(a,))
+                auth = cur.fetchall()
+                cur.execute("SELECT category_id FROM category WHERE category_name = %s",(form.category.data,))
+                cat = cur.fetchall()
+                query = "INSERT INTO availability (school_id, book_id, copies) VALUES (%s,%s,%s)"
+                values = (session['school_id'], b[0][0], form.copies.data)
+                cur.execute(query,values)
+                print("availability")
+                query = "INSERT INTO book_publisher (publisher_id, book_id) VALUES (%s,%s)"
+                values = (pub[0][0], b[0][0],)
+                cur.execute(query,values)
+                print("book publisher")
+                query = "INSERT INTO book_author (author_id, book_id) VALUES (%s,%s)"
+                values = (auth[0][0], b[0][0],)
+                cur.execute(query,values)
+                print("book author")
+                query = "INSERT INTO book_category (category_id, book_id) VALUES (%s,%s)"
+                values = (cat[0][0], b[0][0],)
+                cur.execute(query,values)
+                print("book category")
+                db.connection.commit()
+                cur.close()
+                flash("Book was added.")
+                return redirect(url_for('home'))
+        except Exception as e:
+            print("Problem inserting into db: " + str(e))
+            return render_template("add_book.html", form=form)
+        return render_template('add_book.html', form = form)
+
