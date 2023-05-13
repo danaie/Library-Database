@@ -142,7 +142,7 @@ def search():
     if form.validate_on_submit():
         t = form.title.data
         a = form.author.data
-        c = form.category.data
+        c = request.form.getlist('category')
         if t == "":
             t = '.*'
         if a == "":
