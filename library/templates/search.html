@@ -44,8 +44,14 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                    {{ form.category }}
+                    {% for choice in form.category.choices %}
+                    <div class="form-check">
+                        <input type="checkbox" name="category" value="{{choice}}">
+                        <label for="{{choice}}"> {{choice}}</label><br>
+                    </div>
+                    {% endfor %}
                     {% endif %}
+                </div>
             </fieldset>
             <div>
                 {{ form.search }}
