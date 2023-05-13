@@ -131,7 +131,7 @@ def info(isbn):
 
 @app.route('/search',methods=['GET', 'POST'])
 def search():
-    cur = db.connect.cursor()
+    cur = db.connection.cursor()
     cur.execute("SELECT category_name FROM category")
     r = cur.fetchall()
     cat = [] # this gets passed into the SelectMultipleField() choices
@@ -139,21 +139,28 @@ def search():
         cat.append(el[0])
     form = Search_form()
     form.category.choices = cat  #category does not work
-    if form.validate_on_submit(): 
+    if form.validate_on_submit():
         t = form.title.data
         a = form.author.data
-        if form.title.data == "":
+        c = form.category.data
+        if t == "":
             t = '.*'
-        elif form.author.data == "":
+        if a == "":
             a = '.*'
-        return redirect(url_for('search_for',t=t,a=a))
+        if c == []:
+            c = '.*'
+        else:
+            c = ','.join(c)
+        return redirect(url_for('search_for', t=t, a=a, c=c))
     return render_template('search.html', form=form)
 
 
-@app.route('/search/for/<t>+<a>')
-def search_for(t,a):
-    cur = db.connect.cursor()
-    cur.execute("SELECT ISBN, title, copies FROM book_info WHERE school_id = %s AND REGEXP_LIKE(title,%s) AND REGEXP_LIKE(auth,%s)",(session['school_id'],t,a,))
+@app.route('/search/for/<t>+<a>+<c>')
+def search_for(t,a,c):
+    cur = db.connection.cursor()
+    query = "SELECT book_id, ISBN, title, copies FROM book_info WHERE school_id = %s AND REGEXP_LIKE(title,%s) AND REGEXP_LIKE(auth,%s) AND REGEXP_LIKE(cat,%s)"
+    values = (session['school_id'], t, a, c,)
+    cur.execute(query, values)
     data = cur.fetchall()
     cur.close()
     if data:
@@ -161,6 +168,7 @@ def search_for(t,a):
     else:
         flash('No results availabe')
         return redirect(url_for('search'))
+
 
 @app.route('/info/<int:book_id>')
 def info(book_id):
