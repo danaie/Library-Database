@@ -119,7 +119,7 @@ def logout():
         flash("You are not logged in")
     return redirect(url_for('home'))
 
-
+'''
 @app.route('/info/<isbn>')
 def info(isbn):
     cur = db.connect.cursor()
@@ -127,7 +127,7 @@ def info(isbn):
     book = cur.fetchall()
     cur.close()
     return render_template("info.html", book=book)
-
+'''
 
 @app.route('/search',methods=['GET', 'POST'])
 def search():
