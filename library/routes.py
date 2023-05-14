@@ -407,3 +407,41 @@ def profile():
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
 
+@app.route('/add_school', methods=['GET', 'POST'])
+def add_school():
+    if session.get('user_role') != 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        try:
+            form = School_form()
+            if request.method=='POST':
+                cur = db.connection.cursor()
+                lib_man = form.lib_man_first_name.data +' '+form.lib_man_last_name.data
+                print("lib_man")
+                query = "INSERT INTO school_unit (name, city, address, phone_number, email, principal, lib_manager) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+                values = (form.name.data, form.city.data, form.address.data, form.phone_number.data, form.email.data, form.principal.data, lib_man,)
+                cur.execute(query,values)
+                print("school")
+                cur.execute("SELECT * FROM lib_user WHERE username=%s",(form.lib_man_username.data,))
+                user = cur.fetchall()
+                cur.connection.commit()
+                if user:
+                    flash("Username not available")
+                    return render_template('add_school.html', form=form)
+                else:
+                    cur.execute("SELECT school_id FROM school_unit WHERE name=%s",(form.name.data,))
+                    sch = cur.fetchall()
+                    query = "INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+                    values = (form.lib_man_username.data, form.password.data, sch, form.lib_man_first_name.data, form.lib_man_last_name.data, form.lib_man_date_of_birth.data, 'l')
+                    cur.execute(query,values)
+                    db.connection.commit()
+                    cur.close()
+                    flash("School have been added")
+                    return redirect(url_for("home"))
+        except Exception as e:
+            print("Problem inserting into db: " + str(e))
+            return render_template("add_school.html", form=form)
+        else:
+            return render_template("add_school.html", form=form)
+    
