@@ -1,0 +1,106 @@
+{% extends "layout.html"%}
+
+{% block content %}
+    <h1>Profile</h1>
+    <br>
+    <h4>Personal info</h4>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>User role</th>
+                <th>School</th>
+                <th>Birth date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %} 
+                <tr>
+                    {% for el in row[1:] %}
+                        <td>
+                            {% if el=='s' %}
+                                Student
+                            {% elif el=='t' %}
+                                Teacher
+                            {% else %}
+                                {{ el }}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+
+    <h4>Current services</h4>
+    {% if not ser %}
+        <p>No current services.</p>
+    {% else %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ISBN</th>
+                    <th>Title</th>
+                    <th>Service type</th>
+                    <th>Service date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in ser %} 
+                    <tr>
+                        {% for el in row[1:] %}
+                            <td>
+                                {% if el=='b' %}
+                                    Borrowed
+                                {% elif el=='r' %}
+                                    Reserved
+                                {% else %}
+                                    {{ el }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <br>
+
+    <h4>Personal log</h4>
+    {% if not log %}
+        <p>No past services.</p>
+    {% else %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ISBN</th>
+                    <th>Title</th>
+                    <th>Service date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in log %} 
+                    <tr>
+                        {% for el in row[1:] %}
+                            <td>
+                                {% if el=='b' %}
+                                    Borrowed
+                                {% elif el=='r' %}
+                                    Reserved
+                                {% else %}
+                                    {{ el }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}
