@@ -17,16 +17,29 @@
         <tbody>
             {% for row in list %} 
                 <tr>
-                    {% for el in row %}
-                        <td>{{ el }}</td>
+                    <td>
+                        <a>{{ row[1] }}</a>
+                    </td>
+                    {% for el in row[2:] %}
+                        <td>
+                            {% if el=='s' %}
+                                Student
+                            {% elif el=='t' %}
+                                Teacher
+                            {% else %}
+                                {{ el }}
+                            {% endif %}
+                        </td>
                     {% endfor %}
                     <td>
-                        <a href="accept/{{ row[0] }}">
+                        <a href="/applications/accept/{{ row[0] }}">
                             <button type="button">Accept</button>
                         </a>
                     </td>
                     <td>
-                        <button type="button">Decline</button>
+                        <a href="/applications/decline/{{ row[0] }}">
+                            <button type="button">Decline</button>
+                        </a>
                     </td>
                 </tr>
             {% endfor %}
