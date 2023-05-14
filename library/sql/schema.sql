@@ -6,7 +6,7 @@ use library;
 
 -- -------------
 -- Create tables
-----------------
+-- --------------
 CREATE TABLE book (
     book_id INT PRIMARY KEY auto_increment,
     ISBN VARCHAR(13) UNIQUE NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE book (
     summary VARCHAR(200) DEFAULT 'No summary available.',
     lang VARCHAR(15) NOT NULL,
     image_path VARCHAR(100) GENERATED ALWAYS AS (CONCAT('https://covers.openlibrary.org/b/isbn/', ISBN, '-L.jpg')),
-    key_words VARCHAR(100) DEFAULT 'No key words available'
+    key_words VARCHAR(100)
 );
 
 CREATE TABLE publisher (
@@ -32,7 +32,8 @@ CREATE TABLE book_publisher (
         ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+        ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT UNIQUE (publisher_id, book_id)
 );
 
 CREATE TABLE category (
@@ -49,7 +50,8 @@ CREATE TABLE book_category (
         ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+        ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT UNIQUE (category_id, book_id)
 );
 
 CREATE TABLE author (
@@ -67,11 +69,12 @@ CREATE TABLE book_author (
         ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+        ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT UNIQUE (author_id, book_id)
 );
 
 CREATE TABLE school_unit (
-    school_id INT PRIMARY KEY,
+    school_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(20) UNIQUE NOT NULL,
     city VARCHAR(20) NOT NULL,
     address VARCHAR(20) NOT NULL,
@@ -103,12 +106,14 @@ CREATE TABLE review (
     book_id INT,
     review_text VARCHAR(200),
     rating TINYINT NOT NULL,
+    pending BOOLEAN NOT NULL,
     FOREIGN KEY (user_id)
         REFERENCES lib_user (user_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT UNIQUE (user_id, book_id)
 );
 
 CREATE TABLE availability (
@@ -121,7 +126,8 @@ CREATE TABLE availability (
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT copies_gr_zero CHECK (copies > 0)
+    CONSTRAINT copies_gr_zero CHECK (copies > 0),
+    CONSTRAINT UNIQUE (school_id, book_id)
 );
 
 CREATE TABLE service (
@@ -134,7 +140,8 @@ CREATE TABLE service (
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+	CONSTRAINT UNIQUE (user_id, book_id)
 );
 
 CREATE TABLE borrow_log (
@@ -155,8 +162,8 @@ CREATE TABLE borrow_log (
 -- -----
 -- Views
 -- ------
-   
- CREATE VIEW book_info AS
+
+CREATE VIEW book_info AS
     (SELECT
 		sch.school_id,
         b.ISBN,
@@ -169,7 +176,8 @@ CREATE TABLE borrow_log (
         b.lang,
         b.image_path,
         b.key_words,
-		av.copies
+		av.copies,
+        b.book_id
         
     FROM
         book b
@@ -212,15 +220,58 @@ CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
         b.user_id = u.user_id
     GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
 
+CREATE VIEW loan_app AS
+	SELECT u.school_id, u.user_id, u.username, u.first_name, u.last_name, u.user_role, b.title, a.copies, b.book_id
+    FROM lib_user u 
+    INNER JOIN service s
+    ON s.user_id = u.user_id
+    INNER JOIN book b
+    ON b.book_id = s.book_id
+    INNER JOIN availability a
+    ON a.book_id  = b.book_id AND a.school_id = u.school_id
+    WHERE s.service_type = 'r';
+
+CREATE VIEW review_app AS
+	SELECT u.school_id, u.username, u.user_role, b.title, r.rating, r.review_text
+    FROM review r
+    INNER JOIN lib_user u
+    ON u.user_id = r.user_id
+    INNER JOIN book b
+    ON b.book_id = r.book_id
+    WHERE r.pending = 1;
+
+CREATE VIEW user_info AS
+	SELECT u.user_id, u.username, u.first_name, u.last_name, u.user_role, sch.name, u.birth_date
+    FROM lib_user u
+    INNER JOIN school_unit sch
+    ON sch.school_id = u.school_id
+    ORDER BY u.user_id;
+    
+CREATE VIEW service_info AS
+	SELECT u.user_id, b.ISBN, b.title, s.service_type, s.service_date
+    FROM lib_user u 
+    INNER JOIN service s
+    ON s.user_id = u.user_id
+    INNER JOIN book b
+    ON b.book_id = s.book_id;
+
+CREATE VIEW log_info AS
+	SELECT u.user_id, b.ISBN, b.title, bl.borrow_date
+    FROM lib_user u 
+    INNER JOIN borrow_log bl
+    ON bl.user_id = u.user_id
+    INNER JOIN book b
+    ON b.book_id = bl.book_id;
+
 
 -- -------
 -- Indexes
 ----------
-CREATE UNIQUE INDEX title_idx ON book (title);
+CREATE INDEX title_idx ON book (title);
 
 CREATE UNIQUE INDEX author_idx ON author (author_last_name, author_first_name);
 
-CREATE UNIQUE INDEX borrow_log_idx ON borrow_log (user_id);
+CREATE INDEX borrow_log_idx ON borrow_log (user_id);
 
 -- --------
 -- Triggers
@@ -230,7 +281,7 @@ delimiter $$
 CREATE TRIGGER trans_to_log BEFORE DELETE ON service
 FOR EACH ROW
 BEGIN
-IF (OLD.service_type = 'r') THEN
+IF (OLD.service_type = 'b') THEN
 	INSERT INTO borrow_log
 	VALUES (OLD.user_id, OLD.book_id, OLD.service_date);
 END IF;
