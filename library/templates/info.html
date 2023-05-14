@@ -2,16 +2,34 @@
 
 {% block content %}
 	<h1>Book Info</h1>
-	<h2>{{ book[0][1] }}</h2>
-	<p>	<b>Author:</b> {{ book[0][2]}} <br>
-		<b>Publisher:</b> {{ book[0][3] }} <br>
-		<b>Category:</b> {{ book[0][4] }} <br>
-		<b>Page Number:</b> {{ book[0][5] }} <br>
-		<b>Summary:</b> {{ book[0][6] }} <br>
-		<b>Language:</b> {{ book[0][7] }} <br>
-		<b>Key words:</b> {{ book[0][9] }} <br>
+	<h2>{{ book[0][2] }}</h2>
+	<p>	
+		<img src="{{ book[0][9] }}" width="200" height="300" align="left" hspace="40" vspace="10"/>
+		<b>Author:</b> {{ book[0][3]}} <br>
+		<b>Publisher:</b> {{ book[0][4] }} <br>
+		<b>Category:</b> {{ book[0][5] }} <br>
+		<b>Page Number:</b> {{ book[0][6] }} <br>
+		<b>Summary:</b> {{ book[0][7] }} <br>
+		<b>Language:</b> {{ book[0][8] }} <br>
+		<b>Key words:</b> {{ book[0][10] }} <br>
         <br>
-        <img src="{{ book[0][8]}}">
+    
 	</p>
-{% endblock %}
 
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<h4>Reviews</h4>
+		{% if not review %}
+			<p>This title has no reviews yet.</p>
+		{% else %}
+			{% for row in review %}
+			<p>
+				<b>{{ row[1] }}</b> ({{ row[2] }}): <br>
+				{% for i in range(row[3]) %}
+					<span class="fa fa-star"></span> 
+				{% endfor %} <br>
+				{{ row[4] }}
+			</p>
+			{% endfor %}
+		{% endif %}
+{% endblock %}
