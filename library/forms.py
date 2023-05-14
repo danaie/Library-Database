@@ -30,3 +30,16 @@ class Search_form(FlaskForm):
 	author = StringField('Author')
 	category = SelectMultipleField('Category',choices=[]) #does not work
 	search = SubmitField('Search')
+	
+class Book_form(FlaskForm):
+	title = StringField('Title', validators=[DataRequired(), Length(max=100)])
+	isbn = StringField('ISBN', validators=[DataRequired(), Length(13)])
+	page_number = IntegerField('Page number', validators=[DataRequired()])
+	summary = StringField('Summary', validators=[Length(max=200)])
+	lang = StringField('Language', validators=[DataRequired(), Length(max=15)])
+	key_words = StringField('Key words', validators=[DataRequired(), Length(max=100)])
+	copies = IntegerField('Copies', validators=[DataRequired()])
+	category = StringField('Category', validators=[DataRequired(), Length(max=15)])
+	author_first_name = StringField('Author\'s first name', validators=[DataRequired(), Length(max=20)])
+	author_last_name = StringField('Author\'s last name', validators=[DataRequired(), Length(max=20)])
+	publisher = StringField('Publisher', validators=[DataRequired(), Length(max=20)])
