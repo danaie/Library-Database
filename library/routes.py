@@ -175,59 +175,138 @@ def info(book_id):
     cur = db.connect.cursor()
     cur.execute("SELECT * FROM book_info WHERE book_id=%s",(str(book_id),))
     book = cur.fetchall()
-    cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
-    review = cur.fetchall()
+    #cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
+    #review = cur.fetchall()
     cur.close()
-    return render_template("info.html", book=book, review = review)
+    return render_template("info.html", book=book) #, review = review)
+
 
 @app.route('/reserve/<int:book_id>')
 def reserve(book_id):
-    cur = db.connect.cursor()
-    cur.execute("UPDATE availability SET copies=copies-1 WHERE book_id=%s",((book_id),))
-    db.connect.commit()
-    cur.execute("INSERT INTO service (user_id, book_id, service_type) VALUES (%s, %s, %s)",
-                (session.get('user_id'),
-                 book_id,
-                 'r',))
-    db.connect.commit()
+    if session.get('user_role') not in ['s','t']:
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    cur = db.connection.cursor()
+    query = "SELECT count(*) from service WHERE user_id=%s AND service_type='r'"
+    values = (session.get('user_id'),)
+    cur.execute(query, values)
+    res = int(cur.fetchone()[0])
+    if session.get('user_role') == 's':
+        lim = 2
+    else:
+        lim = 1
+    if res >= lim:
+        flash("You have exceeded the limit of reservations.")
+        return redirect(url_for("books"))
+    try:
+        query ="UPDATE availability SET copies=copies-1 WHERE book_id=%s AND school_id=%s"
+        values = (book_id, session['school_id'],)
+        cur.execute(query, values)
+    except Exception as e:
+        flash("Not enough copies.")
+        return redirect(url_for('books'))
+    try:
+        query = "INSERT INTO service (user_id, book_id, service_type) VALUES (%s, %s, %s)"
+        values = (session.get('user_id'), book_id, 'r',)
+        cur.execute(query, values)
+    except Exception as e:
+        flash("You have already reserved or are currently in possession of this title.")
+        return redirect(url_for('books'))
+    db.connection.commit()
     cur.close()
+    flash("Your reservation has been registered.")
     return redirect(url_for('books'))
+
+
 
 @app.route('/applications')
 def applications():
-    if session.get('user_role') != 'l':
+    if session.get('user_role') not in ['l', 'a']:
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
     else:
-        cur = db.connect.cursor()
-        cur.execute("SELECT username, first_name, last_name, birth_date, user_role from lib_user WHERE active=FALSE AND pending=TRUE")
+        cur = db.connection.cursor()
+        if session.get('user_role') == 'a':
+            query = "SELECT user_id, username, first_name, last_name, birth_date, user_role from lib_user WHERE active=FALSE AND pending=TRUE AND user_role='l'"
+            values = ()
+        else:
+            query = "SELECT user_id, username, first_name, last_name, birth_date, user_role from lib_user WHERE active=FALSE AND pending=TRUE AND school_id=%s"
+            values = (session.get('school_id'),)
+        cur.execute(query, values)
         list = cur.fetchall()
         cur.close()
         return render_template("applications.html", list=list)
-    
-@app.route('/accept/<username>')
-def accept(username):
+
+
+@app.route('/applications/accept/<user_id>')
+def accept_app(user_id):
     if session['user_role'] != 'l':
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
     else:
-        cur = db.connect.cursor()
-        cur.execute("UPDATE lib_user SET active=TRUE, pending=FALSE WHERE username=%s",(username,))
-        db.connect.commit()
+        cur = db.connection.cursor()
+        query = "UPDATE lib_user SET active=TRUE, pending=FALSE WHERE user_id=%s"
+        cur.execute(query, (user_id,))
+        db.connection.commit()
         cur.close()
         return redirect(url_for("applications"))
 
-@app.route('/loans')
-def loans():
+
+@app.route('/applications/decline/<user_id>')
+def decline_app(user_id):
+    if session['user_role'] != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connection.cursor()
+        query = "DELETE FROM lib_user WHERE user_id=%s"
+        cur.execute(query, (user_id,))
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for("applications"))
+
+
+@app.route('/reservations')
+def reservations():
     if session.get('user_role') != 'l':
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
     else:
-        cur = db.connect.cursor()
-        cur.execute("SELECT username, first_name, last_name, user_role from lib_user WHERE ")
+        cur = db.connection.cursor()
+        query = "SELECT * from loan_app WHERE school_id=%s"
+        cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
-        return render_template('loans.html')
+        return render_template('reservations.html', list=list)
+
+
+@app.route('/reservations/accept/<user_id>+<book_id>')
+def accept(user_id,book_id):
+    if session['user_role'] != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connection.cursor()
+        query = "UPDATE service SET service_type='b', service_date=CURDATE() WHERE user_id=%s AND book_id=%s"
+        values = (user_id, book_id,)
+        cur.execute(query, values)
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for("reservations"))
+
+
+@app.route('/reservations/decline/<user_id>+<book_id>')
+def decline_reserv(user_id,book_id):
+    if session['user_role'] != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connection.cursor()
+        query = "DELETE FROM service WHERE user_id=%s AND book_id=%s"
+        cur.execute(query, (user_id,book_id,))
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for("reservations"))
 
 @app.route('/add_book',methods=['GET', 'POST'])
 def add_book():
@@ -301,4 +380,30 @@ def add_book():
             print("Problem inserting into db: " + str(e))
             return render_template("add_book.html", form=form)
         return render_template('add_book.html', form = form)
+
+@app.route('/profile')
+def profile():
+    if (session.get('user_role') in ['s','t']):
+        cur = db.connection.cursor()
+
+        query = "SELECT * from user_info WHERE user_id=%s"
+        values = (session.get('user_id'),)
+        cur.execute(query, values)
+        data = cur.fetchall()
+
+        query = "SELECT * FROM service_info WHERE user_id=%s"
+        values = (session.get('user_id'),)
+        cur.execute(query, values)
+        ser = cur.fetchall()
+        
+        query = "SELECT * FROM log_info WHERE user_id=%s"
+        values = (session.get('user_id'),)
+        cur.execute(query, values)
+        log = cur.fetchall()
+
+        cur.close()
+        return render_template("profile.html", data=data, log=log)
+    else:
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
 
