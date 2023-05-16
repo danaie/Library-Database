@@ -15,10 +15,13 @@
         <br>
     
 	</p>
-
+	<br><br><br><br><br>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-	<h4>Reviews</h4>
+	<h4>Reviews</h4> 
+	<a href="/add_review/{{ book[0][-1] }}">
+		<button type="button">Add review</button>
+	</a>
 		{% if not review %}
 			<p>This title has no reviews yet.</p>
 		{% else %}
