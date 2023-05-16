@@ -57,16 +57,6 @@ class School_form(FlaskForm):
 		validators=[DataRequired(), Length(max=50), Email()])
 	principal = StringField('Principal Full Name',
 		validators=[DataRequired(), Length(max=20)])
-	lib_man_first_name = StringField('Library Manager First Name',
+	lib_man_name = StringField('Library Manager Full Name',
 		validators=[DataRequired(), Length(max=20)])
-	lib_man_last_name = StringField('Library Manager Last Name',
-		validators=[DataRequired(), Length(max=20)])
-	lib_man_username = StringField('Libray Manager Username', 
-		validators=[DataRequired(), Length(min=2, max=15)])
-	lib_man_date_of_birth = DateField('Date of Birth',
-		validators=[DataRequired()])
-	password = PasswordField('Password', 
-		validators=[DataRequired(),Length(max=20)])
-	confirm_password = PasswordField('Confirm Password', 
-		validators=[DataRequired(),EqualTo('password')])
 	submit = SubmitField('Add School')
