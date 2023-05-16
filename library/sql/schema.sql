@@ -262,6 +262,19 @@ CREATE VIEW log_info AS
     ON bl.user_id = u.user_id
     INNER JOIN book b
     ON b.book_id = bl.book_id;
+    
+CREATE VIEW review_info AS
+	SELECT b.book_id, u.username, sch.name, r.rating, r.review_text
+    FROM lib_user u
+    INNER JOIN school_unit sch
+    ON sch.school_id = u.school_id
+    INNER JOIN review r
+    ON r.user_id = u.user_id
+    INNER JOIN book b
+    ON b.book_id = r.book_id
+    WHERE r.pending = 0;
+
+
 
 
 -- -------
