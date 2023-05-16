@@ -88,86 +88,17 @@
 					{% endif %}
 				</div>
 				<div>
-					{{ form.lib_man_first_name.label() }}
-					{% if form.lib_man_first_name.errors %}
-						{{ form.lib_man_first_name }}
+					{{ form.lib_man_name.label() }}
+					{% if form.lib_man_name.errors %}
+						{{ form.lib_man_name }}
 						<div>
-							{% for error in form.lib_man_first_name.errors %}
+							{% for error in form.lib_man_name.errors %}
 								<span>{{ error }}</span>
 							{% endfor %}
 						</div>
 					
 					{% else %}
-					{{ form.lib_man_first_name }}
-					{% endif %}
-				</div>
-				<div>
-					{{ form.lib_man_last_name.label() }}
-					{% if form.lib_man_last_name.errors %}
-						{{ form.lib_man_last_name }}
-						<div>
-							{% for error in form.lib_man_last_name.errors %}
-								<span>{{ error }}</span>
-							{% endfor %}
-						</div>
-					
-					{% else %}
-					{{ form.lib_man_last_name }}
-					{% endif %}
-				</div>
-				<div>
-					{{ form.lib_man_username.label() }}
-					{% if form.lib_man_username.errors %}
-						{{ form.lib_man_username }}
-						<div>
-							{% for error in form.lib_man_username.errors %}
-								<span>{{ error }}</span>
-							{% endfor %}
-						</div>
-					
-					{% else %}
-					{{ form.lib_man_username }}
-					{% endif %}
-				</div>
-				<div>
-					{{ form.lib_man_date_of_birth.label() }}
-					{% if form.lib_man_date_of_birth.errors %}
-						{{ form.lib_man_date_of_birth }}
-						<div>
-							{% for error in form.lib_man_date_of_birth.errors %}
-								<span>{{ error }}</span>
-							{% endfor %}
-						</div>
-					
-					{% else %}
-					{{ form.lib_man_date_of_birth }}
-					{% endif %}
-				</div>
-				<div>
-					{{ form.password.label() }}
-					{% if form.password.errors %}
-						{{ form.password }}
-						<div>
-							{% for error in form.password.errors %}
-								<span>{{ error }}</span>
-							{% endfor %}
-						</div>
-					
-					{% else %}
-						{{ form.password }}
-					{% endif %}
-				</div>
-				<div>
-					{{ form.confirm_password.label() }}
-					{% if form.confirm_password.errors %}
-						{{ form.confirm_password }}
-						<div>
-							{% for error in form.confirm_password.errors %}
-								<span>{{ error }}</span>
-							{% endfor %}
-						</div>
-					{% else %}
-					{{ form.confirm_password }}
+					{{ form.lib_man_name }}
 					{% endif %}
 				</div>
 			</fieldset>
