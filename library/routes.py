@@ -19,20 +19,6 @@ def new():
     else:
         return render_template("home.html") #dummy
 
-'''@app.route("/signup", methods=['GET', 'POST'])
-def signup():
-    cur = db.connect.cursor()
-    cur.execute("SELECT name, school_id  FROM school_unit")
-    r = cur.fetchall()
-    school = [] # this gets passed into the SelectField() choices
-    for el in r:
-        school.append(el[0])
-    form = Signup_form()
-    form.school.choices = school
-    if form.validate_on_submit():
-    	flash('Account Created', 'success')
-    	return redirect(url_for('home'))
-    return render_template('signup.html', form=form)'''
 
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
@@ -119,15 +105,6 @@ def logout():
         flash("You are not logged in")
     return redirect(url_for('home'))
 
-'''
-@app.route('/info/<isbn>')
-def info(isbn):
-    cur = db.connect.cursor()
-    cur.execute("SELECT * FROM book_info WHERE ISBN = %s",(isbn,))
-    book = cur.fetchall()
-    cur.close()
-    return render_template("info.html", book=book)
-'''
 
 @app.route('/search',methods=['GET', 'POST'])
 def search():
