@@ -12,7 +12,7 @@ class Signup_form(FlaskForm):
 		validators=[DataRequired(), Length(min=2, max=20)])
 	date_of_birth = DateField('Date of Birth',
 		validators=[DataRequired()])
-	role = SelectField('Role',choices=['Student','Teacher'], validate_choice=True)
+	role = SelectField('Role',choices=['Student','Teacher','Library Manager'], validate_choice=True)
 	school = SelectField('School',choices=[],validate_choice=True)
 	password = PasswordField('Password', validators=[DataRequired(),Length(max=20)])
 	confirm_password = PasswordField('Confirm Password', 
