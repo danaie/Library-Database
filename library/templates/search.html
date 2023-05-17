@@ -1,4 +1,3 @@
-
 {% extends "layout.html"%}
 
 {% block content %}
@@ -6,9 +5,9 @@
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset>
-                <legend>Serch by Title</legend>
+                <h3>Search</h3>
                 <div>
-                    {{ form.title.label() }}
+                    <b>{{ form.title.label() }}</b>
                     {% if form.title.errors %}
                         {{ form.title }}
                         <div>
@@ -20,9 +19,8 @@
                     {{ form.title }}
                     {% endif %}
                 </div> 
-                <legend>Serch by Author</legend>
                 <div>
-                    {{ form.author.label() }}
+                    <b>{{ form.author.label() }}</b>
                     {% if form.author.errors %}
                         {{ form.title }}
                         <div>
@@ -33,9 +31,10 @@
                     {% else %}
                     {{ form.author }}
                     {% endif %}
-                </div> 
+                </div>
+                
                 <div>
-                    {{ form.category.label() }}
+                    <b>{{ form.category.label() }}</b>
                     {% if form.category.errors %}
                         {{ form.category }}
                         <div>
@@ -52,9 +51,27 @@
                     {% endfor %}
                     {% endif %}
                 </div>
+                <div>
+                    {{ form.search }}
+                </div>    
+                 <br><br>
+                <h3>Search by Copies</h3>
+                <div>
+                    <b>{{ copies.copies.label() }}</b>
+                    {% if copies.copies.errors %}
+                        {{ copies.copies }}
+                        <div>
+                            {% for error in copies.copies.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ copies.copies }}
+                    {% endif %}
+                </div>
             </fieldset>
             <div>
-                {{ form.search }}
+                {{ copies.search_cp }}
             </div> 
     </div>
 {% endblock %}
