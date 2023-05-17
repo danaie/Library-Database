@@ -2,6 +2,7 @@
 
 {% block content %}
     <h1>Available books</h1>
+
     <table border="1">
         <thead>
             <tr>
@@ -9,17 +10,24 @@
                 <th>Title</th>
                 <th>Copies</th>
                 <th>Info</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             {% for row in data %} 
                 <tr>
-                    {% for el in row %}
+                    {% for el in row[1:] %}
                             <td>{{ el }}</td>
                     {% endfor %}
                     <td><a href="/info/{{ row[0] }}">More info</a></td>
+                    {% if session['user_role']=='s' or session['user_role']=='t' %}
+                    <td>
+                        <a href="/reserve/{{ row[0] }}">
+                            <button type="button">Reserve</button>
+                        </a>
+                    </td>
+                    {% endif %}
                 </tr>
-
             {% endfor %}
         </tbody>
 {% endblock %}
