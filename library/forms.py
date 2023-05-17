@@ -30,6 +30,10 @@ class Search_form(FlaskForm):
 	author = StringField('Author')
 	category = SelectMultipleField('Category',choices=[]) #does not work
 	search = SubmitField('Search')
+
+class Search_by_copies_form(FlaskForm):
+	copies = StringField('Copies')
+	search_cp = SubmitField('Search')
 	
 class Book_form(FlaskForm):
 	title = StringField('Title', validators=[DataRequired(), Length(max=100)])
