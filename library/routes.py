@@ -400,6 +400,22 @@ def profile():
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
 
+@app.route('/change_password',methods=['GET', 'POST'])
+def change_password():
+    form = Change_password_form()
+    if (request.method=='POST'):
+        cur = db.connection.cursor()
+        cur.execute("SELECT (password) FROM lib_user WHERE username=%s",(session.get('username'),))
+        password = cur.fetchall()
+        if password[0][0] == form.current_password.data:
+            cur.execute("UPDATE lib_user SET password=%s WHERE username=%s", (form.new_password.data, session.get('username')))
+            db.connection.commit()
+            cur.close()
+            return redirect(url_for('profile'))
+        else :
+            flash('Wrong password!')
+            return redirect(url_for('change_password'))
+    return render_template("change_password.html",form=form)
 
 @app.route('/add_school', methods=['GET', 'POST'])
 def add_school():
