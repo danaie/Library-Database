@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort
-from library.forms import Signup_form, Login_form
-from library.configs import app
+from library.forms import Signup_form, Login_form, Search_form, Book_form, School_form, Search_by_copies_form
+from library.configs import app, db
 
 
 @app.route("/")
