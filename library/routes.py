@@ -369,7 +369,7 @@ def profile():
         data = cur.fetchall()
 
         query = "SELECT * FROM service_info WHERE user_id=%s"
-        values = (session.get('user_id'),)
+        values = (str(session.get('user_id')),)
         cur.execute(query, values)
         ser = cur.fetchall()
         
@@ -379,10 +379,12 @@ def profile():
         log = cur.fetchall()
 
         cur.close()
-        return render_template("profile.html", data=data, log=log)
+        return render_template("profile.html", data=data, ser=ser, log=log)
     else:
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
+
+
 @app.route('/add_school', methods=['GET', 'POST'])
 def add_school():
     if session.get('user_role') != 'a':
