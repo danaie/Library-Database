@@ -25,6 +25,11 @@ class Login_form(FlaskForm):
 	password = PasswordField('Password', validators=[DataRequired(),Length(max=20)])
 	submit = SubmitField('Login')
 	
+class Change_password_form(FlaskForm):
+	current_password = PasswordField('Current Password', validators=[DataRequired(), Length(max=20)])
+	new_password = PasswordField('New Password', validators=[DataRequired(), Length(max=20)])
+	submit = SubmitField('Change')
+	
 class Search_form(FlaskForm):
 	title = StringField('title')
 	author = StringField('Author')
