@@ -51,9 +51,6 @@ VALUES
 	('9783596906265', 'Siddhartha', 144, 'Ein spiritueller Roman über einen Mann, der auf der Suche nach Erleuchtung durch Indien reist und schließlich zu sich selbst findet.', 'German', 'Spiritualität, Selbstfindung, Indien'),
 	('9783423126888', 'Narziß und Goldmund', 448, 'Ein Roman über zwei Freunde, die unterschiedlicher nicht sein könnten: Der eine ist ein asketischer Mönch, der andere ein lebenslustiger Künstler.', 'German', 'Freundschaft, Kunst, Spiritualität');
 
-INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role, active, pending)
-VALUES
-	('admin', 'admin', NULL, 'admin', 'admin', '1990-01-01', 'a', TRUE, FALSE);
 
 
 INSERT INTO publisher (publisher_name) VALUES
@@ -332,6 +329,9 @@ VALUES
 ('user54', 'p@ssword54', 3, 'Logan', 'Nelson', '1991-04-14', 's', TRUE, FALSE),
 ('user55', 'p@ssword55', 2, 'Luna', 'Lee', '2004-09-02', 's', FALSE, TRUE);
 
+INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role, active, pending)
+VALUES
+	('admin', 'admin', NULL, 'admin', 'admin', '1990-01-01', 'a', TRUE, FALSE);
 
 INSERT INTO review (user_id, book_id, review_text, rating, pending)
 VALUES (1, 2, 'This book was a page-turner', 4, FALSE),
