@@ -233,7 +233,7 @@ def applications():
 
 @app.route('/applications/accept/<user_id>')
 def accept_app(user_id):
-    if session['user_role'] != 'l':
+        if session['user_role'] not in ['l','a']:
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
     else:
@@ -247,7 +247,7 @@ def accept_app(user_id):
 
 @app.route('/applications/decline/<user_id>')
 def decline_app(user_id):
-    if session['user_role'] != 'l':
+     if session['user_role'] not in ['l','a']:
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
     else:
