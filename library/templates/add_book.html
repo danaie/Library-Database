@@ -36,9 +36,9 @@
 				<div>
 					{{ form.author_first_name.label() }}
 					{% if form.author_first_name.errors %}
-						{{ form.author.first_name }}
+						{{ form.author_first_name }}
 						<div>
-							{% for error in form.author.first_name.errors %}
+							{% for error in form.author_first_name.errors %}
 								<span>{{ error }}</span>
 							{% endfor %}
 						</div>
@@ -49,9 +49,9 @@
 				<div>
 					{{ form.author_last_name.label() }}
 					{% if form.author_last_name.errors %}
-						{{ form.author.last_name }}
+						{{ form.author_last_name }}
 						<div>
-							{% for error in form.author.last_name.errors %}
+							{% for error in form.author_last_name.errors %}
 								<span>{{ error }}</span>
 							{% endfor %}
 						</div>
@@ -116,6 +116,20 @@
 					{% endif %}
 				</div>
 				<div>
+					{{ form.copies.label() }}
+					{% if form.copies.errors %}
+						{{ form.copies }}
+						<div>
+							{% for error in form.copies.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.copies }}
+					{% endif %}
+				</div>
+				<div>
 					{{ form.key_words.label() }}
 					{% if form.key_words.errors %}
 						{{ form.key_words }}
@@ -140,7 +154,7 @@
 						</div>
 					
 					{% else %}
-						{{ form.summary(size=80) }}
+						{{ form.summary }}
 					{% endif %}
 				</div>
 			</fieldset>
