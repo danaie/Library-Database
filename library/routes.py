@@ -105,7 +105,6 @@ def logout():
         flash("You are not logged in")
     return redirect(url_for('home'))
 
-
 @app.route('/search',methods=['GET', 'POST'])
 def search():
     cur = db.connection.cursor()
@@ -115,8 +114,9 @@ def search():
     for el in r:
         cat.append(el[0])
     form = Search_form()
+    copies = Search_by_copies_form()
     form.category.choices = cat  
-    if form.validate_on_submit():
+    if 'search'in request.form:
         t = form.title.data
         a = form.author.data
         c = request.form.getlist('category')
@@ -129,8 +129,13 @@ def search():
         else:
             c = ','.join(c)
         return redirect(url_for('search_for', t=t, a=a, c=c))
-    return render_template('search.html', form=form)
-
+    elif 'search_cp' in request.form:
+        cp = request.form.get('copies')
+        return redirect(url_for('search_for_copies',cp=cp))
+    if session.get('user_role') == 'l':
+        return render_template('search_l.html', form=form, copies=copies)
+    else:
+        return render_template('search.html', form=form)
 
 @app.route('/search/for/<t>+<a>+<c>')
 def search_for(t,a,c):
@@ -146,6 +151,17 @@ def search_for(t,a,c):
         flash('No results availabe')
         return redirect(url_for('search'))
 
+@app.route('/search/for/copies/<cp>')
+def search_for_copies(cp):
+    cur = db.connection.cursor()
+    cur.execute("SELECT book_id, ISBN, title, copies FROM book_info WHERE school_id = %s AND copies = %s", (session['school_id'], cp,))
+    data = cur.fetchall()
+    cur.close()
+    if data:
+        return render_template('books_av.html', data = data)
+    else:
+        flash('No results availabe')
+        return redirect(url_for('search'))
 
 @app.route('/info/<int:book_id>')
 def info(book_id):
