@@ -32,29 +32,32 @@ def signup():
             schools.append(el)
         form = Signup_form()
         form.school.choices=schools
+        cur.close()
         if request.method=='POST':
-            cur = db.connect().cursor()
+            cur = db.connect.cursor()
             cur.execute("SELECT * FROM lib_user WHERE username=%s",(form.username.data,))
             user = cur.fetchone()
-            if user:
+            cur.close()
+            try:
+                val = "your school library manager"
+                if form.role.data == "Student":
+                    role = "s"
+                elif form.role.data == "Teacher":
+                    role = "t"
+                else:
+                    role = "l"
+                    val = "the administrator"
+                cur = db.connection.cursor()
+                query = "INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+                values = (form.username.data, form.password.data, form.school.data, form.first_name.data, form.last_name.data, form.date_of_birth.data, role)
+                cur.execute(query,values)
+                db.connection.commit()
+                cur.close()
+                flash("""Sign up application has been sent to """ +val+ """.\n
+                Please wait for their approval.""")
+            except Exception as e:
                 flash("Username not available")
-                return render_template('signup.html', form=form)
-            else:
-                try:
-                    cur.execute("INSERT INTO lib_user (username, password, school_id, first_name, last_name, birth_date, user_role) VALUES (%s,%s,%s,%s,%s,%s,%s);",
-                                    (form.username.data,
-                                    form.password.data,
-                                    form.school.data,
-                                    form.first_name.data,
-                                    form.last_name.data,
-                                    form.birth_date.data,
-                                    's',))
-                    db.connect.commit()
-                    flash("""Sign up application has been sent to your school library manager.\n
-                    Please wait for their approval.""")
-                except Exception as e:
-                    print("Problem inserting into db: " + str(e))
-                    return render_template("signup.html", form=form)
+                return render_template("signup.html", form=form)
         else:
             return render_template("signup.html", form=form)
     else:
