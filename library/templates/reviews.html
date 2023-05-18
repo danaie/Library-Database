@@ -1,0 +1,48 @@
+{% extends "layout.html"%}
+
+{% block content %}
+    <h1>Pending reviews</h1>
+    {% if list %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>User role</th>
+                    <th>Title</th>
+                    <th>Rating</th>
+                    <th>Review text</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in list %} 
+                    <tr>
+                        {% for el in row[2:-1] %}
+                            <td>
+                                {% if el=='s' %}
+                                    Student
+                                {% elif el=='t' %}
+                                    Teacher
+                                {% else %}
+                                    {{ el }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                        <td>
+                            <a href="reviews/accept/{{ row[1] }}+{{ row[-1] }}">
+                                <button type="button">Accept</button>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="reviews/decline/{{ row[1] }}+{{ row[-1] }}">
+                                <button type="button">Decline</button>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        {% else %}
+            <p>No pending reviews.</p>
+        {% endif %}
+{% endblock %}
