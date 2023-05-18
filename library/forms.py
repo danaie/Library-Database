@@ -69,3 +69,19 @@ class School_form(FlaskForm):
 	lib_man_name = StringField('Library Manager Full Name',
 		validators=[DataRequired(), Length(max=20)])
 	submit = SubmitField('Add School')
+
+class Review_form(FlaskForm):
+	rating = IntegerField('Rating', validators=[DataRequired(), NumberRange(min=1, max=5)])
+	review_text = StringField('Review text', validators=[Length(max=200)])
+	submit = SubmitField('Submit')
+
+class Delay_form(FlaskForm):
+	first_name = StringField('User\'s first name', validators=[Length(max=20)])
+	last_name = StringField('User\'s last name', validators=[Length(max=20)])
+	delay = IntegerField('Delay (in days)', validators=[NumberRange(min=1)])
+	search1 = SubmitField('Search')
+
+class AvgRating_form(FlaskForm):
+	username = StringField('Username', validators=[Length(min=2, max=15)])
+	category = SelectField('Category', choices=[(0,'')], validate_choice=True)
+	search2 = SubmitField('Search')
