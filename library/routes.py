@@ -343,6 +343,27 @@ def decline_review(user_id,book_id):
         return redirect(url_for("reviews"))
 
 
+@app.route("/add_review/<int:book_id>", methods=['GET', 'POST'])
+def add_review(book_id):
+    form = Review_form()
+    if request.method == "POST":
+        try:
+            cur = db.connection.cursor()
+            query = "INSERT INTO review (user_id, book_id, review_text, rating, pending) VALUES (%s,%s,%s,%s,TRUE)"
+            values = (session.get('user_id'), str(book_id), form.review_text.data, str(form.rating.data),)
+            cur.execute(query, values)
+            db.connection.commit()
+        except Exception as e:
+            flash("Problem submitting your review." + str(e))
+            return redirect(url_for("info", book_id=book_id))
+        if (session.get('user_role') == 's'):
+            flash("""Your review has been submitted successfully.
+                Please wait for your library manager's approval.""")
+            return redirect(url_for("info", book_id=book_id))
+        return redirect(url_for("accept_review", user_id=session.get('user_id'), book_id=book_id))
+    else:
+        return render_template("add_review.html", form=form)
+
 
 
 @app.route('/add_book',methods=['GET', 'POST'])
