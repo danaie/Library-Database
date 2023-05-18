@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort
-from library.forms import Signup_form, Login_form, Search_form, Book_form, School_form, Search_by_copies_form, Change_password_form
+from library.forms import *
 from library.configs import app, db
 
 
