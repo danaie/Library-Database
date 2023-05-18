@@ -304,6 +304,47 @@ def decline_reserv(user_id,book_id):
         cur.close()
         return redirect(url_for("reservations"))
 
+@app.route('/reviews')
+def reviews():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connection.cursor()
+        query = "SELECT * from review_app WHERE school_id = %s"
+        cur.execute(query, (session.get('school_id'),))
+        list = cur.fetchall()
+        cur.close()
+        return render_template('reviews.html', list=list)
+
+
+@app.route('/reviews/accept/<user_id>+<book_id>')
+def accept_review(user_id,book_id):
+        cur = db.connection.cursor()
+        query = "UPDATE review SET pending=0 WHERE user_id=%s AND book_id=%s"
+        values = (user_id, book_id,)
+        cur.execute(query, values)
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for("info", book_id=book_id))
+
+@app.route('/reviews/decline/<user_id>+<book_id>')
+def decline_review(user_id,book_id):
+    if session['user_role'] != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connection.cursor()
+        query = "DELETE FROM review WHERE user_id=%s AND book_id=%s"
+        values = (user_id, book_id,)
+        cur.execute(query, values)
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for("reviews"))
+
+
+
+
 @app.route('/add_book',methods=['GET', 'POST'])
 def add_book():
     if session.get('user_role') != 'l':
