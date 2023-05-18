@@ -163,47 +163,6 @@ CREATE TABLE borrow_log (
 -- Views
 -- ------
 
-CREATE VIEW book_info AS
-    (SELECT
-		sch.school_id,
-        b.ISBN,
-        b.title,
-		GROUP_CONCAT(DISTINCT CONCAT(a.author_first_name, ' ', a.author_last_name)) AS auth,
-        p.publisher_name,
-        GROUP_CONCAT(DISTINCT c.category_name) AS cat,
-        b.page_number,
-        b.summary,
-        b.lang,
-        b.image_path,
-        b.key_words,
-		av.copies,
-        b.book_id
-        
-    FROM
-        book b
-            INNER JOIN
-        book_author ba ON ba.book_id = b.book_id
-            INNER JOIN
-        author a ON a.author_id = ba.author_id
-            INNER JOIN
-        book_category bc ON bc.book_id = b.book_id
-            INNER JOIN 
-        category c ON c.category_id = bc.category_id
-            INNER JOIN
-        book_publisher bp ON bp.book_id = b.book_id
-            INNER JOIN
-        publisher p ON p.publisher_id = bp.publisher_id
-			INNER JOIN
-        availability av ON b.book_id = av.book_id
-            INNER JOIN
-        school_unit sch ON sch.school_id = av.school_id
-        GROUP BY b.ISBN,
-        p.publisher_name,
-        sch.school_id
-    );
-
-
-
 CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
     SELECT 
         sch.name AS 'School Name',
@@ -232,7 +191,7 @@ CREATE VIEW loan_app AS
     WHERE s.service_type = 'r';
 
 CREATE VIEW review_app AS
-	SELECT u.school_id, u.username, u.user_role, b.title, r.rating, r.review_text
+	SELECT u.school_id, u.user_id, u.username, u.user_role, b.title, r.rating, r.review_text, b.book_id
     FROM review r
     INNER JOIN lib_user u
     ON u.user_id = r.user_id
@@ -254,6 +213,25 @@ CREATE VIEW service_info AS
     ON s.user_id = u.user_id
     INNER JOIN book b
     ON b.book_id = s.book_id;
+
+CREATE VIEW delay_info AS
+	SELECT u.school_id, u.user_id, u.first_name, u.last_name, s.service_date, datediff(curdate(), service_date)-14 AS delay
+    FROM lib_user u 
+    INNER JOIN service s
+    ON s.user_id = u.user_id
+    WHERE service_type = 'b';
+
+CREATE VIEW rating_info AS
+	SELECT u.school_id, u.username, c.category_id, c.category_name, r.rating
+    FROM lib_user u
+    INNER JOIN review r
+    ON r.user_id = u.user_id
+    INNER JOIN book b
+    ON b.book_id = r.book_id
+    INNER JOIN book_category bc
+    ON bc.book_id = b.book_id
+    INNER JOIN category c
+    ON c.category_id = bc.category_id;
 
 CREATE VIEW log_info AS
 	SELECT u.user_id, b.ISBN, b.title, bl.borrow_date
