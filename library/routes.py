@@ -409,3 +409,83 @@ def add_school():
         else:
             return render_template("add_school.html", form=form)
     
+@app.route("/statistics", methods=['GET','POST'])
+def statistics():
+    delay_form = Delay_form()
+    avgrating_form = AvgRating_form()
+    cur = db.connect.cursor()
+    query = "SELECT * FROM category;"
+    cur.execute(query, ())
+    temp = cur.fetchall()
+    for el in temp:
+        avgrating_form.category.choices.append(el)
+    cur.close()
+    if request.method == 'POST':
+        if 'search1' in request.form:
+            f = delay_form.first_name.data
+            l = delay_form.last_name.data
+            d = delay_form.delay.data 
+            if f == '':
+                f = '.*'
+            if l == '':
+                l = '.*'
+            if d is None:
+                d = '.*'
+            return redirect(url_for("delay", f=f, l=l, d=d))
+        elif 'search2' in request.form:
+            username = avgrating_form.username.data
+            cat = avgrating_form.category.data
+            if username == '':
+                username = '.*'
+            if cat == '0':
+                cat = '.*'
+            return redirect(url_for("avg_rating", username=username, cat=cat))
+    else:
+        return render_template("statistics.html", delay_form=delay_form, avgrating_form=avgrating_form)
+
+
+@app.route("/statistics/delay/<f>+<l>+<d>")
+def delay(f,l,d):
+    cur = db.connect.cursor()
+    if d == '.*':
+        query = """SELECT * FROM delay_info WHERE school_id = %s
+        AND REGEXP_LIKE(first_name,%s) AND REGEXP_LIKE(last_name,%s) 
+        AND DATEDIFF(CURDATE(), service_date) > 14
+        """
+        values = (session['school_id'], f, l,)
+    else:
+        val = int(d)+14
+        query = """SELECT * FROM delay_info WHERE school_id = %s
+        AND REGEXP_LIKE(first_name,%s) AND REGEXP_LIKE(last_name,%s)
+        AND DATEDIFF(CURDATE(), service_date) = %s
+        """
+        values = (session['school_id'], f, l, val,)
+    cur.execute(query, values)
+    data = cur.fetchall()
+    cur.close()
+    if data:
+        return render_template('delay_info.html', data = data)
+    else:
+        flash('No results availabe')
+        return redirect(url_for('statistics'))
+
+
+@app.route("/statistics/rating/<username>+<cat>")
+def avg_rating(username,cat):
+    cur = db.connection.cursor()
+    query = "SELECT AVG(rating) FROM rating_info WHERE 1=1"
+    values = ()
+    if username == '.*' and cat == '.*':
+        flash("Fill at least one field.")
+        return redirect(url_for("statistics"))
+    if username != '.*':
+        query = query + " AND username=%s"
+        values = (username,)
+    if cat != '.*':
+        query = query + " AND category_id=%s"
+        values = (cat,)
+    if cat != '.*' and username != '.*':
+        values = (username,cat,)
+    cur.execute(query, values)
+    data = cur.fetchall()
+    return render_template("avg_rating.html", data=data)
