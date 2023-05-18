@@ -1,0 +1,93 @@
+
+{% extends "layout.html"%}
+
+{% block content %}
+<div>
+    <h4>Delayed loans</h4>
+        <form method="POST" action="">
+            {{ delay_form.hidden_tag() }}
+            <fieldset>
+                <div>
+                    {{ delay_form.first_name.label() }}
+                    {% if delay_form.first_name.errors %}
+                        {{ delay_form.first_name }}
+                        <div>
+                            {% for error in delay_form.first_name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ delay_form.first_name }}
+                    {% endif %}
+                </div> 
+                <div>
+                    {{ delay_form.last_name.label() }}
+                    {% if delay_form.last_name.errors %}
+                        {{ delay_form.last_name }}
+                        <div>
+                            {% for error in delay_form.last_name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ delay_form.last_name }}
+                    {% endif %}
+                </div> 
+        <div>
+            {{ delay_form.delay.label() }}
+            {% if delay_form.delay.errors %}
+                {{ delay_form.delay }}
+                <div>
+                    {% for error in delay_form.delay.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+            {{ delay_form.delay }}
+            {% endif %}
+        </div>
+    </fieldset>    
+            <div>
+                {{ delay_form.search1 }}
+            </div> 
+    </div>
+
+    <br>
+
+    <div>
+        <h4>Average rating</h4>
+            <form method="POST" action="">
+                {{ avgrating_form.hidden_tag() }}
+                <fieldset>
+                    <div>
+                        {{ avgrating_form.username.label() }}
+                        {% if avgrating_form.username.errors %}
+                            {{ avgrating_form.username }}
+                            <div>
+                                {% for error in avgrating_form.username.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                        {{ avgrating_form.username }}
+                        {% endif %}
+                    </div> 
+                    <div>
+                        {{ avgrating_form.category.label() }}
+                        {% if avgrating_form.category.errors %}
+                            {{ avgrating_form.category }}
+                            <div>
+                                {% for error in avgrating_form.category.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ avgrating_form.category }}
+                        {% endif %}
+                    </div> 
+        </fieldset>    
+                <div>
+                    {{ avgrating_form.search2 }}
+                </div> 
+        </div>
+{% endblock %}

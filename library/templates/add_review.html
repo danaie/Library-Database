@@ -1,0 +1,43 @@
+
+{% extends "layout.html"%}
+
+{% block content %}
+<div>
+        <form method="POST" action="">
+            {{ form.name }}
+            {{ form.hidden_tag() }}
+            <fieldset>
+                <legend>Add a review</legend>
+                <div>
+                    {{ form.rating.label() }}
+                    {% if form.rating.errors %}
+                        {{ form.rating }}
+                        <div>
+                            {% for error in form.rating.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ form.rating }}
+                    {% endif %}
+                </div>
+                <div>
+                    {{ form.review_text.label() }}
+                    {% if form.review_text.errors %}
+                        {{ form.review_text }}
+                        <div>
+                            {% for error in form.review_text.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ form.review_text }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div>
+                {{ form.submit }}
+            </div>
+        </form>
+    </div>
+{% endblock %}
