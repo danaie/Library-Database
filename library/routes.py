@@ -1,12 +1,14 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, abort
-from library.forms import *
-from library.configs import app, db
+from flask import Flask, render_template, request, flash, redirect, url_for, abort, session
+from forms import *
+from flask_mysqldb import MySQL
 
+app = Flask(__name__) 
+db = MySQL(app)
 
-@app.route("/")
-@app.route("/home")
+@app.route('/')
 def home():
-	return render_template('home.html')
+    return render_template('home.html')
+
 
 @app.route('/books')
 def new():
@@ -236,7 +238,7 @@ def applications():
 
 @app.route('/applications/accept/<user_id>')
 def accept_app(user_id):
-        if session['user_role'] not in ['l','a']:
+    if session['user_role'] not in ['l','a']:
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
     else:
@@ -250,7 +252,7 @@ def accept_app(user_id):
 
 @app.route('/applications/decline/<user_id>')
 def decline_app(user_id):
-     if session['user_role'] not in ['l','a']:
+    if session['user_role'] not in ['l','a']:
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
     else:
@@ -260,6 +262,7 @@ def decline_app(user_id):
         db.connection.commit()
         cur.close()
         return redirect(url_for("applications"))
+
 
 
 @app.route('/reservations')
@@ -551,3 +554,111 @@ def avg_rating(username,cat):
     cur.execute(query, values)
     data = cur.fetchall()
     return render_template("avg_rating.html", data=data)
+
+
+@app.route('/information')
+def information():
+        
+        cur = db.connection.cursor()
+        # Query 3.1.3
+        cur.execute("SELECT * FROM view_3_1_3")
+        result_3_1_3 = cur.fetchall()
+        session['query_3_1_3'] = result_3_1_3
+
+        
+        # Query 3.1.4
+        cur.execute("SELECT * FROM view_3_1_4")
+        result_3_1_4 = cur.fetchall()
+        session['query_3_1_4'] = result_3_1_4
+
+        
+        # Query 3.1.5
+        cur.execute("SELECT * FROM view_3_1_5")
+        result_3_1_5 = cur.fetchall()
+        session['query_3_1_5'] = result_3_1_5
+
+        # Query 3.1.7
+        cur.execute("SELECT * FROM view_3_1_7")
+        result_3_1_7 = cur.fetchall()
+        session['query_3_1_7'] = result_3_1_7
+        
+        
+        cur.close()
+       
+        return render_template('information.html', query_3_1_3=result_3_1_3, query_3_1_4=result_3_1_4, query_3_1_5=result_3_1_5, query_3_1_7=result_3_1_7)
+
+@app.route('/information/query1', methods=['POST'])
+def run_query1():
+    if request.method == 'POST' and 'year' in request.form and 'month' in request.form:
+        year = request.form['year']
+        month = request.form['month']
+
+        cur = db.connection.cursor()
+        # Query 3.1.1
+        query_3_1_1 = "SELECT sch.name AS 'School Name', " \
+                "COUNT(*) AS 'Number of Loans' " \
+                "FROM school_unit sch " \
+                "INNER JOIN lib_user u ON u.school_id = sch.school_id " \
+                "INNER JOIN borrow_log b ON b.user_id = u.user_id " \
+                "WHERE YEAR(b.borrow_date) = %s AND MONTH(b.borrow_date) = %s " \
+                "GROUP BY sch.name"
+
+        cur.execute(query_3_1_1, (year, month))
+        result_3_1_1 = cur.fetchall()
+        cur.close() 
+
+        query_3_1_3 = session.get('query_3_1_3')
+        query_3_1_4 = session.get('query_3_1_4')
+        query_3_1_5 = session.get('query_3_1_5')
+        query_3_1_7 = session.get('query_3_1_7')
+
+
+        return render_template('information.html', query_3_1_1 = result_3_1_1, query_3_1_3=query_3_1_3, query_3_1_4=query_3_1_4, query_3_1_5=query_3_1_5, query_3_1_7=query_3_1_7)
+            
+    else:
+        return redirect('/')
+
+@app.route('/information/query2', methods=['POST'])
+def run_query2():
+    if request.method == 'POST' and 'category' in request.form:
+        category = request.form['category']
+
+        cur = db.connection.cursor()
+        # Query 3.1.2_1
+        query_3_1_2_1 = "SELECT DISTINCT a.author_first_name, a.author_last_name " \
+                      "FROM author a " \
+                      "JOIN book_author ba ON a.author_id = ba.author_id " \
+                      "JOIN book_category bc ON ba.book_id = bc.book_id " \
+                      "JOIN category c ON bc.category_id = c.category_id " \
+                      "WHERE c.category_name = %s"
+        cur.execute(query_3_1_2_1, (category,))
+        result_3_1_2_1 = cur.fetchall()
+
+        # Query 3.1.2_2
+        query_3_1_2_2 = "SELECT DISTINCT u.first_name, u.last_name " \
+                        "FROM lib_user u " \
+                        "JOIN borrow_log bl ON u.user_id = bl.user_id " \
+                        "JOIN book b ON bl.book_id = b.book_id " \
+                        "JOIN book_category bc ON b.book_id = bc.book_id " \
+                        "JOIN category c ON bc.category_id = c.category_id " \
+                        "WHERE c.category_name = %s " \
+                        "AND bl.borrow_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) " \
+                        "AND u.user_role = 't'"
+        
+                        
+        cur.execute(query_3_1_2_2, (category,))
+        result_3_1_2_2 = cur.fetchall()
+        cur.close() 
+
+        query_3_1_3 = session.get('query_3_1_3')
+        query_3_1_4 = session.get('query_3_1_4')
+        query_3_1_5 = session.get('query_3_1_5')
+        query_3_1_7 = session.get('query_3_1_7')
+
+
+        return render_template('information.html', query_3_1_2_1=result_3_1_2_1, query_3_1_2_2=result_3_1_2_2, query_3_1_3=query_3_1_3, query_3_1_4=query_3_1_4, query_3_1_5=query_3_1_5, query_3_1_7=query_3_1_7)
+        
+    else:
+        return redirect('/')
+
+
