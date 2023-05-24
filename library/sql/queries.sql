@@ -69,7 +69,6 @@ WHERE NOT EXISTS (
     WHERE borrow_log.book_id = book_author.book_id
 )
 ---we use it in 3.1.5
--DROP VIEW tot_loans_year
 CREATE VIEW tot_loans_year (school_id, school_name, no_loans, b_year) AS
     SELECT 
         sch.school_id,
@@ -89,7 +88,7 @@ SELECT *
 FROM tot_loans_year;
 
 --3.1.5
--DROP VIEW view_3_1_5
+
 CREATE VIEW view_3_1_5 AS
 SELECT u.first_name, u.last_name, t1.school_name AS school_name1, t1.no_loans AS no_loans1, t2.school_name AS school_name2, t2.no_loans AS no_loans2
 FROM tot_loans_year t1
@@ -101,7 +100,7 @@ ORDER BY t1.no_loans DESC, t1.school_name, t2.school_name;
 
 
 
----test
+-- test
 SELECT a.author_first_name, a.author_last_name, COUNT(ba.book_id) AS book_count
 FROM author a
 JOIN book_author ba ON a.author_id = ba.author_id
@@ -109,19 +108,18 @@ GROUP BY a.author_id, a.author_first_name, a.author_last_name;
 
 
 
----we will use to in 3_1_7
+-- we will use to in 3_1_7
 CREATE VIEW author_book_count AS
 SELECT author_id, COUNT(book_id) AS book_count
 FROM book_author
 GROUP BY author_id;
 
----test
+-- test
 SELECT MAX(book_count) AS max_book_count
 FROM author_book_count;
 
 
---3.1.7
--DROP VIEW view_3_1_7
+-- 3.1.7
 CREATE VIEW view_3_1_7 AS
 SELECT a.author_first_name, a.author_last_name
 FROM author a
