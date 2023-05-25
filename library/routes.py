@@ -406,31 +406,74 @@ def add_book():
             return redirect(url_for('home'))
     return render_template('add_book.html', form = form)
 
-@app.route('/profile')
-def profile():
-    if (session.get('user_role') in ['s','t']):
+@app.route('/profile/<user_id>', methods=['POST','GET'])
+def profile(user_id):
+        if session.get('user_role') != 'l' and str(session.get('user_id')) != user_id:
+            flash("You do not have authorization to view this page.")
+            return redirect(url_for("home"))
+
         cur = db.connection.cursor()
 
+        if request.method =='POST':
+            if request.form.get('button') == "Deactivate":
+                try:
+                    query = "UPDATE lib_user SET active=0 WHERE user_id=%s"
+                    values = (user_id,)
+                    cur.execute(query, values)
+                    db.connection.commit()
+                    msg = "Deactivation successful."
+                except Exception as e:
+                    msg = "Deactivation unsuccessful."
+
+            elif request.form.get('button') == "Delete":
+                try:
+                    query = "DELETE FROM lib_user WHERE user_id=%s"
+                    values = (user_id,)
+                    cur.execute(query, values)
+                    db.connection.commit()
+                    msg = "Account successfully deleted."
+                except Exception as e:
+                    msg = "Account could not be deleted."
+
+            elif request.form.get('button') == "Cancel":
+                try:
+                    query = "DELETE FROM service WHERE user_id=%s AND book_id=%s AND service_type='r'"
+                    values = (user_id, )
+                    cur.execute(query, values)
+                    db.connection.commit()
+                    cur.close()
+                    msg = "Reservation was successfully canceled."
+                except:
+                    msg = "No such reservation found."
+            flash(msg)
+            return redirect(url_for("home"))
+
+        query = "SELECT school_id FROM lib_user WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        sch = cur.fetchone()
+        if sch[0] != session['school_id']:
+            flash("You do not have authorization to view this page.")
+            return redirect(url_for("home"))
+
         query = "SELECT * from user_info WHERE user_id=%s"
-        values = (session.get('user_id'),)
+        values = (user_id,)
         cur.execute(query, values)
         data = cur.fetchall()
 
         query = "SELECT * FROM service_info WHERE user_id=%s"
-        values = (str(session.get('user_id')),)
+        values = (user_id,)
         cur.execute(query, values)
         ser = cur.fetchall()
         
         query = "SELECT * FROM log_info WHERE user_id=%s"
-        values = (session.get('user_id'),)
+        values = (user_id,)
         cur.execute(query, values)
         log = cur.fetchall()
 
         cur.close()
         return render_template("profile.html", data=data, ser=ser, log=log)
-    else:
-        flash("You do not have authorization to view this page.")
-        return redirect(url_for("home"))
+    
 
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
