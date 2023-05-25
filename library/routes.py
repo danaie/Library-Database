@@ -204,9 +204,18 @@ def reserve(book_id):
     except Exception as e:
         flash("Not enough copies.")
         return redirect(url_for('books'))
+    
+    query = "SELECT count(copies) FROM availability WHERE book_id=%s AND school_id=%s"
+    values = (book_id, session['school_id'],)
+    cur.execute(query, values)
+    cop = cur.fetchall()
+    wait = False;
+    if cop[0][0] == 0:
+        wait = True
+
     try:
-        query = "INSERT INTO service (user_id, book_id, service_type) VALUES (%s, %s, %s)"
-        values = (session.get('user_id'), book_id, 'r',)
+        query = "INSERT INTO service (user_id, book_id, service_type, wait) VALUES (%s, %s, %s, %s)"
+        values = (session.get('user_id'), book_id, 'r', wait,)
         cur.execute(query, values)
     except Exception as e:
         flash("You have already reserved or are currently in possession of this title.")
