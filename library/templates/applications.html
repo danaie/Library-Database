@@ -2,9 +2,13 @@
 
 {% block content %}
     <h1>Pending applications</h1>
+    {% if not list %}
+    <p>No pending applications.</p>
+    {% else %}
     <table border="1">
         <thead>
             <tr>
+                <th>School</th>
                 <th>Username</th>
                 <th>First name</th>
                 <th>Last name</th>
@@ -18,7 +22,7 @@
             {% for row in list %} 
                 <tr>
                     <td>
-                        <a>{{ row[1] }}</a>
+                        <a>{{ row[0] }}</a>
                     </td>
                     {% for el in row[2:] %}
                         <td>
@@ -26,22 +30,25 @@
                                 Student
                             {% elif el=='t' %}
                                 Teacher
+                            {% elif el=='l' %}
+                                Library Manager
                             {% else %}
                                 {{ el }}
                             {% endif %}
                         </td>
                     {% endfor %}
                     <td>
-                        <a href="/applications/accept/{{ row[0] }}">
+                        <a href="/applications/accept/{{ row[1] }}">
                             <button type="button">Accept</button>
                         </a>
                     </td>
                     <td>
-                        <a href="/applications/decline/{{ row[0] }}">
+                        <a href="/applications/decline/{{ row[1] }}">
                             <button type="button">Decline</button>
                         </a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
+    {% endif %}
 {% endblock %}

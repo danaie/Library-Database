@@ -12,7 +12,7 @@ def about():
     return render_template("about.html")
 
 @app.route('/books')
-def new():
+def books():
     if session:
         cur = db.connect.cursor()
         cur.execute("SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id=%s",(session['school_id'],))
@@ -226,7 +226,12 @@ def applications():
     else:
         cur = db.connection.cursor()
         if session.get('user_role') == 'a':
-            query = "SELECT user_id, username, first_name, last_name, birth_date, user_role from lib_user WHERE active=FALSE AND pending=TRUE AND user_role='l'"
+            query = """SELECT sch.name, u.user_id, u.username, u.first_name, u.last_name, 
+            u.birth_date, u.user_role 
+            FROM lib_user u
+            INNER JOIN school_unit sch 
+            ON sch.school_id=u.school_id 
+            WHERE active=FALSE AND pending=TRUE AND user_role='l'"""
             values = ()
         else:
             query = "SELECT user_id, username, first_name, last_name, birth_date, user_role from lib_user WHERE active=FALSE AND pending=TRUE AND school_id=%s"
@@ -523,7 +528,7 @@ def add_school():
                 print("school")
                 db.connection.commit()
                 cur.close()
-                flash("School have been added")
+                flash("School has been added successfully.")
                 return redirect(url_for("home"))
         except Exception as e:
             print("Problem inserting into db: " + str(e))
