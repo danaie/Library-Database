@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, DateField , SelectField
-from wtforms.validators import DataRequired, Length, EqualTo, NumberRange
+from wtforms import StringField, PasswordField, SubmitField, DateField, SelectField, SelectMultipleField, IntegerField
+from wtforms.validators import DataRequired, Length, EqualTo, NumberRange, Email
 
 
 class Signup_form(FlaskForm):
@@ -31,7 +31,7 @@ class Change_password_form(FlaskForm):
 	submit = SubmitField('Change')
 	
 class Search_form(FlaskForm):
-	title = StringField('title')
+	title = StringField('Title')
 	author = StringField('Author')
 	category = SelectMultipleField('Category',choices=[]) #does not work
 	search = SubmitField('Search')
@@ -52,6 +52,7 @@ class Book_form(FlaskForm):
 	author_first_name = StringField('Author\'s first name', validators=[DataRequired(), Length(max=20)])
 	author_last_name = StringField('Author\'s last name', validators=[DataRequired(), Length(max=20)])
 	publisher = StringField('Publisher', validators=[DataRequired(), Length(max=20)])
+	submit = SubmitField('Submit')
 	
 class School_form(FlaskForm):
 	name = StringField('School Name',

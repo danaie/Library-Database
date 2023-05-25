@@ -165,44 +165,36 @@ CREATE TABLE borrow_log (
 
 CREATE VIEW book_info AS
     (SELECT
-		sch.school_id,
-        b.ISBN,
-        b.title,
-		GROUP_CONCAT(DISTINCT CONCAT(a.author_first_name, ' ', a.author_last_name)) AS auth,
-        p.publisher_name,
-        GROUP_CONCAT(DISTINCT c.category_name) AS cat,
-        b.page_number,
-        b.summary,
-        b.lang,
-        b.image_path,
-        b.key_words,
-		av.copies,
-        b.book_id
+		b.book_id, b.title, b.ISBN, book_auth.auth, book_cat.cat, book_pub.publisher_name,
+        b.page_number, b.summary, b.lang, b.image_path, b.key_words
+        FROM
+		book b INNER JOIN 
+        (SELECT ba.book_id, GROUP_CONCAT(a.author_first_name, ' ', a.author_last_name) AS auth
+        FROM book_author ba
+        INNER JOIN author a ON a.author_id = ba.author_id 
+        GROUP BY ba.book_id) AS book_auth
+        ON b.book_id = book_auth.book_id
         
-    FROM
-        book b
-            INNER JOIN
-        book_author ba ON ba.book_id = b.book_id
-            INNER JOIN
-        author a ON a.author_id = ba.author_id
-            INNER JOIN
-        book_category bc ON bc.book_id = b.book_id
-            INNER JOIN 
-        category c ON c.category_id = bc.category_id
-            INNER JOIN
-        book_publisher bp ON bp.book_id = b.book_id
-            INNER JOIN
-        publisher p ON p.publisher_id = bp.publisher_id
-			INNER JOIN
-        availability av ON b.book_id = av.book_id
-            INNER JOIN
-        school_unit sch ON sch.school_id = av.school_id
-        GROUP BY b.ISBN,
-        p.publisher_name,
-        sch.school_id
+        INNER JOIN 
+        (SELECT bc.book_id, GROUP_CONCAT(c.category_name) AS cat
+        FROM book_category bc INNER JOIN category c ON c.category_id = bc.category_id
+        GROUP BY bc.book_id) AS book_cat
+        ON b.book_id = book_cat.book_id
+        
+        INNER JOIN
+        (SELECT bp.book_id, p.publisher_name
+        FROM book_publisher bp INNER JOIN publisher p 
+        ON p.publisher_id = bp.publisher_id) AS book_pub
+        ON b.book_id = book_pub.book_id
     );
     
     
+CREATE VIEW school_book_info AS
+		SELECT a.school_id, bi.*, a.copies
+        FROM book_info bi INNER JOIN availability a
+        ON a.book_id = bi.book_id;
+
+
 CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
     SELECT 
         sch.name AS 'School Name',
@@ -219,6 +211,7 @@ CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
         b.user_id = u.user_id
     GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
 
+
 CREATE VIEW loan_app AS
 	SELECT u.school_id, u.user_id, u.username, u.first_name, u.last_name, u.user_role, b.title, a.copies, b.book_id
     FROM lib_user u 
@@ -229,6 +222,7 @@ CREATE VIEW loan_app AS
     INNER JOIN availability a
     ON a.book_id  = b.book_id AND a.school_id = u.school_id
     WHERE s.service_type = 'r';
+
 
 CREATE VIEW review_app AS
 	SELECT u.school_id, u.user_id, u.username, u.user_role, b.title, r.rating, r.review_text, b.book_id
@@ -247,12 +241,13 @@ CREATE VIEW user_info AS
     ORDER BY u.user_id;
     
 CREATE VIEW service_info AS
-	SELECT u.user_id, b.ISBN, b.title, s.service_type, s.service_date
+	SELECT u.school_id, u.user_id, b.book_id, b.ISBN, b.title, s.service_type, s.service_date
     FROM lib_user u 
     INNER JOIN service s
     ON s.user_id = u.user_id
     INNER JOIN book b
     ON b.book_id = s.book_id;
+
 
 CREATE VIEW delay_info AS
 	SELECT u.school_id, u.user_id, u.first_name, u.last_name, s.service_date, datediff(curdate(), service_date)-14 AS delay
@@ -292,8 +287,14 @@ CREATE VIEW review_info AS
     ON b.book_id = r.book_id
     WHERE r.pending = 0;
 
-
-
+CREATE VIEW lib_app AS
+	SELECT sch.school_id, u.user_id, sch.name, u.username, u.first_name, u.last_name, u.birth_date, u.user_role
+    FROM lib_user u
+    INNER JOIN school_unit sch
+    ON sch.school_id = u.school_id
+    WHERE u.active = FALSE AND u.pending = TRUE AND u.user_role = 'l';
+        
+        
 
 -- -------
 -- Indexes

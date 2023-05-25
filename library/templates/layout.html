@@ -18,7 +18,7 @@
 </head>
 <body>
 	<nav>
-		<a href="/home">Home</a> |
+		<a href="/">Home</a> |
 		<a href="/about">About</a> |
 		{% if session.get('user_role') == 'l' %}
 			<a href="/applications">Applications</a> |
@@ -27,7 +27,7 @@
 			<a href="/add_book">Add a book</a> |
 			<a href="/statistics">Statistics</a> |
 		{% elif session.get('user_role') in ['s','t'] %}
-			<a href="/profile">Profile</a> |
+			<a href="/profile/{{session.get('user_id')}}">Profile</a> |
 		{% elif session.get('user_role') == 'a' %}
 			<a href="/add_school">Add a School</a> |
 			<a href="/applications">Applications</a> |

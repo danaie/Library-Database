@@ -1,20 +1,21 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort, session
-from forms import *
+from library.forms import *
 from flask_mysqldb import MySQL
-
-app = Flask(__name__) 
-db = MySQL(app)
+from .__init__ import app, db
 
 @app.route('/')
 def home():
     return render_template('home.html')
 
+@app.route('/about')
+def about():
+    return render_template("about.html")
 
 @app.route('/books')
 def new():
     if session:
         cur = db.connect.cursor()
-        cur.execute("SELECT ISBN, title, copies FROM school_books WHERE school_id=%s",(session['school_id'],))
+        cur.execute("SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id=%s",(session['school_id'],))
         data = cur.fetchall()
         cur.close()
         return render_template("books_av.html",data=data)
@@ -136,16 +137,16 @@ def search():
         return redirect(url_for('search_for', t=t, a=a, c=c))
     elif 'search_cp' in request.form:
         cp = request.form.get('copies')
-        return redirect(url_for('search_for_copies',cp=cp))
+        return redirect(url_for('search_for_copies', cp=cp))
     if session.get('user_role') == 'l':
         return render_template('search_l.html', form=form, copies=copies)
     else:
-        return render_template('search.html', form=form)
+        return render_template('search.html', form=form, copies=copies)
 
 @app.route('/search/for/<t>+<a>+<c>')
 def search_for(t,a,c):
     cur = db.connection.cursor()
-    query = "SELECT book_id, ISBN, title, copies FROM book_info WHERE school_id = %s AND REGEXP_LIKE(title,%s) AND REGEXP_LIKE(auth,%s) AND REGEXP_LIKE(cat,%s)"
+    query = "SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id = %s AND REGEXP_LIKE(title,%s) AND REGEXP_LIKE(auth,%s) AND REGEXP_LIKE(cat,%s)"
     values = (session['school_id'], t, a, c,)
     cur.execute(query, values)
     data = cur.fetchall()
@@ -159,7 +160,7 @@ def search_for(t,a,c):
 @app.route('/search/for/copies/<cp>')
 def search_for_copies(cp):
     cur = db.connection.cursor()
-    cur.execute("SELECT book_id, ISBN, title, copies FROM book_info WHERE school_id = %s AND copies = %s", (session['school_id'], cp,))
+    cur.execute("SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id = %s AND copies = %s", (session['school_id'], cp,))
     data = cur.fetchall()
     cur.close()
     if data:
@@ -406,6 +407,7 @@ def add_book():
             return redirect(url_for('home'))
     return render_template('add_book.html', form = form)
 
+
 @app.route('/profile/<user_id>', methods=['POST','GET'])
 def profile(user_id):
         if session.get('user_role') != 'l' and str(session.get('user_id')) != user_id:
@@ -435,16 +437,7 @@ def profile(user_id):
                 except Exception as e:
                     msg = "Account could not be deleted."
 
-            elif request.form.get('button') == "Cancel":
-                try:
-                    query = "DELETE FROM service WHERE user_id=%s AND book_id=%s AND service_type='r'"
-                    values = (user_id, )
-                    cur.execute(query, values)
-                    db.connection.commit()
-                    cur.close()
-                    msg = "Reservation was successfully canceled."
-                except:
-                    msg = "No such reservation found."
+            
             flash(msg)
             return redirect(url_for("home"))
 
@@ -475,6 +468,23 @@ def profile(user_id):
         return render_template("profile.html", data=data, ser=ser, log=log)
     
 
+@app.route('/reservation/cancel/<int:user_id>+<int:book_id>', methods=['GET','POST'])
+def cancel(user_id,book_id):
+    msg = ''
+    try:
+        cur = db.connection.cursor()
+        query = "DELETE FROM service WHERE user_id=%s AND book_id=%s AND service_type='r'"
+        values = (user_id,book_id,)
+        cur.execute(query, values)
+        db.connection.commit()
+        cur.close()
+        msg = "Reservation was successfully canceled."
+    except:
+        msg = "No such reservation found."
+    flash(msg)
+    return redirect(url_for('profile', user_id=user_id))
+
+
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
     form = Change_password_form()
@@ -482,11 +492,15 @@ def change_password():
         cur = db.connection.cursor()
         cur.execute("SELECT (password) FROM lib_user WHERE username=%s",(session.get('username'),))
         password = cur.fetchall()
+        cur.close()
+        print(password[0][0],form.current_password.data)
         if password[0][0] == form.current_password.data:
-            cur.execute("UPDATE lib_user SET password=%s WHERE username=%s", (form.new_password.data, session.get('username')))
+            cur = db.connection.cursor()
+            cur.execute("UPDATE lib_user SET password=%s WHERE username=%s", (form.new_password.data, session.get('username'),))
             db.connection.commit()
             cur.close()
-            return redirect(url_for('profile'))
+            flash("Password changed successfully.")
+            return redirect(url_for('profile', user_id=str(session.get('user_id'))))
         else :
             flash('Wrong password!')
             return redirect(url_for('change_password'))

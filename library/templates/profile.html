@@ -36,6 +36,19 @@
 
     <br>
 
+    {% if data[0][0] == session.get('user_id') %}
+        {% if session.get('user_role') == 't' %}
+            <form action="/profile/{{data[0][0]}}" method="POST">
+                <input name="button" type="submit" value="Change personal info">
+            </form>
+        {% elif session.get('user_role') == 's' %}
+            <form action="/change_password" method="POST">
+                <input name="button" type="submit" value="Change password">
+            </form>
+       {% endif %}
+       <br>
+    {% endif %}
+
     <h4>Current services</h4>
     {% if not ser %}
         <p>No current services.</p>
@@ -64,9 +77,9 @@
                             </td>
                         {% endfor %}
                         <td>
-                        {% if session['user_role'] in ['s','t'] and row[5] == 'r'%}
+                        {% if session['user_role'] in ['s','t'] and row[1] == session.get('user_id') and row[5] == 'r'%}
                            
-                                <form action="/profile/{{ session.get('user_id') }}" method="POST">
+                                <form action="/reservation/cancel/{{row[1]}}+{{row[2]}}" method="POST">
                                     <input name='button' type="submit" value="Cancel">
                                 </form>
                             
@@ -121,5 +134,7 @@
         <input name="button" type="submit" value="Delete">
     </form>
     {% endif %}
+
+    
 
 {% endblock %}

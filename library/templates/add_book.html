@@ -45,7 +45,9 @@
 					{% else %}
 					{{ form.author_first_name }}
 					{% endif %}
-					<p>Add all authors first name separated by ", "</p>
+					<br>
+					<small>Add all authors first name separated by ", "</small>
+					<br>
 				</div>
 				<div>
 					
@@ -60,7 +62,10 @@
 					{% else %}
 					{{ form.author_last_name }}
 					{% endif %}
-					<p>Add all authors last name separated by ", " in the same order as the first name</p>
+					<br>
+					<small>Add all authors last name separated by ", " 
+						in the same order as the first name</small>
+					<br>
 				</div>
 				<div>
 					{{ form.publisher.label() }}
@@ -89,7 +94,9 @@
 					{% else %}
 					{{ form.category }}
 					{% endif %}
-					<p>Add all categories separated by ", "</p>
+					<br>
+					<small>Add all categories separated by ", "</small>
+					<br>
 				</div>
 				<div>
 					{{ form.page_number.label() }}

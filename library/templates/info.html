@@ -2,12 +2,13 @@
 
 {% block content %}
 	<h1>Book Info</h1>
-	<h2>{{ book[0][2] }}</h2>
+	<h2>{{ book[0][1] }}</h2>
 	<p>	
 		<img src="{{ book[0][9] }}" width="200" height="300" align="left" hspace="40" vspace="10"/>
+		<b>ISBN:</b> {{ book[0][2]}} <br>
 		<b>Author:</b> {{ book[0][3]}} <br>
-		<b>Publisher:</b> {{ book[0][4] }} <br>
-		<b>Category:</b> {{ book[0][5] }} <br>
+		<b>Publisher:</b> {{ book[0][5] }} <br>
+		<b>Category:</b> {{ book[0][4] }} <br>
 		<b>Page Number:</b> {{ book[0][6] }} <br>
 		<b>Summary:</b> {{ book[0][7] }} <br>
 		<b>Language:</b> {{ book[0][8] }} <br>
@@ -19,7 +20,7 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 	<h4>Reviews</h4> 
-	<a href="/add_review/{{ book[0][-1] }}">
+	<a href="/add_review/{{ book[0][0] }}">
 		<button type="button">Add review</button>
 	</a>
 		{% if not review %}
