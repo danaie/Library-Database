@@ -52,7 +52,7 @@
             <tbody>
                 {% for row in ser %} 
                     <tr>
-                        {% for el in row[1:] %}
+                        {% for el in row[3:] %}
                             <td>
                                 {% if el=='b' %}
                                     Borrowed
@@ -63,6 +63,15 @@
                                 {% endif %}
                             </td>
                         {% endfor %}
+                        <td>
+                        {% if session['user_role'] in ['s','t'] and row[5] == 'r'%}
+                           
+                                <form action="/profile/{{ session.get('user_id') }}" method="POST">
+                                    <input name='button' type="submit" value="Cancel">
+                                </form>
+                            
+                        {% endif %}
+                    </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -101,6 +110,16 @@
                 {% endfor %}
             </tbody>
         </table>
+    {% endif %}
+
+    {% if session['user_role'] == 'l' %}
+    <form action="/profile/{{data[0][0]}}" method="POST">
+        <input name='button' type="submit" value="Deactivate">
+    </form>
+    <br>
+    <form action="/profile/{{data[0][0]}}" method="POST">
+        <input name="button" type="submit" value="Delete">
+    </form>
     {% endif %}
 
 {% endblock %}
