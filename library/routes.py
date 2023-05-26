@@ -15,7 +15,7 @@ def about():
 def books():
     if session:
         cur = db.connect.cursor()
-        cur.execute("SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id=%s",(session['school_id'],))
+        cur.execute("SELECT book_id, ISBN, title, auth, copies FROM school_book_info WHERE school_id=%s",(session['school_id'],))
         data = cur.fetchall()
         cur.close()
         return render_template("books_av.html",data=data)
@@ -174,10 +174,10 @@ def info(book_id):
     cur = db.connect.cursor()
     cur.execute("SELECT * FROM book_info WHERE book_id=%s",(str(book_id),))
     book = cur.fetchall()
-    #cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
-    #review = cur.fetchall()
+    cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
+    review = cur.fetchall()
     cur.close()
-    return render_template("info.html", book=book) #, review = review)
+    return render_template("info.html", book=book, review=review)
 
 
 @app.route('/reserve/<int:book_id>')
@@ -201,26 +201,26 @@ def reserve(book_id):
         query ="UPDATE availability SET copies=copies-1 WHERE book_id=%s AND school_id=%s"
         values = (book_id, session['school_id'],)
         cur.execute(query, values)
+        db.connection.commit()
     except Exception as e:
         flash("Not enough copies.")
         return redirect(url_for('books'))
     
-    query = "SELECT count(copies) FROM availability WHERE book_id=%s AND school_id=%s"
+    query = "SELECT copies FROM availability WHERE book_id=%s AND school_id=%s"
     values = (book_id, session['school_id'],)
     cur.execute(query, values)
     cop = cur.fetchall()
-    wait = False;
-    if cop[0][0] == 0:
-        wait = True
-
+    wait = 'FALSE'
+    if cop[0][0] == str(0):
+        wait = 'TRUE'
     try:
-        query = "INSERT INTO service (user_id, book_id, service_type, wait) VALUES (%s, %s, %s, %s)"
-        values = (session.get('user_id'), book_id, 'r', wait,)
+        query = "INSERT INTO service (user_id, book_id, service_type, waiting) VALUES (%s, %s, %s, %s)"
+        values = (session.get('user_id'), str(book_id), 'r', wait,)
         cur.execute(query, values)
+        db.connection.commit()
     except Exception as e:
         flash("You have already reserved or are currently in possession of this title.")
         return redirect(url_for('books'))
-    db.connection.commit()
     cur.close()
     flash("Your reservation has been registered.")
     return redirect(url_for('books'))
@@ -586,11 +586,11 @@ def delay(f,l,d):
     if d == '.*':
         query = """SELECT * FROM delay_info WHERE school_id = %s
         AND REGEXP_LIKE(first_name,%s) AND REGEXP_LIKE(last_name,%s) 
-        AND DATEDIFF(CURDATE(), service_date) > 14
+        AND DATEDIFF(CURDATE(), service_date) > 7
         """
         values = (session['school_id'], f, l,)
     else:
-        val = int(d)+14
+        val = int(d)+7
         query = """SELECT * FROM delay_info WHERE school_id = %s
         AND REGEXP_LIKE(first_name,%s) AND REGEXP_LIKE(last_name,%s)
         AND DATEDIFF(CURDATE(), service_date) = %s

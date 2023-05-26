@@ -126,7 +126,7 @@ CREATE TABLE availability (
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT copies_gr_zero CHECK (copies > 0),
+    CONSTRAINT copies_gr_zero CHECK (copies >= 0),
     CONSTRAINT UNIQUE (school_id, book_id)
 );
 
@@ -134,6 +134,7 @@ CREATE TABLE service (
     user_id INT,
     book_id INT,
     service_type VARCHAR(1) NOT NULL,
+    waiting BOOLEAN DEFAULT FALSE,
     service_date DATE NOT NULL DEFAULT (CURRENT_DATE),
     FOREIGN KEY (user_id)
         REFERENCES lib_user (user_id)
@@ -320,8 +321,19 @@ END IF;
 END; $$
 delimiter ;
 
+delimiter $$
+CREATE PROCEDURE no_more_wait(IN sch_id INT)
+BEGIN
+IF (NEW.copies = OLD.copies+1) THEN
+	UPDATE service SET wait=FALSE WHERE school_id=sch_id AND 
+END IF;
+END; $$
+delimiter ;
 
+-- ------
+-- Events
+-- ------
 CREATE EVENT reserv_event
 ON SCHEDULE EVERY 1 DAY
 DO
-    DELETE FROM service WHERE DATEDIFF(CURRENT_DATE, service_date) > 7;
+    DELETE FROM service WHERE DATEDIFF(CURRENT_DATE, service_date) > 7 AND service_type='r';
