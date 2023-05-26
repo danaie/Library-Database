@@ -2,6 +2,9 @@
 -- Queries
 -- -------
 
+-- -------------
+-- Administrator
+-- -------------
 -- 3.1.1
 SELECT * FROM tot_loans WHERE b_month = '04' AND b_year = '2022';
 
@@ -22,6 +25,7 @@ CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
         b.user_id = u.user_id
     GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
     
+    
 -- 3.1.2a
 SELECT author FROM
 	(SELECT DISTINCT c.category_name AS category, CONCAT(a.author_first_name, ' ', a.author_last_name) AS author
@@ -31,7 +35,14 @@ SELECT author FROM
 	INNER JOIN category c ON c.category_id = bc.category_id) AS cat_auth
     WHERE cat_auth.category = 'Fiction';
     
+    
 -- 3.1.2b
+select * from lib_user where user_id in (
+select distinct user_id from borrow_log where year(borrow_date) = year(current_date()) 
+and book_id in (select book_id from book_category where category_id in 
+(select category_id from category where category_name = "Fiction") )
+) and user_role = 't';
+
 
 -- 3.1.3
 SELECT CONCAT(u.first_name, ' ', u.last_name) AS teacher_name, COUNT(bl.book_id) AS book_nmbr
@@ -62,6 +73,19 @@ SELECT * FROM (
 WHERE lib_loan.loan_nmbr > 0 AND lib_loan.loan_year = '2020';
 
 
+-- 3.1.6
+SELECT COUNT(bl.book_id) AS loan_nmbr, 
+c1.category_name AS category1, c2.category_name AS category2
+FROM category c1 INNER JOIN book_category bc1 ON c1.category_id = bc1.category_id
+INNER JOIN book_category bc2
+ON bc1.book_id = bc2.book_id AND bc1.category_id < bc2.category_id
+INNER JOIN category c2 ON c2.category_id = bc2.category_id
+INNER JOIN borrow_log bl ON bl.book_id = bc1.book_id
+GROUP BY bc1.category_id, bc2.category_id
+ORDER BY COUNT(bl.book_id) DESC
+LIMIT 3;
+
+
 -- 3.1.7
 CREATE VIEW author_books AS
 	SELECT author.author_id, CONCAT(author.author_first_name, ' ', author.author_last_name) AS author, 
@@ -75,6 +99,10 @@ FROM author_books
 WHERE author_books.total_books <= (SELECT MAX(total_books) FROM author_books) - 5;
 
 
+
+-- ---------------
+-- Library Manager
+-- ---------------
 -- 3.2.1
 SELECT book_id, ISBN, title, auth, copies FROM school_book_info WHERE school_id=1;
 
@@ -114,6 +142,10 @@ CREATE VIEW review_info AS
     ON b.book_id = r.book_id
     WHERE r.pending = 0;
 
+
+-- ----
+-- User
+-- ----
 -- 3.3.1
 SELECT ISBN, title, copies FROM school_book_info
 WHERE school_id = 1 AND title like "%rose%" AND category like "%bio%" AND auth like '%leo%';
