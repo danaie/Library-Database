@@ -637,7 +637,7 @@ def information():
 def result(q):
     if session.get('user_role') != 'a':
         flash("You do not have authorization to view this page.")
-        return(redirect(url_for("/")))
+        return(redirect(url_for("home")))
     cur = db.connection.cursor()
     q = int(q)
     if q == 3:
@@ -650,24 +650,13 @@ def result(q):
             ORDER BY book_nmbr DESC
             LIMIT 10;"""
     elif q == 4:
-        query = """SELECT * FROM author WHERE author_id NOT IN (
+        query = """SELECT CONCAT(author_first_name, ' ', author_last_name) AS author_name
+            FROM author WHERE author_id NOT IN (
             SELECT DISTINCT author_id FROM book_author WHERE book_id IN 
             (SELECT book_id FROM borrow_log));"""
-    elif q == 5:
-        query = """SELECT * FROM (
-                SELECT lm.username, CONCAT(lm.first_name, ' ', lm.last_name) AS lib_man_name, sch.name, 
-                COUNT(bl.user_id) AS loan_nmbr, YEAR(bl.borrow_date) AS loan_year
-                FROM school_unit sch
-                INNER JOIN lib_user u ON sch.school_id = u.school_id
-                INNER JOIN borrow_log bl ON bl.user_id = u.user_id
-                INNER JOIN lib_user lm ON lm.school_id = sch.school_id
-                WHERE lm.user_role = 'l'
-                GROUP BY lm.username, sch.school_id, loan_year) AS lib_loan
-            WHERE lib_loan.loan_nmbr > 20 AND lib_loan.loan_year = '2020'
-            ORDER BY loan_nmbr DESC;"""
     elif q == 6:
         query = """SELECT COUNT(bl.book_id) AS loan_nmbr, 
-            c1.category_name AS category1, c2.category_name AS category2
+            CONCAT(c1.category_name, ', ', c2.category_name) AS category_pair
             FROM category c1 INNER JOIN book_category bc1 ON c1.category_id = bc1.category_id
             INNER JOIN book_category bc2
             ON bc1.book_id = bc2.book_id AND bc1.category_id < bc2.category_id
@@ -682,26 +671,40 @@ def result(q):
         FROM author_books) - 5;"""
     else:
         flash("Invalid argument.")
-        return redirect(url_for('/'))
+        return redirect(url_for('home'))
     cur.execute(query, ())
     data = cur.fetchall()
     return render_template('result.html', q=q, data=data)
 
 
-@app.route('/result/<int:q>+<m>+<y>')
+@app.route('/result/<int:q>/<m>+<y>')
 def result1(q,m,y):
     if session.get('user_role') != 'a':
         flash("You do not have authorization to view this page.")
-        return(redirect(url_for("/")))
-    elif int(q) != 1:
+        return(redirect(url_for("home")))
+    elif int(q) not in [1,5]:
         flash("Invalid arguments.")
-        return(redirect(url_for("/")))
-    else:
+        return(redirect(url_for("home")))
+    elif int(q) == 1:
         cur = db.connection.cursor()
         query = "SELECT * FROM tot_loans WHERE b_month=%s AND b_year=%s;"
         values = (m,y,)
-        cur.execute(query, values)
-        data = cur.fetchall()
-        cur.close()
-        return render_template("result.html", q=q, data=data)
+    else:
+        cur = db.connection.cursor()
+        query = """SELECT * FROM (
+                SELECT lm.username, CONCAT(lm.first_name, ' ', lm.last_name) AS lib_man_name, sch.name, 
+                COUNT(bl.user_id) AS loan_nmbr, YEAR(bl.borrow_date) AS loan_year
+                FROM school_unit sch
+                INNER JOIN lib_user u ON sch.school_id = u.school_id
+                INNER JOIN borrow_log bl ON bl.user_id = u.user_id
+                INNER JOIN lib_user lm ON lm.school_id = sch.school_id
+                WHERE lm.user_role = 'l'
+                GROUP BY lm.username, sch.school_id, loan_year) AS lib_loan
+            WHERE lib_loan.loan_nmbr > 20 AND lib_loan.loan_year = %s
+            ORDER BY loan_nmbr DESC;"""
+        values = (y,)
+    cur.execute(query, values)
+    data = cur.fetchall()
+    cur.close()
+    return render_template("result.html", q=q, data=data)
 

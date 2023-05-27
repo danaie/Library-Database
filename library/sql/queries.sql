@@ -55,7 +55,8 @@ LIMIT 10;
 
     
 -- 3.1.4
-SELECT * FROM author WHERE author_id NOT IN (
+SELECT CONCAT(author_first_name, ' ', author_last_name) AS author_name
+	FROM author WHERE author_id NOT IN (
 	SELECT DISTINCT author_id FROM book_author WHERE book_id IN 
 	(SELECT book_id FROM borrow_log));
 
@@ -76,7 +77,7 @@ ORDER BY loan_nmbr DESC;
 
 -- 3.1.6
 SELECT COUNT(bl.book_id) AS loan_nmbr, 
-c1.category_name AS category1, c2.category_name AS category2
+CONCAT(c1.category_name, ', ', c2.category_name) AS category_pair
 FROM category c1 INNER JOIN book_category bc1 ON c1.category_id = bc1.category_id
 INNER JOIN book_category bc2
 ON bc1.book_id = bc2.book_id AND bc1.category_id < bc2.category_id

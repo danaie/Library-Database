@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h1>Result</h1>
+    {% if not data %}
+        <p>No result available.</p>
+    {% else %}
+        <table border="1">
+            <thead>
+                <tr>
+                    {% if q == 3 %}
+                        <th>Name</th>
+                        <th>Number of loans</th>
+                    {% elif q == 5 %}
+                        <th>Username</th>
+                        <th>Name</th>
+                        <th>School</th>
+                        <th>Number of loans</th>
+                        <th>Year</th>
+                    {% elif q == 6 %}
+                        <th>Number of loans</th>
+                        <th>Category pair</th>
+                    {% elif q in [4,7] %}
+                        <th>Author</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                    <tr>
+                        {% for el in row %}
+                            <td>{{ el }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
