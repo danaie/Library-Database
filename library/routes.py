@@ -106,6 +106,7 @@ def books():
     cur.close()
     return render_template("books_av.html", data=data)
 
+
 @app.route('/info/<int:book_id>')
 def info(book_id):
     cur = db.connect.cursor()
@@ -518,7 +519,6 @@ def update_user(user_id):
         username = user.username
 '''
 
-
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
     form = Change_password_form()
@@ -533,7 +533,7 @@ def change_password():
             db.connection.commit()
             cur.close()
             flash("Password changed successfully.")
-            return redirect(url_for('profile'user_id=str(session.get('user_id'))))
+            return redirect(url_for('profile',user_id=str(session.get('user_id'))))
         else :
             flash('Wrong password!')
             return redirect(url_for('change_password'))
