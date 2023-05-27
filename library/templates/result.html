@@ -8,7 +8,14 @@
         <table border="1">
             <thead>
                 <tr>
-                    {% if q == 3 %}
+                    {% if q == 1 %}
+                        <th>School</th>
+                        <th>Number of loans</th>
+                        <th>Month</th>
+                        <th>Year</th>      
+                    {% elif q == 2 %}  
+                        <th>Author</th>  
+                    {% elif q == 3 %}
                         <th>Name</th>
                         <th>Number of loans</th>
                     {% elif q == 5 %}
@@ -33,6 +40,19 @@
                         {% endfor %}
                     </tr>
                 {% endfor %}
+
+                {% if q == 2 %}
+                    {% if not data2 %}
+                    <p>dhadjha</p>
+                    {% endif %}
+                    {% for row in data2 %}
+                        <tr>
+                            {% for el in row %}
+                                <td>{{ el }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% endif %}
             </tbody>
         </table>
     {% endif %}

@@ -4,9 +4,64 @@
 <h1>Information</h1>
 
 <h4>Number of loans per school</h4>
+<form method="POST" action="">
+    {{ tot_loans_form.hidden_tag() }}
+    <fieldset>
+        <div>
+            {{ tot_loans_form.month.label() }}
+            {% if tot_loans_form.month.errors %}
+                {{ tot_loans_form.month }}
+                <div>
+                    {% for error in tot_loans_form.month.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+            {{ tot_loans_form.month }}
+            {% endif %}
+        </div>
+        <div>
+            {{ tot_loans_form.year.label() }}
+            {% if tot_loans_form.year.errors %}
+                {{ tot_loans_form.year }}
+                <div>
+                    {% for error in tot_loans_form.year.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+            {{ tot_loans_form.year }}
+            {% endif %}
+        </div>
+    </fieldset>
+    <div>
+        {{ tot_loans_form.search_tot_loans }}
+    </div>
+
 
 <h4>Authors who have written books in a specific category and teachers 
     who have borrowed books in this category during the last one year</h4>
+
+    <form method="POST" action="">
+        {{ category_form.hidden_tag() }}
+        <fieldset>
+            <div>
+                {{ category_form.category.label() }}
+                {% if category_form.category.errors %}
+                    {{ category_form.category }}
+                    <div>
+                        {% for error in category_form.category.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                {{ category_form.category }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div>
+            {{ category_form.search_category }}
+        </div>
 
 <h4>10 young teachers (younger than 40 years old) who have borrowed the most books 
     and the number of books they have borrowed</h4>

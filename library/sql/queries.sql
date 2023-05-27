@@ -12,7 +12,7 @@ SELECT * FROM tot_loans WHERE b_month = '04' AND b_year = '2022';
 CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
     SELECT 
         sch.name AS 'School Name',
-        COUNT(*) AS 'Number of Loans',
+        COUNT(b.user_id) AS 'Number of Loans',
         MONTH(b.borrow_date) AS 'Month',
         YEAR(b.borrow_date) AS 'Year'
     FROM
@@ -20,11 +20,9 @@ CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
             INNER JOIN
         lib_user u ON u.school_id = sch.school_id
             INNER JOIN
-        borrow_log b
-    WHERE
-        b.user_id = u.user_id
+        borrow_log b ON b.user_id = u.user_id
     GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
-    
+        
     
 -- 3.1.2a
 SELECT author FROM
@@ -37,7 +35,8 @@ SELECT author FROM
     
     
 -- 3.1.2b
-select * from lib_user where user_id in (
+select username, CONCAT(first_name, ' ', last_name) AS teacher_name
+ from lib_user where user_id in (
 select distinct user_id from borrow_log where DATEDIFF(current_date(), borrow_date)/365 <= 1
 and book_id in (select book_id from book_category where category_id in 
 (select category_id from category where category_name = "Fiction") )

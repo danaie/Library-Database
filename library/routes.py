@@ -122,7 +122,7 @@ def search():
     form = Search_form()
     copies = Search_by_copies_form()
     form.category.choices = cat  
-    if 'search'in request.form:
+    if 'search' in request.form:
         t = form.title.data
         a = form.author.data
         c = request.form.getlist('category')
@@ -629,8 +629,26 @@ def avg_rating(username,cat):
 
 @app.route('/information', methods=['POST','GET'])
 def information():
-        tot_loans = TotLoans_form()
-        return render_template('information.html')
+        tot_loans_form = TotLoans_form()
+        category_form = Category_form()
+        if request.method == 'POST':
+            if 'search_category' in request.form:
+                cat = category_form.category.data
+                return redirect(url_for('result2', cat=cat))
+            elif 'search_tot_loans' in request.form:
+                month = tot_loans_form.month.data
+                year = tot_loans_form.year.data
+                return redirect(url_for('result1', q=1, m=month, y=year))
+        else:
+            cur = db.connection.cursor()
+            query = "SELECT * from category ORDER BY category_name"
+            cur.execute(query, ())
+            data = cur.fetchall()
+            list = []
+            for el in data:
+                list.append(el)
+            category_form.category.choices = list
+        return render_template('information.html', tot_loans_form=tot_loans_form, category_form=category_form)
 
 
 @app.route('/result/<int:q>')
@@ -687,8 +705,11 @@ def result1(q,m,y):
         return(redirect(url_for("home")))
     elif int(q) == 1:
         cur = db.connection.cursor()
-        query = "SELECT * FROM tot_loans WHERE b_month=%s AND b_year=%s;"
-        values = (m,y,)
+        query = "SELECT * FROM tot_loans WHERE b_year=%s"
+        values = (y,)
+        if m != 'Whole year':
+            query += " AND b_month=%s;"
+            values += (m,)
     else:
         cur = db.connection.cursor()
         query = """SELECT * FROM (
@@ -708,3 +729,34 @@ def result1(q,m,y):
     cur.close()
     return render_template("result.html", q=q, data=data)
 
+
+@app.route('/result/2/<int:cat>')
+def result2(cat):
+    if session.get('user_role') != 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for('home'))
+    
+    cur = db.connection.cursor()
+    query = """SELECT author FROM
+        (SELECT DISTINCT c.category_id AS category, CONCAT(a.author_first_name, ' ', a.author_last_name) AS author
+        FROM author a INNER JOIN book_author ba ON ba.author_id = a.author_id
+        INNER JOIN book b ON b.book_id = ba.book_id
+        INNER JOIN book_category bc ON bc.book_id = b.book_id
+        INNER JOIN category c ON c.category_id = bc.category_id) AS cat_auth
+        WHERE cat_auth.category = %s;"""
+    values = (cat,)
+    cur.execute(query, values)
+    data = cur.fetchall()
+
+    query = """select username, CONCAT(first_name, ' ', last_name) AS teacher_name 
+        from lib_user where user_id in
+        (select distinct user_id from borrow_log where 
+        DATEDIFF(current_date(), borrow_date)/365 <= 1
+        and book_id in (select book_id from book_category where category_id in 
+        (select category_id from category where category_id = %s) )
+        ) and user_role = 't';"""
+    cur.execute(query, values)
+    data2 = cur.fetchall()
+
+    cur.close()
+    return render_template('result.html', data=data, data2=data2)

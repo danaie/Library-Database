@@ -199,7 +199,7 @@ CREATE VIEW school_book_info AS
 CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
     SELECT 
         sch.name AS 'School Name',
-        COUNT(*) AS 'Number of Loans',
+        COUNT(b.user_id) AS 'Number of Loans',
         MONTH(b.borrow_date) AS 'Month',
         YEAR(b.borrow_date) AS 'Year'
     FROM
@@ -207,9 +207,7 @@ CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
             INNER JOIN
         lib_user u ON u.school_id = sch.school_id
             INNER JOIN
-        borrow_log b
-    WHERE
-        b.user_id = u.user_id
+        borrow_log b ON b.user_id = u.user_id
     GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
 
 

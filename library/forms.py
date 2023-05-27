@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, DateField, SelectField, SelectMultipleField, IntegerField
 from wtforms.validators import DataRequired, Length, EqualTo, NumberRange, Email
+import datetime
 
 
 class Signup_form(FlaskForm):
@@ -87,20 +88,13 @@ class AvgRating_form(FlaskForm):
 	category = SelectField('Category', choices=[(0,'')], validate_choice=True)
 	search2 = SubmitField('Search')
 
-class MonthYearField(SelectField):
-    def __init__(self, label='', validators=None, **kwargs):
-        super(MonthYearField, self).__init__(label, validators, **kwargs)
-        self.choices = self._get_month_year_choices()
-
-    def _get_month_year_choices(self):
-        choices = [('', 'Select Month and Year')]
-        for year in range(2000, 2031):  # Customize the range as needed
-            for month in range(1, 13):
-                month_year = f"{month:02d}/{year}"
-                choices.append((month_year, month_year))
-        return choices
-
 class TotLoans_form(FlaskForm):
-	date = MonthYearField('Select Month and Year', validators=[DataRequired()])
+	month = SelectField('Month', choices=['Whole year']+[month for month in range(1,13)])
+	year = SelectField('Year', validators=[DataRequired()], choices=[year for year in range(2010, datetime.date.today().year)])
+	search_tot_loans = SubmitField('View')
+
+class Category_form(FlaskForm):
+	category = SelectField('Category', validators=[DataRequired()], choices=[])
+	search_category = SubmitField('View')
 
 
