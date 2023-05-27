@@ -235,8 +235,8 @@ def applications():
     else:
         cur = db.connection.cursor()
         if session.get('user_role') == 'a':
-            query = """SELECT sch.name, u.user_id, u.username, u.first_name, u.last_name, 
-            u.birth_date, u.user_role 
+            query = """SELECT u.user_id, u.username, u.first_name, u.last_name, 
+            sch.name, u.birth_date, u.user_role 
             FROM lib_user u
             INNER JOIN school_unit sch 
             ON sch.school_id=u.school_id 
@@ -520,6 +520,7 @@ def change_password():
             return redirect(url_for('change_password'))
     return render_template("change_password.html",form=form)
 
+
 @app.route('/add_school', methods=['GET', 'POST'])
 def add_school():
     if session.get('user_role') != 'a':
@@ -759,4 +760,4 @@ def result2(cat):
     data2 = cur.fetchall()
 
     cur.close()
-    return render_template('result.html', data=data, data2=data2)
+    return render_template('result.html', q=2, data=data, data2=data2)

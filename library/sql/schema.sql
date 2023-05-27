@@ -307,7 +307,7 @@ CREATE VIEW author_books AS
 ----------
 CREATE INDEX title_idx ON book (title);
 
-CREATE UNIQUE INDEX author_idx ON author (author_last_name, author_first_name);
+CREATE INDEX author_idx ON author (author_last_name, author_first_name);
 
 CREATE INDEX borrow_log_idx ON borrow_log (user_id);
 

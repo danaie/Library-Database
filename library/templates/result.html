@@ -2,8 +2,9 @@
 
 {% block content %}
     <h1>Result</h1>
+    <div>
     {% if not data %}
-        <p>No result available.</p>
+        <p>No authors found.</p>
     {% else %}
         <table border="1">
             <thead>
@@ -40,20 +41,31 @@
                         {% endfor %}
                     </tr>
                 {% endfor %}
+            </tbody>
+        {% endif %}
+        </div>
 
+        <div>
                 {% if q == 2 %}
                     {% if not data2 %}
-                    <p>dhadjha</p>
-                    {% endif %}
-                    {% for row in data2 %}
-                        <tr>
-                            {% for el in row %}
-                                <td>{{ el }}</td>
+                        <p>No teachers found.</p>
+                    {% else %}
+                    <table border="1">
+                        <thead>
+                            <th>Username</th>
+                            <th>Teacher name</th>
+                        </thead>
+                        <tbody>
+                            {% for row in data2 %}
+                                <tr>
+                                    {% for el in row %}
+                                        <td>{{ el }}</td>
+                                    {% endfor %}
+                                </tr>
                             {% endfor %}
-                        </tr>
-                    {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
                 {% endif %}
-            </tbody>
-        </table>
-    {% endif %}
+            </div>
 {% endblock %}
