@@ -3,25 +3,15 @@ from library.forms import *
 from flask_mysqldb import MySQL
 from .__init__ import app, db
 
+
 @app.route('/')
 def home():
     return render_template('home.html')
 
+
 @app.route('/about')
 def about():
     return render_template("about.html")
-
-@app.route('/books')
-def books():
-    if session:
-        cur = db.connect.cursor()
-        cur.execute("SELECT book_id, ISBN, title, auth, copies FROM school_book_info WHERE school_id=%s",(session['school_id'],))
-        data = cur.fetchall()
-        cur.close()
-        return render_template("books_av.html",data=data)
-    else:
-        return render_template("home.html") #dummy
-
 
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
@@ -38,9 +28,6 @@ def signup():
         cur.close()
         if request.method=='POST':
             cur = db.connect.cursor()
-            cur.execute("SELECT * FROM lib_user WHERE username=%s",(form.username.data,))
-            user = cur.fetchone()
-            cur.close()
             try:
                 val = "your school library manager"
                 if form.role.data == "Student":
@@ -101,7 +88,6 @@ def login():
     return redirect(url_for("home"))
 
 
-
 @app.route('/logout')
 def logout():
     if session.get('username'):
@@ -110,6 +96,26 @@ def logout():
     else:
         flash("You are not logged in")
     return redirect(url_for('home'))
+
+
+@app.route('/books')
+def books():
+    cur = db.connect.cursor()
+    cur.execute("SELECT book_id ,ISBN, title, copies FROM school_book_info WHERE school_id = %s",(session['school_id'],))
+    data = cur.fetchall()
+    cur.close()
+    return render_template("books_av.html", data=data)
+
+@app.route('/info/<int:book_id>')
+def info(book_id):
+    cur = db.connect.cursor()
+    cur.execute("SELECT * FROM book_info WHERE book_id=%s",(str(book_id),))
+    book = cur.fetchall()
+    cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
+    review = cur.fetchall()
+    cur.close()
+    return render_template("info.html", book=book, review = review)
+
 
 @app.route('/search',methods=['GET', 'POST'])
 def search():
@@ -137,8 +143,22 @@ def search():
         return redirect(url_for('search_for', t=t, a=a, c=c))
     elif 'search_cp' in request.form:
         cp = request.form.get('copies')
-        return redirect(url_for('search_for_copies', cp=cp))
-    return render_template('search.html', form=form, copies=copies)
+        return redirect(url_for('search_for_copies',cp=cp))
+    return render_template('search.html', form=form, copies = copies)
+
+
+@app.route('/search/for/copies/<cp>')
+def search_for_copies(cp):
+    cur = db.connection.cursor()
+    cur.execute("SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id = %s AND copies = %s", (session['school_id'], cp,))
+    data = cur.fetchall()
+    cur.close()
+    if data:
+        return render_template('books_av.html', data = data)
+    else:
+        flash('No results availabe')
+        return redirect(url_for('search'))
+
 
 @app.route('/search/for/<t>+<a>+<c>')
 def search_for(t,a,c):
@@ -153,28 +173,6 @@ def search_for(t,a,c):
     else:
         flash('No results availabe')
         return redirect(url_for('search'))
-
-@app.route('/search/for/copies/<cp>')
-def search_for_copies(cp):
-    cur = db.connection.cursor()
-    cur.execute("SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id = %s AND copies = %s", (session['school_id'], cp,))
-    data = cur.fetchall()
-    cur.close()
-    if data:
-        return render_template('books_av.html', data = data)
-    else:
-        flash('No results availabe')
-        return redirect(url_for('search'))
-
-@app.route('/info/<int:book_id>')
-def info(book_id):
-    cur = db.connect.cursor()
-    cur.execute("SELECT * FROM book_info WHERE book_id=%s",(str(book_id),))
-    book = cur.fetchall()
-    cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
-    review = cur.fetchall()
-    cur.close()
-    return render_template("info.html", book=book, review=review)
 
 
 @app.route('/reserve/<int:book_id>')
@@ -215,7 +213,6 @@ def reserve(book_id):
     cur.close()
     flash(msg)
     return redirect(url_for('books'))
-
 
 
 @app.route('/applications')
@@ -313,6 +310,7 @@ def decline_reserv(user_id,book_id):
         cur.close()
         return redirect(url_for("reservations"))
 
+
 @app.route('/reviews')
 def reviews():
     if session.get('user_role') != 'l':
@@ -336,6 +334,7 @@ def accept_review(user_id,book_id):
         db.connection.commit()
         cur.close()
         return redirect(url_for("info", book_id=book_id))
+
 
 @app.route('/reviews/decline/<user_id>+<book_id>')
 def decline_review(user_id,book_id):
@@ -373,6 +372,18 @@ def add_review(book_id):
     else:
         return render_template("add_review.html", form=form)
 
+
+@app.route('/loans')
+def loans():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connect.cursor()
+        cur.execute("SELECT username, first_name, last_name, user_role from lib_user WHERE ")
+        list = cur.fetchall()
+        cur.close()
+        return render_template('loans.html')
 
 
 @app.route('/add_book',methods=['GET', 'POST'])
@@ -490,6 +501,18 @@ def cancel(user_id,book_id):
     return redirect(url_for('profile', user_id=user_id))
 
 
+'''
+@app.route('/upadate_user/<user_id>')
+def update_user(user_id):
+    form = Signup_form()
+    cur = db.connection()
+    cur.execute("SELECT * FROM lib_user WHERE username=%s",(form.username.data,))
+    user = cur.fetchone()
+    if form.validate_on_submit():
+        username = user.username
+'''
+
+
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
     form = Change_password_form()
@@ -498,14 +521,13 @@ def change_password():
         cur.execute("SELECT (password) FROM lib_user WHERE username=%s",(session.get('username'),))
         password = cur.fetchall()
         cur.close()
-        print(password[0][0],form.current_password.data)
         if password[0][0] == form.current_password.data:
             cur = db.connection.cursor()
-            cur.execute("UPDATE lib_user SET password=%s WHERE username=%s", (form.new_password.data, session.get('username'),))
+            cur.execute("UPDATE lib_user SET password=%s WHERE username=%s", (form.new_password.data, session.get('username')))
             db.connection.commit()
             cur.close()
             flash("Password changed successfully.")
-            return redirect(url_for('profile', user_id=str(session.get('user_id'))))
+            return redirect(url_for('profile'user_id=str(session.get('user_id'))))
         else :
             flash('Wrong password!')
             return redirect(url_for('change_password'))
@@ -536,7 +558,8 @@ def add_school():
             return render_template("add_school.html", form=form)
         else:
             return render_template("add_school.html", form=form)
-    
+
+
 @app.route("/statistics", methods=['GET','POST'])
 def statistics():
     delay_form = Delay_form()

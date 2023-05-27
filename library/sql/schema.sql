@@ -15,7 +15,7 @@ CREATE TABLE book (
     summary VARCHAR(200) DEFAULT 'No summary available.',
     lang VARCHAR(15) NOT NULL,
     image_path VARCHAR(100) GENERATED ALWAYS AS (CONCAT('https://covers.openlibrary.org/b/isbn/', ISBN, '-L.jpg')),
-    key_words VARCHAR(100)
+    key_words VARCHAR(100) DEFAULT 'No key words available'
 );
 
 CREATE TABLE publisher (
@@ -193,9 +193,8 @@ CREATE VIEW book_info AS
 CREATE VIEW school_book_info AS
 		SELECT a.school_id, bi.*, a.copies
         FROM book_info bi INNER JOIN availability a
-        ON a.book_id = bi.book_id;
-
-
+        ON a.book_id = bi.book_id;        
+    
 CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
     SELECT 
         sch.name AS 'School Name',
@@ -209,8 +208,7 @@ CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
             INNER JOIN
         borrow_log b ON b.user_id = u.user_id
     GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
-
-
+    
 CREATE VIEW loan_app AS
 	SELECT u.school_id, u.user_id, u.username, u.first_name, u.last_name, u.user_role, b.title, a.copies, b.book_id
     FROM lib_user u 
@@ -246,7 +244,6 @@ CREATE VIEW service_info AS
     ON s.user_id = u.user_id
     INNER JOIN book b
     ON b.book_id = s.book_id;
-
 
 CREATE VIEW delay_info AS
 	SELECT u.school_id, u.user_id, u.first_name, u.last_name, s.service_date, datediff(curdate(), service_date)-14 AS delay
@@ -299,12 +296,11 @@ CREATE VIEW author_books AS
     FROM author
     LEFT JOIN book_author ON author.author_id = book_author.author_id
     GROUP BY author.author_id, author.author_first_name, author.author_last_name;
-        
-        
 
 -- -------
 -- Indexes
 ----------
+
 CREATE INDEX title_idx ON book (title);
 
 CREATE INDEX author_idx ON author (author_last_name, author_first_name);
