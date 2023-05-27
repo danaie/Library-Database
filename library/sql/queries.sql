@@ -38,7 +38,7 @@ SELECT author FROM
     
 -- 3.1.2b
 select * from lib_user where user_id in (
-select distinct user_id from borrow_log where year(borrow_date) = year(current_date()) 
+select distinct user_id from borrow_log where DATEDIFF(current_date(), borrow_date)/365 <= 1
 and book_id in (select book_id from book_category where category_id in 
 (select category_id from category where category_name = "Fiction") )
 ) and user_role = 't';
@@ -50,14 +50,14 @@ FROM lib_user u
 INNER JOIN borrow_log bl ON u.user_id = bl.user_id
 WHERE DATEDIFF(CURDATE(), u.birth_date)/365 < 40 AND u.user_role = 't'
 GROUP BY bl.user_id
-ORDER BY book_nmbr DESC;
+ORDER BY book_nmbr DESC
+LIMIT 10;
 
     
 -- 3.1.4
-select * from author where author_id not in (
-select distinct author_id from book_author where book_id in 
-(select book_id from borrow_log)
-);
+SELECT * FROM author WHERE author_id NOT IN (
+	SELECT DISTINCT author_id FROM book_author WHERE book_id IN 
+	(SELECT book_id FROM borrow_log));
 
 
 -- 3.1.5
@@ -70,7 +70,8 @@ SELECT * FROM (
 	INNER JOIN lib_user lm ON lm.school_id = sch.school_id
 	WHERE lm.user_role = 'l'
 	GROUP BY lm.username, sch.school_id, loan_year) AS lib_loan
-WHERE lib_loan.loan_nmbr > 0 AND lib_loan.loan_year = '2020';
+WHERE lib_loan.loan_nmbr > 20 AND lib_loan.loan_year = '2020'
+ORDER BY loan_nmbr DESC;
 
 
 -- 3.1.6
@@ -87,17 +88,16 @@ LIMIT 3;
 
 
 -- 3.1.7
+SELECT author FROM author_books
+WHERE author_books.total_books <= (SELECT MAX(total_books) FROM author_books) - 5;
+
+-- Do not execute the following CREATE statement, only used for reference
 CREATE VIEW author_books AS
 	SELECT author.author_id, CONCAT(author.author_first_name, ' ', author.author_last_name) AS author, 
         COUNT(book_author.book_id) AS total_books
     FROM author
     LEFT JOIN book_author ON author.author_id = book_author.author_id
     GROUP BY author.author_id, author.author_first_name, author.author_last_name;
-    
-SELECT author
-FROM author_books
-WHERE author_books.total_books <= (SELECT MAX(total_books) FROM author_books) - 5;
-
 
 
 -- ---------------

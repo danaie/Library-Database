@@ -86,3 +86,21 @@ class AvgRating_form(FlaskForm):
 	username = StringField('Username', validators=[Length(min=2, max=15)])
 	category = SelectField('Category', choices=[(0,'')], validate_choice=True)
 	search2 = SubmitField('Search')
+
+class MonthYearField(SelectField):
+    def __init__(self, label='', validators=None, **kwargs):
+        super(MonthYearField, self).__init__(label, validators, **kwargs)
+        self.choices = self._get_month_year_choices()
+
+    def _get_month_year_choices(self):
+        choices = [('', 'Select Month and Year')]
+        for year in range(2000, 2031):  # Customize the range as needed
+            for month in range(1, 13):
+                month_year = f"{month:02d}/{year}"
+                choices.append((month_year, month_year))
+        return choices
+
+class TotLoans_form(FlaskForm):
+	date = MonthYearField('Select Month and Year', validators=[DataRequired()])
+
+

@@ -627,109 +627,81 @@ def avg_rating(username,cat):
     return render_template("avg_rating.html", data=data)
 
 
-@app.route('/information')
+@app.route('/information', methods=['POST','GET'])
 def information():
-        
+        tot_loans = TotLoans_form()
+        return render_template('information.html')
+
+
+@app.route('/result/<int:q>')
+def result(q):
+    if session.get('user_role') != 'a':
+        flash("You do not have authorization to view this page.")
+        return(redirect(url_for("/")))
+    cur = db.connection.cursor()
+    q = int(q)
+    if q == 3:
+        query = """SELECT CONCAT(u.first_name, ' ', u.last_name) AS teacher_name, 
+            COUNT(bl.book_id) AS book_nmbr
+            FROM lib_user u
+            INNER JOIN borrow_log bl ON u.user_id = bl.user_id
+            WHERE DATEDIFF(CURDATE(), u.birth_date)/365 < 40 AND u.user_role = 't'
+            GROUP BY bl.user_id
+            ORDER BY book_nmbr DESC
+            LIMIT 10;"""
+    elif q == 4:
+        query = """SELECT * FROM author WHERE author_id NOT IN (
+            SELECT DISTINCT author_id FROM book_author WHERE book_id IN 
+            (SELECT book_id FROM borrow_log));"""
+    elif q == 5:
+        query = """SELECT * FROM (
+                SELECT lm.username, CONCAT(lm.first_name, ' ', lm.last_name) AS lib_man_name, sch.name, 
+                COUNT(bl.user_id) AS loan_nmbr, YEAR(bl.borrow_date) AS loan_year
+                FROM school_unit sch
+                INNER JOIN lib_user u ON sch.school_id = u.school_id
+                INNER JOIN borrow_log bl ON bl.user_id = u.user_id
+                INNER JOIN lib_user lm ON lm.school_id = sch.school_id
+                WHERE lm.user_role = 'l'
+                GROUP BY lm.username, sch.school_id, loan_year) AS lib_loan
+            WHERE lib_loan.loan_nmbr > 20 AND lib_loan.loan_year = '2020'
+            ORDER BY loan_nmbr DESC;"""
+    elif q == 6:
+        query = """SELECT COUNT(bl.book_id) AS loan_nmbr, 
+            c1.category_name AS category1, c2.category_name AS category2
+            FROM category c1 INNER JOIN book_category bc1 ON c1.category_id = bc1.category_id
+            INNER JOIN book_category bc2
+            ON bc1.book_id = bc2.book_id AND bc1.category_id < bc2.category_id
+            INNER JOIN category c2 ON c2.category_id = bc2.category_id
+            INNER JOIN borrow_log bl ON bl.book_id = bc1.book_id
+            GROUP BY bc1.category_id, bc2.category_id
+            ORDER BY COUNT(bl.book_id) DESC
+            LIMIT 3;"""
+    elif q == 7:
+        query = """SELECT author FROM author_books 
+        WHERE author_books.total_books <= (SELECT MAX(total_books) 
+        FROM author_books) - 5;"""
+    else:
+        flash("Invalid argument.")
+        return redirect(url_for('/'))
+    cur.execute(query, ())
+    data = cur.fetchall()
+    return render_template('result.html', q=q, data=data)
+
+
+@app.route('/result/<int:q>+<m>+<y>')
+def result1(q,m,y):
+    if session.get('user_role') != 'a':
+        flash("You do not have authorization to view this page.")
+        return(redirect(url_for("/")))
+    elif int(q) != 1:
+        flash("Invalid arguments.")
+        return(redirect(url_for("/")))
+    else:
         cur = db.connection.cursor()
-        # Query 3.1.3
-        cur.execute("SELECT * FROM view_3_1_3")
-        result_3_1_3 = cur.fetchall()
-        session['query_3_1_3'] = result_3_1_3
-
-        
-        # Query 3.1.4
-        cur.execute("SELECT * FROM view_3_1_4")
-        result_3_1_4 = cur.fetchall()
-        session['query_3_1_4'] = result_3_1_4
-
-        
-        # Query 3.1.5
-        cur.execute("SELECT * FROM view_3_1_5")
-        result_3_1_5 = cur.fetchall()
-        session['query_3_1_5'] = result_3_1_5
-
-        # Query 3.1.7
-        cur.execute("SELECT * FROM view_3_1_7")
-        result_3_1_7 = cur.fetchall()
-        session['query_3_1_7'] = result_3_1_7
-        
-        
+        query = "SELECT * FROM tot_loans WHERE b_month=%s AND b_year=%s;"
+        values = (m,y,)
+        cur.execute(query, values)
+        data = cur.fetchall()
         cur.close()
-       
-        return render_template('information.html', query_3_1_3=result_3_1_3, query_3_1_4=result_3_1_4, query_3_1_5=result_3_1_5, query_3_1_7=result_3_1_7)
-
-@app.route('/information/query1', methods=['POST'])
-def run_query1():
-    if request.method == 'POST' and 'year' in request.form and 'month' in request.form:
-        year = request.form['year']
-        month = request.form['month']
-
-        cur = db.connection.cursor()
-        # Query 3.1.1
-        query_3_1_1 = "SELECT sch.name AS 'School Name', " \
-                "COUNT(*) AS 'Number of Loans' " \
-                "FROM school_unit sch " \
-                "INNER JOIN lib_user u ON u.school_id = sch.school_id " \
-                "INNER JOIN borrow_log b ON b.user_id = u.user_id " \
-                "WHERE YEAR(b.borrow_date) = %s AND MONTH(b.borrow_date) = %s " \
-                "GROUP BY sch.name"
-
-        cur.execute(query_3_1_1, (year, month))
-        result_3_1_1 = cur.fetchall()
-        cur.close() 
-
-        query_3_1_3 = session.get('query_3_1_3')
-        query_3_1_4 = session.get('query_3_1_4')
-        query_3_1_5 = session.get('query_3_1_5')
-        query_3_1_7 = session.get('query_3_1_7')
-
-
-        return render_template('information.html', query_3_1_1 = result_3_1_1, query_3_1_3=query_3_1_3, query_3_1_4=query_3_1_4, query_3_1_5=query_3_1_5, query_3_1_7=query_3_1_7)
-            
-    else:
-        return redirect('/')
-
-@app.route('/information/query2', methods=['POST'])
-def run_query2():
-    if request.method == 'POST' and 'category' in request.form:
-        category = request.form['category']
-
-        cur = db.connection.cursor()
-        # Query 3.1.2_1
-        query_3_1_2_1 = "SELECT DISTINCT a.author_first_name, a.author_last_name " \
-                      "FROM author a " \
-                      "JOIN book_author ba ON a.author_id = ba.author_id " \
-                      "JOIN book_category bc ON ba.book_id = bc.book_id " \
-                      "JOIN category c ON bc.category_id = c.category_id " \
-                      "WHERE c.category_name = %s"
-        cur.execute(query_3_1_2_1, (category,))
-        result_3_1_2_1 = cur.fetchall()
-
-        # Query 3.1.2_2
-        query_3_1_2_2 = "SELECT DISTINCT u.first_name, u.last_name " \
-                        "FROM lib_user u " \
-                        "JOIN borrow_log bl ON u.user_id = bl.user_id " \
-                        "JOIN book b ON bl.book_id = b.book_id " \
-                        "JOIN book_category bc ON b.book_id = bc.book_id " \
-                        "JOIN category c ON bc.category_id = c.category_id " \
-                        "WHERE c.category_name = %s " \
-                        "AND bl.borrow_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) " \
-                        "AND u.user_role = 't'"
-        
-                        
-        cur.execute(query_3_1_2_2, (category,))
-        result_3_1_2_2 = cur.fetchall()
-        cur.close() 
-
-        query_3_1_3 = session.get('query_3_1_3')
-        query_3_1_4 = session.get('query_3_1_4')
-        query_3_1_5 = session.get('query_3_1_5')
-        query_3_1_7 = session.get('query_3_1_7')
-
-
-        return render_template('information.html', query_3_1_2_1=result_3_1_2_1, query_3_1_2_2=result_3_1_2_2, query_3_1_3=query_3_1_3, query_3_1_4=query_3_1_4, query_3_1_5=query_3_1_5, query_3_1_7=query_3_1_7)
-        
-    else:
-        return redirect('/')
-
+        return render_template("result.html", q=q, data=data)
 

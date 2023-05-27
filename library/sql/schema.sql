@@ -294,6 +294,13 @@ CREATE VIEW lib_app AS
     INNER JOIN school_unit sch
     ON sch.school_id = u.school_id
     WHERE u.active = FALSE AND u.pending = TRUE AND u.user_role = 'l';
+    
+CREATE VIEW author_books AS
+	SELECT author.author_id, CONCAT(author.author_first_name, ' ', author.author_last_name) AS author, 
+        COUNT(book_author.book_id) AS total_books
+    FROM author
+    LEFT JOIN book_author ON author.author_id = book_author.author_id
+    GROUP BY author.author_id, author.author_first_name, author.author_last_name;
         
         
 
