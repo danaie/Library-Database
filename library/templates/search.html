@@ -1,3 +1,4 @@
+
 {% extends "layout.html"%}
 
 {% block content %}
@@ -32,7 +33,6 @@
                     {{ form.author }}
                     {% endif %}
                 </div>
-                
                 <div>
                     <b>{{ form.category.label() }}</b>
                     {% if form.category.errors %}
@@ -51,10 +51,13 @@
                     {% endfor %}
                     {% endif %}
                 </div>
+            </fieldset>
                 <div>
                     {{ form.search }}
-                </div>    
+                </div> 
+                {% if session.get('user_role') == 'l' %}   
                  <br><br>
+            <fieldset>
                 <h3>Search by Copies</h3>
                 <div>
                     <b>{{ copies.copies.label() }}</b>
@@ -73,5 +76,6 @@
             <div>
                 {{ copies.search_cp }}
             </div> 
+            {% endif %}
     </div>
 {% endblock %}

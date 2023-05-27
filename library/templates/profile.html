@@ -35,7 +35,6 @@
     </table>
 
     <br>
-
     {% if data[0][0] == session.get('user_id') %}
         {% if session.get('user_role') == 't' %}
             <form action="/profile/{{data[0][0]}}" method="POST">
@@ -81,8 +80,7 @@
                            
                                 <form action="/reservation/cancel/{{row[1]}}+{{row[2]}}" method="POST">
                                     <input name='button' type="submit" value="Cancel">
-                                </form>
-                            
+                                </form>      
                         {% endif %}
                     </td>
                     </tr>
@@ -134,7 +132,5 @@
         <input name="button" type="submit" value="Delete">
     </form>
     {% endif %}
-
-    
 
 {% endblock %}
