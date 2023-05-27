@@ -186,7 +186,6 @@ def reserve(book_id):
     values = (session.get('user_id'),)
     cur.execute(query, values)
     res = int(cur.fetchone()[0])
-    print(res)
     if session.get('user_role') == 's':
         lim = 2
     else:
@@ -194,23 +193,15 @@ def reserve(book_id):
     if res >= lim:
         flash("You have exceeded the limit of reservations.")
         return redirect(url_for("books"))
+    msg = 'Your reservation has been registered.'
     try:
-        query ="UPDATE availability SET copies=copies-1 WHERE book_id=%s AND school_id=%s"
-        values = (str(book_id), str(session.get('school_id')),)
+        query = """INSERT INTO service (user_id, book_id, service_type, waiting) 
+            VALUES (%s, %s, 'r', 0)"""
+        values = (str(session.get('user_id')), str(book_id),)
         cur.execute(query, values)
         db.connection.commit()
-        msg = "Your reservation has been registered."
-        waiting = 0
-    except Exception as e:
-        msg = "Not enough copies. Your reservation is on hold."
-        waiting = 1
-    try:
-        query = "INSERT INTO service (user_id, book_id, service_type, waiting) VALUES (%s, %s, 'r', %s)"
-        values = (str(session.get('user_id')), str(book_id), str(waiting),)
-        cur.execute(query, values)
-        db.connection.commit()
-    except Exception as e:
-            msg = "You have already reserved or are currently in possession of this title."
+    except Exception as e:        
+        msg = "Reservation failed."
     cur.close()
     flash(msg)
     return redirect(url_for('books'))

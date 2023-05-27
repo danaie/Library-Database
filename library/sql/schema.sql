@@ -15,7 +15,7 @@ CREATE TABLE book (
     summary VARCHAR(200) DEFAULT 'No summary available.',
     lang VARCHAR(15) NOT NULL,
     image_path VARCHAR(100) GENERATED ALWAYS AS (CONCAT('https://covers.openlibrary.org/b/isbn/', ISBN, '-L.jpg')),
-    key_words VARCHAR(100) DEFAULT 'No key words available'
+    key_words VARCHAR(100)
 );
 
 CREATE TABLE publisher (
@@ -193,8 +193,9 @@ CREATE VIEW book_info AS
 CREATE VIEW school_book_info AS
 		SELECT a.school_id, bi.*, a.copies
         FROM book_info bi INNER JOIN availability a
-        ON a.book_id = bi.book_id;        
-    
+        ON a.book_id = bi.book_id;
+
+
 CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
     SELECT 
         sch.name AS 'School Name',
@@ -208,7 +209,8 @@ CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
             INNER JOIN
         borrow_log b ON b.user_id = u.user_id
     GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
-    
+
+
 CREATE VIEW loan_app AS
 	SELECT u.school_id, u.user_id, u.username, u.first_name, u.last_name, u.user_role, b.title, a.copies, b.book_id
     FROM lib_user u 
@@ -244,6 +246,7 @@ CREATE VIEW service_info AS
     ON s.user_id = u.user_id
     INNER JOIN book b
     ON b.book_id = s.book_id;
+
 
 CREATE VIEW delay_info AS
 	SELECT u.school_id, u.user_id, u.first_name, u.last_name, s.service_date, datediff(curdate(), service_date)-14 AS delay
@@ -296,11 +299,12 @@ CREATE VIEW author_books AS
     FROM author
     LEFT JOIN book_author ON author.author_id = book_author.author_id
     GROUP BY author.author_id, author.author_first_name, author.author_last_name;
+        
+        
 
 -- -------
 -- Indexes
 ----------
-
 CREATE INDEX title_idx ON book (title);
 
 CREATE INDEX author_idx ON author (author_last_name, author_first_name);
@@ -310,6 +314,29 @@ CREATE INDEX borrow_log_idx ON borrow_log (user_id);
 -- --------
 -- Triggers
 -- --------
+delimiter $$
+CREATE TRIGGER reserv_trig AFTER INSERT ON service
+FOR EACH ROW
+BEGIN
+IF (SELECT copies FROM availability a INNER JOIN lib_user u ON u.school_id=a.school_id
+	AND a.book_id=NEW.book_id WHERE u.user_id=NEW.user_id) > 0 THEN
+	UPDATE availability SET copies = copies-1 
+	WHERE book_id = NEW.book_id 
+	AND school_id = (SELECT school_id FROM lib_user WHERE user_id = NEW.user_id);
+ELSE UPDATE service SET waiting=1 WHERE user_id = NEW.user_id AND book_id=NEW.book_id;
+END IF;
+END; $$
+delimiter ;
+
+CREATE TRIGGER increase_copies BEFORE DELETE ON service
+FOR EACH ROW
+BEGIN
+	UPDATE availability SET copies = copies+1 
+	WHERE book_id = OLD.book_id 
+	AND school_id = (SELECT school_id FROM lib_user WHERE user_id = OLD.user_id);
+END; $$
+delimiter ;
+
 
 delimiter $$
 CREATE TRIGGER trans_to_log BEFORE DELETE ON service
