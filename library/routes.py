@@ -101,7 +101,7 @@ def logout():
 @app.route('/books')
 def books():
     cur = db.connect.cursor()
-    cur.execute("SELECT book_id ,ISBN, title, copies FROM school_book_info WHERE school_id = %s",(session['school_id'],))
+    cur.execute("SELECT book_id, ISBN, title, auth, copies FROM school_book_info WHERE school_id = %s",(session['school_id'],))
     data = cur.fetchall()
     cur.close()
     return render_template("books_av.html", data=data)
