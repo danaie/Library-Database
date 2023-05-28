@@ -228,7 +228,8 @@ CREATE VIEW user_info AS
     ORDER BY u.user_id;
     
 CREATE VIEW service_info AS
-	SELECT u.school_id, u.user_id, u.username,u.first_name, u.last_name, u.user_role, b.title, b.book_id, b.ISBN, s.service_type, s.service_date, a.copies
+	SELECT b.book_id, u.school_id, u.user_id, u.username, u.first_name, u.last_name, u.user_role, 
+    b.title, b.ISBN, s.service_date, a.copies, s.service_type, s.waiting
     FROM lib_user u 
     INNER JOIN service s
     ON s.user_id = u.user_id
@@ -236,6 +237,7 @@ CREATE VIEW service_info AS
     ON b.book_id = s.book_id
         INNER JOIN availability a
     ON a.book_id  = b.book_id AND a.school_id = u.school_id;
+    
 
 CREATE VIEW delay_info AS
 	SELECT u.school_id, u.user_id, u.first_name, u.last_name, s.service_date, datediff(curdate(), service_date)-14 AS delay
@@ -339,6 +341,7 @@ IF (OLD.service_type = 'b') THEN
 END IF;
 END; $$
 delimiter ;
+
 
 
 -- ------
