@@ -11,6 +11,8 @@
                     <th>Last name</th>
                     <th>User role</th>
                     <th>Title</th>
+                    <th>ISBN</th>
+                    <th>Service date</th>
                     <th>Copies</th>
                     <th></th>
                     <th></th>
@@ -19,7 +21,7 @@
             <tbody>
                 {% for row in list %} 
                     <tr>
-                        {% for el in row[2:-4] %}
+                        {% for el in row[3:-2] %}
                             <td>
                                 {% if el=='s' %}
                                     Student
