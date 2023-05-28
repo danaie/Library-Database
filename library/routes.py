@@ -365,6 +365,19 @@ def add_review(book_id):
         return render_template("add_review.html", form=form)
 
 
+@app.route('/review/delete/<int:book_id>', methods=['POST','GET'])
+def delete_review(book_id):
+    if request.method == 'GET':
+        flash('You do not have authorization to view this page.')
+        return redirect(url_for('home'))
+    cur = db.connection.cursor()
+    query = "DELETE FROM review WHERE user_id=%s AND book_id=%s"
+    values = (session.get('user_id'), book_id,)
+    cur.execute(query, values)
+    db.connection.commit()
+    return redirect(url_for('info', book_id=book_id))
+
+
 @app.route('/loans')
 def loans():
     if session.get('user_role') != 'l':
@@ -418,6 +431,7 @@ def add_book():
 
 @app.route('/profile/<user_id>', methods=['POST','GET'])
 def profile(user_id):
+        msg = ''
         if session.get('user_role') != 'l' and str(session.get('user_id')) != user_id:
             flash("You do not have authorization to view this page.")
             return redirect(url_for("home"))

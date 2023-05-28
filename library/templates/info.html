@@ -35,6 +35,11 @@
 				{% endfor %} <br>
 				{{ row[4] }}
 			</p>
+			{% if row[1] == session.get('username') %}
+			<form action="/review/delete/{{ book[0][0] }}" method="POST">
+				<input name='button' type="submit" value="Delete">
+			</form>
+			{% endif %}
 			{% endfor %}
 		{% endif %}
 {% endblock %}
