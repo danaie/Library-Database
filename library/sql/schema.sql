@@ -315,7 +315,7 @@ CREATE INDEX borrow_log_idx ON borrow_log (user_id);
 -- Triggers
 -- --------
 delimiter $$
-CREATE TRIGGER reserv_trig AFTER INSERT ON service
+CREATE TRIGGER reserv_trig BEFORE INSERT ON service
 FOR EACH ROW
 BEGIN
 IF (SELECT copies FROM availability a INNER JOIN lib_user u ON u.school_id=a.school_id
@@ -323,10 +323,11 @@ IF (SELECT copies FROM availability a INNER JOIN lib_user u ON u.school_id=a.sch
 	UPDATE availability SET copies = copies-1 
 	WHERE book_id = NEW.book_id 
 	AND school_id = (SELECT school_id FROM lib_user WHERE user_id = NEW.user_id);
-ELSE UPDATE service SET waiting=1 WHERE user_id = NEW.user_id AND book_id=NEW.book_id;
+ELSE SET NEW.waiting = 1;
 END IF;
 END; $$
 delimiter ;
+
 
 delimiter $$
 CREATE TRIGGER increase_copies BEFORE DELETE ON service
