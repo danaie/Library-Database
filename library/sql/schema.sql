@@ -209,19 +209,7 @@ CREATE VIEW tot_loans (school_name, no_loans, b_month, b_year) AS
             INNER JOIN
         borrow_log b ON b.user_id = u.user_id
     GROUP BY MONTH(b.borrow_date), YEAR(b.borrow_date), sch.name;
-
-
-CREATE VIEW loan_app AS
-	SELECT u.school_id, u.user_id, u.username, u.first_name, u.last_name, u.user_role, b.title, a.copies, b.book_id
-    FROM lib_user u 
-    INNER JOIN service s
-    ON s.user_id = u.user_id
-    INNER JOIN book b
-    ON b.book_id = s.book_id
-    INNER JOIN availability a
-    ON a.book_id  = b.book_id AND a.school_id = u.school_id
-    WHERE s.service_type = 'r';
-
+    
 
 CREATE VIEW review_app AS
 	SELECT u.school_id, u.user_id, u.username, u.user_role, b.title, r.rating, r.review_text, b.book_id
@@ -352,18 +340,6 @@ END IF;
 END; $$
 delimiter ;
 
-<<<<<<< HEAD
--- does not work yet
-delimiter $$
-CREATE PROCEDURE no_more_wait(IN sch_id INT)
-BEGIN
-IF (NEW.copies = OLD.copies+1) THEN
-	UPDATE service SET wait=FALSE WHERE school_id=sch_id AND 
-END IF;
-END; $$
-delimiter ;
-=======
->>>>>>> refs/remotes/origin/master
 
 -- ------
 -- Events
