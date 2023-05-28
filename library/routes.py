@@ -265,7 +265,7 @@ def reservations():
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "SELECT * from service_info WHERE school_id=%s AND service_type='r'"
+        query = "SELECT * from service_info WHERE school_id=%s AND service_type='r' AND waiting=0"
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
