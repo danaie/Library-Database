@@ -558,7 +558,7 @@ def change_info():
             list.append("birth_date=%s")
             values += (str(form.date_of_birth.data),)
         query = "UPDATE lib_user SET " + ', '.join(list) + " WHERE user_id=%s"
-        values += (str(session.get('user_id')),)
+        values += (session.get('user_id'),)
         cur.execute(query, values)
         db.connection.commit()
         cur.close()
@@ -796,12 +796,12 @@ def result2(cat):
     cur.execute(query, values)
     data = cur.fetchall()
 
-    query = """select username, CONCAT(first_name, ' ', last_name) AS teacher_name 
-        from lib_user where user_id in
-        (select distinct user_id from borrow_log where 
+    query = """SELECT username, CONCAT(first_name, ' ', last_name) AS teacher_name 
+        FROM lib_user WHERE user_id IN
+        (SELECT DISTINCT user_id FROM borrow_log WHERE 
         DATEDIFF(current_date(), borrow_date)/365 <= 1
-        and book_id in (select book_id from book_category where category_id in 
-        (select category_id from category where category_id = %s) )
+        and book_id in (SELECT book_id FROM book_category WHERE category_id in 
+        (SELECT category_id FROM category WHERE category_id = %s) )
         ) and user_role = 't';"""
     cur.execute(query, values)
     data2 = cur.fetchall()
