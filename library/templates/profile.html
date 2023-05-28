@@ -37,7 +37,7 @@
     <br>
     {% if data[0][0] == session.get('user_id') %}
         {% if session.get('user_role') == 't' %}
-            <form action="/profile/{{data[0][0]}}" method="POST">
+            <form action="/change_info" method="GET">
                 <input name="button" type="submit" value="Change personal info">
             </form>
             <br>

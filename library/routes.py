@@ -525,6 +525,35 @@ def change_password():
     return render_template("change_password.html",form=form)
 
 
+@app.route('/change_info', methods=['GET','POST'])
+def change_info():
+    form = Change_info_form()
+    if request.method == 'POST':
+        cur = db.connection.cursor()
+        values = ()
+        list = []
+        if form.username.data:
+            list.append("username=%s")
+            values += (form.username.data,)
+        if form.first_name.data:
+            list.append("first_name=%s")
+            values += (form.first_name.data,)
+        if form.last_name.data:
+            list.append("last_name=%s")
+            values += (form.last_name.data,)
+        if form.date_of_birth.data:
+            list.append("birth_date=%s")
+            values += (str(form.date_of_birth.data),)
+        query = "UPDATE lib_user SET " + ', '.join(list) + " WHERE user_id=%s"
+        values += (session.get('user_id'),)
+        cur.execute(query, values)
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for('profile', user_id=session.get('user_id')))
+    else:
+        return render_template('change_info.html', form=form)
+
+
 @app.route('/add_school', methods=['GET', 'POST'])
 def add_school():
     if session.get('user_role') != 'a':
