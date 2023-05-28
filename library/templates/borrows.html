@@ -1,7 +1,7 @@
 {% extends "layout.html"%}
 
 {% block content %}
-    <h1>Pending reservations</h1>
+    <h1>Current Borrows</h1>
     {% if list %}
         <table border="1">
             <thead>
@@ -31,13 +31,8 @@
                             </td>
                         {% endfor %}
                         <td>
-                            <a href="/reservations/accept/{{ row[2] }}+{{ row[8] }}">
-                                <button type="button">Accept</button>
-                            </a>
-                        </td>
-                        <td>
-                            <a href="/reservations/decline/{{ row[2] }}+{{ row[8] }}">
-                                <button type="button">Decline</button>
+                            <a href="/return/{{ row[1] }}+{{ row[-1] }}">
+                                <button type="button">Return</button>
                             </a>
                         </td>
                     </tr>

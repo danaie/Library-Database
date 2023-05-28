@@ -646,6 +646,7 @@ INSERT INTO book_author(author_id, book_id) VALUES
 (31,99),
 (21,100);
 
+
 INSERT INTO school_unit (school_id, name, city, address, phone_number, email, principal, lib_manager) VALUES
     (1, 'High School', 'New York', '123 Main St', '2101234567', 'highschool@school.edu', 'David Johnson', 'Dick Brown'),
     (2, 'Middle School', 'Los Angeles', '456 Oak St', '2102345678', 'middleschool@school.edu', 'Felicity Smith', 'Bruce Lee'),

@@ -34,6 +34,16 @@ class Change_password_form(FlaskForm):
 	new_password = PasswordField('New Password', validators=[DataRequired(), Length(max=20)])
 	submit = SubmitField('Change')
 
+class Change_info_form(FlaskForm):
+	username = StringField('Username', 
+		validators=[Length(min=2, max=15)])
+	first_name = StringField('First Name',
+		validators=[Length(min=2, max=20)])
+	last_name = StringField('Last Name',
+		validators=[Length(min=2, max=20)])
+	date_of_birth = DateField('Date of Birth')
+	submit = SubmitField('Submit')
+
 
 class Change_info_form(FlaskForm):
 	username = StringField('Username', 
