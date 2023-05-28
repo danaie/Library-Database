@@ -507,33 +507,23 @@ def cancel(user_id,book_id):
     return redirect(url_for('profile', user_id=user_id))
 
 
-'''
-@app.route('/upadate_user/<user_id>')
-def update_user(user_id):
-    form = Signup_form()
-    cur = db.connection()
-    cur.execute("SELECT * FROM lib_user WHERE username=%s",(form.username.data,))
-    user = cur.fetchone()
-    if form.validate_on_submit():
-        username = user.username
-'''
-
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
     form = Change_password_form()
     if (request.method=='POST'):
-        cur = db.connection.cursor()
-        cur.execute("SELECT (password) FROM lib_user WHERE username=%s",(session.get('username'),))
-        password = cur.fetchall()
-        cur.close()
-        if password[0][0] == form.current_password.data:
+        try:
             cur = db.connection.cursor()
-            cur.execute("UPDATE lib_user SET password=%s WHERE username=%s", (form.new_password.data, session.get('username')))
+            print(form.new_password.data)
+            query = """UPDATE lib_user SET password=%s WHERE username=%s
+            AND password=(SELECT password WHERE username=%s AND password=%s)"""
+            values = (form.new_password.data, session.get('username'), session.get('username'), form.current_password.data,)
+            cur.execute(query, values)
             db.connection.commit()
             cur.close()
             flash("Password changed successfully.")
             return redirect(url_for('profile',user_id=str(session.get('user_id'))))
-        else :
+        except Exception as e:
+            print(e)
             flash('Wrong password!')
             return redirect(url_for('change_password'))
     return render_template("change_password.html",form=form)
