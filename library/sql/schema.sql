@@ -328,6 +328,7 @@ END IF;
 END; $$
 delimiter ;
 
+delimiter $$
 CREATE TRIGGER increase_copies BEFORE DELETE ON service
 FOR EACH ROW
 BEGIN
