@@ -358,4 +358,6 @@ delimiter ;
 CREATE EVENT reserv_event
 ON SCHEDULE EVERY 1 DAY
 DO
-    DELETE FROM service WHERE DATEDIFF(CURRENT_DATE, service_date) > 7 AND service_type='r';
+    DELETE FROM service WHERE DATEDIFF(CURRENT_DATE, service_date) > 7 
+    AND service_type='r'
+    AND waiting=0;
