@@ -40,11 +40,11 @@
             <form action="/profile/{{data[0][0]}}" method="POST">
                 <input name="button" type="submit" value="Change personal info">
             </form>
-        {% elif session.get('user_role') == 's' %}
+            <br>
+        {% endif %}
             <form action="/change_password" method="POST">
                 <input name="button" type="submit" value="Change password">
             </form>
-       {% endif %}
        <br>
     {% endif %}
 

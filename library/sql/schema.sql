@@ -351,14 +351,6 @@ END IF;
 END; $$
 delimiter ;
 
-delimiter $$
-CREATE PROCEDURE no_more_wait(IN sch_id INT)
-BEGIN
-IF (NEW.copies = OLD.copies+1) THEN
-	UPDATE service SET wait=FALSE WHERE school_id=sch_id AND 
-END IF;
-END; $$
-delimiter ;
 
 -- ------
 -- Events
