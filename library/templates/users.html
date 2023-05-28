@@ -1,0 +1,42 @@
+{% extends "layout.html"%}
+
+{% block content %}
+    <h1>Profile</h1>
+    <br>
+    <h4>Personal info</h4>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>User role</th>
+                <th>School</th>
+                <th>Birth date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %} 
+                <tr>
+                    <td>
+                        <a href="/profile/{{ row[0] }}">{{ row[1] }}</a>
+                    </td>
+                    {% for el in row[2:-1] %}
+                        <td>
+                            {% if el=='s' %}
+                                Student
+                            {% elif el=='t' %}
+                                Teacher
+                            {% elif el=='l' %}
+                                Library Manager
+                            {% else %}
+                                {{ el }}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

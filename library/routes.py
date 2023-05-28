@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, abort, session
+from flask import Flask, Response, render_template, request, flash, redirect, url_for, abort, session
 from library.forms import *
 from flask_mysqldb import MySQL
 from .__init__ import app, db
+import subprocess
 
 
 @app.route('/')
@@ -265,7 +266,7 @@ def reservations():
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "SELECT * from service_info WHERE school_id=%s AND service_type='r'"
+        query = "SELECT * from service_info WHERE school_id=%s AND service_type='r' AND waiting=0"
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
@@ -439,6 +440,20 @@ def add_book():
             flash("Book was added.")
             return redirect(url_for('home'))
     return render_template('add_book.html', form = form)
+
+
+@app.route('/users')
+def users():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for('home'))
+    cur = db.connection.cursor()
+    query = """SELECT ui.*, u.school_id from user_info ui 
+        INNER JOIN lib_user u ON u.user_id=ui.user_id WHERE u.school_id=%s"""
+    values = (str(session.get('school_id')),)
+    cur.execute(query, values)
+    data = cur.fetchall()
+    return render_template('users.html', data=data)
 
 
 @app.route('/profile/<user_id>', methods=['POST','GET'])
@@ -810,3 +825,5 @@ def result2(cat):
 
     cur.close()
     return render_template('result.html', q=2, data=data, data2=data2)
+
+

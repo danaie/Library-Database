@@ -21,12 +21,18 @@
                             <td>{{ el }}</td>
                     {% endfor %}
                     <td><a href="/info/{{ row[0] }}">More info</a></td>
-                    {% if session['user_role']=='s' or session['user_role']=='t' %}
-                    <td>
-                        <a href="/reserve/{{ row[0] }}">
-                            <button type="button">Reserve</button>
-                        </a>
-                    </td>
+                    {% if session['user_role'] in ['s','t'] %}
+                        <td>
+                            <a href="/reserve/{{ row[0] }}">
+                                <button type="button">Reserve</button>
+                            </a>
+                        </td>
+                    {% elif session['user_role'] == 'l' %}
+                        <td>
+                            <a href="/reserve/{{ row[0] }}">
+                                <button type="button">Lend</button>
+                            </a>
+                        </td>
                     {% endif %}
                 </tr>
             {% endfor %}

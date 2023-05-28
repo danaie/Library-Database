@@ -1,0 +1,17 @@
+{% extends "layout.html"%}
+
+{% block content %}
+
+<h1>Backup and restore database</h1>
+
+<form action="/backup" method="POST">
+    <input name="button" type="submit" value="Backup">
+</form>
+
+<br>
+
+<form action="/backup" method="POST">
+    <input name="button" type="submit" value="Restore">
+</form>
+
+{% endblock %}
