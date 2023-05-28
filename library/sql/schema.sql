@@ -240,13 +240,14 @@ CREATE VIEW user_info AS
     ORDER BY u.user_id;
     
 CREATE VIEW service_info AS
-	SELECT u.school_id, u.user_id, b.book_id, b.ISBN, b.title, s.service_type, s.service_date
+	SELECT u.school_id, u.user_id, u.username,u.first_name, u.last_name, u.user_role, b.title, b.book_id, b.ISBN, s.service_type, s.service_date, a.copies
     FROM lib_user u 
     INNER JOIN service s
     ON s.user_id = u.user_id
     INNER JOIN book b
-    ON b.book_id = s.book_id;
-
+    ON b.book_id = s.book_id
+        INNER JOIN availability a
+    ON a.book_id  = b.book_id AND a.school_id = u.school_id;
 
 CREATE VIEW delay_info AS
 	SELECT u.school_id, u.user_id, u.first_name, u.last_name, s.service_date, datediff(curdate(), service_date)-14 AS delay
@@ -351,6 +352,7 @@ END IF;
 END; $$
 delimiter ;
 
+-- does not work yet
 delimiter $$
 CREATE PROCEDURE no_more_wait(IN sch_id INT)
 BEGIN

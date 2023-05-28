@@ -259,7 +259,6 @@ def decline_app(user_id):
         return redirect(url_for("applications"))
 
 
-
 @app.route('/reservations')
 def reservations():
     if session.get('user_role') != 'l':
@@ -267,7 +266,21 @@ def reservations():
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "SELECT * from loan_app WHERE school_id=%s"
+        query = "SELECT * from service_info WHERE school_id=%s AND service_type='r'"
+        cur.execute(query, (session.get('school_id'),))
+        list = cur.fetchall()
+        cur.close()
+        return render_template('reservations.html', list=list)
+
+
+@app.route('/borrows')
+def borrows():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connection.cursor()
+        query = "SELECT * from service_info WHERE school_id=%s AND service_type= 'b'"
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
@@ -503,6 +516,7 @@ def update_user(user_id):
     if form.validate_on_submit():
         username = user.username
 '''
+
 
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
