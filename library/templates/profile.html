@@ -37,7 +37,7 @@
     <br>
     {% if data[0][0] == session.get('user_id') %}
         {% if session.get('user_role') == 't' %}
-            <form action="/profile/{{data[0][0]}}" method="POST">
+            <form action="/change_info" method="POST">
                 <input name="button" type="submit" value="Change personal info">
             </form>
         {% elif session.get('user_role') == 's' %}
@@ -64,21 +64,26 @@
             <tbody>
                 {% for row in ser %} 
                     <tr>
-                        {% for el in row[3:] %}
-                            <td>
-                                {% if el=='b' %}
-                                    Borrowed
-                                {% elif el=='r' %}
-                                    Reserved
-                                {% else %}
-                                    {{ el }}
-                                {% endif %}
-                            </td>
-                        {% endfor %}
                         <td>
-                        {% if session['user_role'] in ['s','t'] and row[1] == session.get('user_id') and row[5] == 'r'%}
+                            {{ row[8] }}
+                        </td>
+                        <td>
+                            {{ row[6] }}
+                        </td>
+                        <td>
+                            {% if row[9] == 'b' %}
+                            Borrowed
+                            {% else %}
+                            Resserved
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ row[10] }}
+                        </td>
+                        <td>
+                        {% if session['user_role'] in ['s','t'] and row[1] == session.get('user_id') and row[9] == 'r'%}
                            
-                                <form action="/reservation/cancel/{{row[1]}}+{{row[2]}}" method="POST">
+                                <form action="/reservation/cancel/{{row[2]}}+{{row[8]}}" method="POST">
                                     <input name='button' type="submit" value="Cancel">
                                 </form>      
                         {% endif %}

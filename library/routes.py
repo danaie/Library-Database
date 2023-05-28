@@ -206,7 +206,6 @@ def reserve(book_id):
     flash(msg)
     return redirect(url_for('books'))
 
-
 @app.route('/applications')
 def applications():
     if session.get('user_role') not in ['l', 'a']:
@@ -434,9 +433,7 @@ def profile(user_id):
         if session.get('user_role') != 'l' and str(session.get('user_id')) != user_id:
             flash("You do not have authorization to view this page.")
             return redirect(url_for("home"))
-
         cur = db.connection.cursor()
-
         if request.method =='POST':
             if request.form.get('button') == "Deactivate":
                 try:
@@ -486,8 +483,7 @@ def profile(user_id):
         log = cur.fetchall()
 
         cur.close()
-        return render_template("profile.html", data=data, ser=ser, log=log)
-    
+        return render_template("profile.html", data=data, ser=ser, log=log)    
 
 @app.route('/reservation/cancel/<int:user_id>+<int:book_id>', methods=['GET','POST'])
 def cancel(user_id,book_id):

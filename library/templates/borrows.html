@@ -31,13 +31,8 @@
                             </td>
                         {% endfor %}
                         <td>
-                            <a href="/reservations/accept/{{ row[1] }}+{{ row[-1] }}">
-                                <button type="button">Accept</button>
-                            </a>
-                        </td>
-                        <td>
-                            <a href="/reservations/decline/{{ row[1] }}+{{ row[-1] }}">
-                                <button type="button">Decline</button>
+                            <a href="/return/{{ row[1] }}+{{ row[-1] }}">
+                                <button type="button">Return</button>
                             </a>
                         </td>
                     </tr>
