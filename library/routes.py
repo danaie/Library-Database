@@ -557,11 +557,13 @@ def change_info():
         if form.date_of_birth.data:
             list.append("birth_date=%s")
             values += (str(form.date_of_birth.data),)
-        query = "UPDATE lib_user SET " + ', '.join(list) + " WHERE user_id=%s"
-        values += (session.get('user_id'),)
-        cur.execute(query, values)
-        db.connection.commit()
-        cur.close()
+        if list:
+            cur = db.connection.cursor()
+            query = "UPDATE lib_user SET " + ', '.join(list) + " WHERE user_id=%s"
+            values += (session.get('user_id'),)
+            cur.execute(query, values)
+            db.connection.commit()
+            cur.close()
         return redirect(url_for('profile', user_id=session.get('user_id')))
     else:
         return render_template('change_info.html', form=form)
