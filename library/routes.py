@@ -558,7 +558,7 @@ def change_info():
             list.append("birth_date=%s")
             values += (str(form.date_of_birth.data),)
         query = "UPDATE lib_user SET " + ', '.join(list) + " WHERE user_id=%s"
-        values += (session.get('user_id'),)
+        values += (str(session.get('user_id')),)
         cur.execute(query, values)
         db.connection.commit()
         cur.close()
