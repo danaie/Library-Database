@@ -284,7 +284,21 @@ def borrows():
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
-        return render_template('reservations.html', list=list)
+        return render_template('borrows.html', list=list)
+
+
+@app.route('/return/<user_id>+<book_id>')
+def return_book(user_id,book_id):
+    if session['user_role'] != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connection.cursor()
+        query = "DELETE FROM service WHERE user_id=%s AND book_id=%s"
+        cur.execute(query, (user_id,book_id,))
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for("borrows"))
 
 
 @app.route('/reservations/accept/<user_id>+<book_id>')
@@ -813,12 +827,12 @@ def result2(cat):
     cur.execute(query, values)
     data = cur.fetchall()
 
-    query = """select username, CONCAT(first_name, ' ', last_name) AS teacher_name 
-        from lib_user where user_id in
-        (select distinct user_id from borrow_log where 
+    query = """SELECT username, CONCAT(first_name, ' ', last_name) AS teacher_name 
+        FROM lib_user WHERE user_id IN
+        (SELECT DISTINCT user_id FROM borrow_log WHERE 
         DATEDIFF(current_date(), borrow_date)/365 <= 1
-        and book_id in (select book_id from book_category where category_id in 
-        (select category_id from category where category_id = %s) )
+        and book_id in (SELECT book_id FROM book_category WHERE category_id in 
+        (SELECT category_id FROM category WHERE category_id = %s) )
         ) and user_role = 't';"""
     cur.execute(query, values)
     data2 = cur.fetchall()

@@ -276,13 +276,6 @@ CREATE VIEW review_info AS
     INNER JOIN book b
     ON b.book_id = r.book_id
     WHERE r.pending = 0;
-
-CREATE VIEW lib_app AS
-	SELECT sch.school_id, u.user_id, sch.name, u.username, u.first_name, u.last_name, u.birth_date, u.user_role
-    FROM lib_user u
-    INNER JOIN school_unit sch
-    ON sch.school_id = u.school_id
-    WHERE u.active = FALSE AND u.pending = TRUE AND u.user_role = 'l';
     
 CREATE VIEW author_books AS
 	SELECT author.author_id, CONCAT(author.author_first_name, ' ', author.author_last_name) AS author, 
