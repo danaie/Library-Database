@@ -19,7 +19,7 @@
             <tbody>
                 {% for row in list %} 
                     <tr>
-                        {% for el in row[2:-4] %}
+                        {% for el in row[2:-5] %}
                             <td>
                                 {% if el=='s' %}
                                     Student
@@ -29,9 +29,13 @@
                                     {{ el }}
                                 {% endif %}
                             </td>
+
                         {% endfor %}
                         <td>
-                            <a href="/return/{{ row[1] }}+{{ row[-1] }}">
+                            {{ row[-1] }}
+                        </td>
+                        <td>
+                            <a href="/return/{{ row[1] }}+{{ row[7] }}">
                                 <button type="button">Return</button>
                             </a>
                         </td>

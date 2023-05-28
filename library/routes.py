@@ -283,7 +283,21 @@ def borrows():
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
-        return render_template('reservations.html', list=list)
+        return render_template('borrows.html', list=list)
+
+
+@app.route('/return/<user_id>+<book_id>')
+def return_book(user_id,book_id):
+    if session['user_role'] != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    else:
+        cur = db.connection.cursor()
+        query = "DELETE FROM service WHERE user_id=%s AND book_id=%s"
+        cur.execute(query, (user_id,book_id,))
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for("borrows"))
 
 
 @app.route('/reservations/accept/<user_id>+<book_id>')
