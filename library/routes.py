@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort, session
 from forms import *
 from flask_mysqldb import MySQL
+from .__init__ import app, db
+import subprocess
+import os
 
 app = Flask(__name__) 
 db = MySQL(app)
@@ -410,6 +413,110 @@ def add_book():
 def profile():
     if (session.get('user_role') in ['s','t']):
         cur = db.connection.cursor()
+        values = ()
+        list = []
+        if form.isbn.data:
+            list.append("isbn=%s")
+            values += (form.isbn.data,)
+        if form.title.data:
+            list.append("title=%s")
+            values += (form.title.data,)
+        if form.author_first_name.data and form.author_last_name.data:
+            auth_first = form.author_first_name.data.split(", ")
+            auth_last = form.author_last_name.data.split(", ")
+            cur.execute("DELETE FROM book_author WHERE book_id = %s", (book_id,))            
+            for a1, a2 in zip(auth_first,auth_last): 
+                auth = a1 + ' ' + a2
+                query = "INSERT IGNORE INTO author (author_first_name, author_last_name) VALUES (%s,%s)"
+                Values = (a1, a2,)
+                cur.execute(query,Values) 
+                cur.execute("INSERT INTO book_author (author_id, book_id) VALUES ((SELECT author_id FROM author WHERE CONCAT(author_first_name, ' ', author_last_name) = %s), %s)", (auth,book_id,))
+        if form.copies.data:
+            cur.execute("UPDATE availability SET copies = %s WHERE book_id = %s AND school_id = %s", (form.copies.data,book_id, session.get('school_id'),))
+        if form.publisher.data:
+            cur.execute("INSERT IGNORE INTO publisher (publisher_name) VALUES (%s)",(form.publisher.data,))
+            cur.execute("""UPDATE book_publisher SET publisher_id = (SELECT publisher_id 
+                FROM publisher WHERE publisher_name = %s) WHERE book_id = %s""", (form.publisher.data, book_id))        
+        if form.category.data:
+            cur.execute("DELETE FROM book_category WHERE book_id = %s", (book_id,))
+            cat = form.category.data.split(", ")
+            for c in cat:
+                cur.execute("INSERT IGNORE INTO category (category_name) VALUES (%s)",(c,))
+                cur.execute("INSERT INTO book_category (category_id, book_id) VALUES ((SELECT category_id FROM category WHERE category_name = %s), %s)",(c,book_id,))            
+        if form.page_number.data:
+            list.append("page_number = %s")
+            values += (form.page_number.data,)
+        if form.summary.data:
+            list.append("summary=%s")
+            values += (form.summary.data)
+        if form.lang.data:
+            list.append("lang=%s")
+            values += (form.lang.data)
+        if form.key_words.data:
+            list.append("key_words=%s")
+            values += (form.key_words.data)
+        if list: 
+            query = "UPDATE book SET " + ', '.join(list) + " WHERE book_id=%s"
+            values += (book_id,)
+            cur.execute(query, values)
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for('info', book_id=book_id))
+    else:
+        return render_template('change_book.html', form=form)
+
+
+
+@app.route('/users')
+def users():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for('home'))
+    cur = db.connection.cursor()
+    query = """SELECT ui.*, u.school_id from user_info ui 
+        INNER JOIN lib_user u ON u.user_id=ui.user_id WHERE u.school_id=%s"""
+    values = (str(session.get('school_id')),)
+    cur.execute(query, values)
+    data = cur.fetchall()
+    return render_template('users.html', data=data)
+
+
+@app.route('/profile/<user_id>', methods=['POST','GET'])
+def profile(user_id):
+        msg = ''
+        if session.get('user_role') != 'l' and str(session.get('user_id')) != user_id:
+            flash("You do not have authorization to view this page.")
+            return redirect(url_for("home"))
+        cur = db.connection.cursor()
+        if request.method =='POST':
+            if request.form.get('button') == "Deactivate":
+                try:
+                    query = "UPDATE lib_user SET active=0 WHERE user_id=%s"
+                    values = (user_id,)
+                    cur.execute(query, values)
+                    db.connection.commit()
+                    msg = "Deactivation successful."
+                except Exception as e:
+                    msg = "Deactivation unsuccessful."
+
+            elif request.form.get('button') == "Delete":
+                try:
+                    query = "DELETE FROM lib_user WHERE user_id=%s"
+                    values = (user_id,)
+                    cur.execute(query, values)
+                    db.connection.commit()
+                    msg = "Account successfully deleted."
+                except Exception as e:
+                    msg = "Account could not be deleted." 
+            flash(msg)
+            return redirect(url_for("home"))
+        query = "SELECT school_id FROM lib_user WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        sch = cur.fetchone()
+        if sch[0] != session['school_id']:
+            flash("You do not have authorization to view this page.")
+            return redirect(url_for("home"))
 
         query = "SELECT * from user_info WHERE user_id=%s"
         values = (session.get('user_id'),)
@@ -655,7 +762,34 @@ def run_queries():
         cur.execute("SELECT * FROM view_3_1_7")
         result = cur.fetchall()
         cur.close()
-
-
     return render_template('query_result.html', result=result, result1=result1, category_names=category_names)
+
+@app.route('/backup', methods=['GET','POST'])
+def backup():
+    if request.method == 'POST':
+        host = app.config["MYSQL_HOST"]
+        username = app.config["MYSQL_USER"]
+        password = app.config["MYSQL_PASSWORD"]
+        database_name = app.config["MYSQL_DB"]
+        cur = db.connection.cursor()
+        if request.form.get('button') == 'Backup':
+            try:
+                os.system(f'mysqldump -h {host} -u{username} --password={password} {database_name} > "backup.sql"')
+                '''
+                mysqldump_cmd = f"mysqldump -h {host} -u {username} -p {database_name} > 'backup.sql'"
+                process = subprocess.check_output(mysqldump_cmd, shell=True)
+                '''
+                flash("""Backup completed successfully. 
+                            You can find the backup in your current working dirctory""")
+                return  redirect (url_for('home'))
+            except subprocess.CalledProcessError as e:
+                return f"Error executing backup command: {e}"
+                msg = 'Backup'
+        elif request.form.get('button') == 'Restore':
+                    msg = 'Restore'
+                    db.connection.commit()
+                    cur.close()
+                    flash(msg)
+                    return redirect(url_for('backup'))
+    return render_template('backup.html')
 
