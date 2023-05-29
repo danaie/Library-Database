@@ -456,6 +456,66 @@ def add_book():
     return render_template('add_book.html', form = form)
 
 
+@app.route('/change_book/<book_id>', methods=['GET','POST'])
+def change_book(book_id):
+    form = Edit_Book_form()
+    if request.method == 'POST':
+        cur = db.connection.cursor()
+        values = ()
+        list = []
+        if form.isbn.data:
+            list.append("isbn=%s")
+            values += (form.isbn.data,)
+        if form.title.data:
+            list.append("title=%s")
+            values += (form.title.data,)
+        if form.author_first_name.data and form.author_last_name.data:
+            auth_first = form.author_first_name.data.split(", ")
+            auth_last = form.author_last_name.data.split(", ")
+            for a1, a2 in zip(auth_first,auth_last): 
+                cur.execute("DELETE FROM book_author WHERE book_id = %s", (book_id,))
+                auth = a1 + ' ' + a2
+                query = "INSERT IGNORE INTO author (author_first_name, author_last_name) VALUES (%s,%s)"
+                Values = (a1, a2,)
+                cur.execute(query,Values) 
+                cur.execute("""INSERT INTO book_author (author_id, book_id) VALUES ((SELECT author_id FROM author  
+                    WHERE CONCAT(author_first_name, ' ', author_last_name) = %s), %s)""", (auth,book_id,))
+        if form.copies.data:
+            cur.execute("UPDATE availability SET copies = %s WHERE book_id = %s AND school_id = %s", (form.copies.data,book_id, session.get('school_id'),))
+        if form.publisher.data:
+            cur.execute("INSERT IGNORE INTO publisher (publisher_name) VALUES (%s)",(form.publisher.data,))
+            cur.execute("""UPDATE book_publisher SET publisher_id = (SELECT publisher_id 
+                FROM publisher WHERE publisher_name = %s) WHERE book_id = %s""", (form.publisher.data, book_id))        
+        if form.category.data:
+            cur.execute("DELETE FROM book_category WHERE book_id = %s", (book_id,))
+            cat = form.category.data.split(", ")
+            for c in cat:
+                cur.execute("INSERT IGNORE INTO category (category_name) VALUES (%s)",(c,))
+                cur.execute("INSERT INTO book_category (category_id, book_id) VALUES ((SELECT category_id FROM category WHERE category_name = %s), %s)",(c,book_id,))            
+        if form.page_number.data:
+            list.append("page_number = %s")
+            values += (form.page_number.data,)
+        if form.summary.data:
+            list.append("summary=%s")
+            values += (form.summary.data)
+        if form.lang.data:
+            list.append("lang=%s")
+            values += (form.lang.data)
+        if form.key_words.data:
+            list.append("key_words=%s")
+            values += (form.key_words.data)
+        if list: 
+            query = "UPDATE book SET " + ', '.join(list) + " WHERE book_id=%s"
+            values += (book_id,)
+            cur.execute(query, values)
+        db.connection.commit()
+        cur.close()
+        return redirect(url_for('info', book_id=book_id))
+    else:
+        return render_template('change_book.html', form=form)
+
+
+
 @app.route('/users')
 def users():
     if session.get('user_role') != 'l':

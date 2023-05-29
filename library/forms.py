@@ -92,6 +92,24 @@ class Book_form(FlaskForm):
 		validators=[Length(max=100)])
 	submit = SubmitField('Add book')
 
+class Edit_Book_form(FlaskForm):
+	isbn = StringField('ISBN',
+		validators = [Length(13)])
+	title = StringField('Title',
+		validators=[Length(max=100)])
+	author_first_name = StringField('Author First Name')
+	author_last_name = StringField('Author Last Name')
+	copies = IntegerField('Copies')
+	publisher = StringField('Publisher')
+	category = StringField('Category')
+	page_number = IntegerField('Page Number')
+	summary = TextAreaField('Summary',
+		validators=[Length(max=200)])
+	lang = StringField('Language',
+		validators=[Length(max=15)])
+	key_words = StringField('Key Words',
+		validators=[Length(max=100)])
+	submit = SubmitField('Edit book')
 
 
 class School_form(FlaskForm):

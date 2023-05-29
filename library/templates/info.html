@@ -19,7 +19,11 @@
 	</p>
 	<br><br><br><br><br>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+	{% if session.get('user_role') == 'l' %}
+	<a href="/change_book/{{book[0][0]}}">
+		<button type="button">Edit book</button>
+	</a>
+	{% endif %}
 	<h4>Reviews</h4> 
 	<a href="/add_review/{{ book[0][0] }}">
 		<button type="button">Add review</button>

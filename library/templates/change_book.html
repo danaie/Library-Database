@@ -1,0 +1,178 @@
+{% extends "layout.html"%}
+
+{% block content %}
+		<div>
+		<form method="POST" action="">
+			{{ form.hidden_tag() }}
+			<fieldset>
+				<legend>Edit book</legend>
+				<small>Fill only the fields you want to change</small>
+				<div>
+					{{ form.isbn.label() }}
+					{% if form.isbn.errors %}
+						{{ form.isbn }}
+						<div>
+							{% for error in form.isbn.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					{% else %}
+					{{ form.isbn }}
+					{% endif %}
+				</div>
+				<div>
+					{{ form.title.label() }}
+					{% if form.title.errors %}
+						{{ form.title }}
+						<div>
+							{% for error in form.title.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.title }}
+					{% endif %}
+				</div>
+				<div>
+					{{ form.author_first_name.label() }}
+					{% if form.author_first_name.errors %}
+						{{ form.author_first_name }}
+						<div>
+							{% for error in form.author_first_name.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					{% else %}
+					{{ form.author_first_name }}
+					{% endif %}
+					<br>
+					<small>Add all authors first name separated by ", "</small>
+					<br>
+				</div>
+				<div>
+					
+					{{ form.author_last_name.label() }}
+					{% if form.author_last_name.errors %}
+						{{ form.author_last_name }}
+						<div>
+							{% for error in form.author_last_name.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					{% else %}
+					{{ form.author_last_name }}
+					{% endif %}
+					<br>
+					<small>Add all authors last name separated by ", " 
+						in the same order as the first name</small>
+					<br>
+				</div>
+				<div>
+					{{ form.publisher.label() }}
+					{% if form.publisher.errors %}
+						{{ form.publisher }}
+						<div>
+							{% for error in form.publisher.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.publisher }}
+					{% endif %}
+				</div>
+				<div>
+					{{ form.category.label() }}
+					{% if form.category.errors %}
+						{{ form.category }}
+						<div>
+							{% for error in form.category.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.category }}
+					{% endif %}
+					<br>
+					<small>Add all categories separated by ", "</small>
+					<br>
+				</div>
+				<div>
+					{{ form.page_number.label() }}
+					{% if form.page_number.errors %}
+						{{ form.page_number }}
+						<div>
+							{% for error in form.page_number.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.page_number }}
+					{% endif %}
+				</div>
+				<div>
+					{{ form.lang.label() }}
+					{% if form.lang.errors %}
+						{{ form.lang }}
+						<div>
+							{% for error in form.lang.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.lang }}
+					{% endif %}
+				</div>
+				<div>
+					{{ form.copies.label() }}
+					{% if form.copies.errors %}
+						{{ form.copies }}
+						<div>
+							{% for error in form.copies.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.copies }}
+					{% endif %}
+				</div>
+				<div>
+					{{ form.key_words.label() }}
+					{% if form.key_words.errors %}
+						{{ form.key_words }}
+						<div>
+							{% for error in form.key_words.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+					{{ form.key_words }}
+					{% endif %}
+				</div>
+				<div>
+					{{ form.summary.label() }}
+					{% if form.summary.errors %}
+						{{ form.summary }}
+						<div>
+							{% for error in form.summary.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					
+					{% else %}
+						{{ form.summary }}
+					{% endif %}
+				</div>
+			</fieldset>
+			<div>
+				{{ form.submit }}
+			</div>
+		</form>
+	</div>
+{% endblock %}
