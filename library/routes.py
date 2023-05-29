@@ -472,8 +472,8 @@ def change_book(book_id):
         if form.author_first_name.data and form.author_last_name.data:
             auth_first = form.author_first_name.data.split(", ")
             auth_last = form.author_last_name.data.split(", ")
+            cur.execute("DELETE FROM book_author WHERE book_id = %s", (book_id,))            
             for a1, a2 in zip(auth_first,auth_last): 
-                cur.execute("DELETE FROM book_author WHERE book_id = %s", (book_id,))
                 auth = a1 + ' ' + a2
                 query = "INSERT IGNORE INTO author (author_first_name, author_last_name) VALUES (%s,%s)"
                 Values = (a1, a2,)
