@@ -1,0 +1,25 @@
+{% block content %}
+    <div class="row">
+        <div class="col-lg-4.5">
+            {% include "information.html" %}
+        </div>
+        <div class="col-lg-8.5">
+            <h1>Query Result</h1>
+            <hr>
+            <ul>
+                {% for query_result in result %}
+                    <li>{{ query_result[0] }} {{ query_result[1] }}</li>
+                {% endfor %}
+            </ul>
+            <hr>
+            <ul>
+                {% for query_result1 in result1 %}
+                    <li>{{ query_result1[0] }} {{ query_result1[1] }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+
+
