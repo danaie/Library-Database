@@ -1,18 +1,26 @@
-from flask import Flask, Response, render_template, request, flash, redirect, url_for, abort, session
-from library.forms import *
+from flask import Flask, render_template, request, flash, redirect, url_for, abort, session
+from forms import *
 from flask_mysqldb import MySQL
-from .__init__ import app, db
-import subprocess
 
+app = Flask(__name__) 
+db = MySQL(app)
 
 @app.route('/')
 def home():
     return render_template('home.html')
 
 
-@app.route('/about')
-def about():
-    return render_template("about.html")
+@app.route('/books')
+def new():
+    if session:
+        cur = db.connect.cursor()
+        cur.execute("SELECT ISBN, title, copies FROM school_books WHERE school_id=%s",(session['school_id'],))
+        data = cur.fetchall()
+        cur.close()
+        return render_template("books_av.html",data=data)
+    else:
+        return render_template("home.html") #dummy
+
 
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
@@ -29,6 +37,9 @@ def signup():
         cur.close()
         if request.method=='POST':
             cur = db.connect.cursor()
+            cur.execute("SELECT * FROM lib_user WHERE username=%s",(form.username.data,))
+            user = cur.fetchone()
+            cur.close()
             try:
                 val = "your school library manager"
                 if form.role.data == "Student":
@@ -89,6 +100,7 @@ def login():
     return redirect(url_for("home"))
 
 
+
 @app.route('/logout')
 def logout():
     if session.get('username'):
@@ -97,27 +109,6 @@ def logout():
     else:
         flash("You are not logged in")
     return redirect(url_for('home'))
-
-
-@app.route('/books')
-def books():
-    cur = db.connect.cursor()
-    cur.execute("SELECT book_id, ISBN, title, auth, copies FROM school_book_info WHERE school_id = %s",(session['school_id'],))
-    data = cur.fetchall()
-    cur.close()
-    return render_template("books_av.html", data=data)
-
-
-@app.route('/info/<int:book_id>')
-def info(book_id):
-    cur = db.connect.cursor()
-    cur.execute("SELECT * FROM book_info WHERE book_id=%s",(str(book_id),))
-    book = cur.fetchall()
-    cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
-    review = cur.fetchall()
-    cur.close()
-    return render_template("info.html", book=book, review = review)
-
 
 @app.route('/search',methods=['GET', 'POST'])
 def search():
@@ -130,7 +121,7 @@ def search():
     form = Search_form()
     copies = Search_by_copies_form()
     form.category.choices = cat  
-    if 'search' in request.form:
+    if 'search'in request.form:
         t = form.title.data
         a = form.author.data
         c = request.form.getlist('category')
@@ -146,26 +137,15 @@ def search():
     elif 'search_cp' in request.form:
         cp = request.form.get('copies')
         return redirect(url_for('search_for_copies',cp=cp))
-    return render_template('search.html', form=form, copies = copies)
-
-
-@app.route('/search/for/copies/<cp>')
-def search_for_copies(cp):
-    cur = db.connection.cursor()
-    cur.execute("SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id = %s AND copies = %s", (session['school_id'], cp,))
-    data = cur.fetchall()
-    cur.close()
-    if data:
-        return render_template('books_av.html', data = data)
+    if session.get('user_role') == 'l':
+        return render_template('search_l.html', form=form, copies=copies)
     else:
-        flash('No results availabe')
-        return redirect(url_for('search'))
-
+        return render_template('search.html', form=form)
 
 @app.route('/search/for/<t>+<a>+<c>')
 def search_for(t,a,c):
     cur = db.connection.cursor()
-    query = "SELECT book_id, ISBN, title, copies FROM school_book_info WHERE school_id = %s AND REGEXP_LIKE(title,%s) AND REGEXP_LIKE(auth,%s) AND REGEXP_LIKE(cat,%s)"
+    query = "SELECT book_id, ISBN, title, copies FROM book_info WHERE school_id = %s AND REGEXP_LIKE(title,%s) AND REGEXP_LIKE(auth,%s) AND REGEXP_LIKE(cat,%s)"
     values = (session['school_id'], t, a, c,)
     cur.execute(query, values)
     data = cur.fetchall()
@@ -175,6 +155,28 @@ def search_for(t,a,c):
     else:
         flash('No results availabe')
         return redirect(url_for('search'))
+
+@app.route('/search/for/copies/<cp>')
+def search_for_copies(cp):
+    cur = db.connection.cursor()
+    cur.execute("SELECT book_id, ISBN, title, copies FROM book_info WHERE school_id = %s AND copies = %s", (session['school_id'], cp,))
+    data = cur.fetchall()
+    cur.close()
+    if data:
+        return render_template('books_av.html', data = data)
+    else:
+        flash('No results availabe')
+        return redirect(url_for('search'))
+
+@app.route('/info/<int:book_id>')
+def info(book_id):
+    cur = db.connect.cursor()
+    cur.execute("SELECT * FROM book_info WHERE book_id=%s",(str(book_id),))
+    book = cur.fetchall()
+    #cur.execute("SELECT * from review_info WHERE book_id=%s",(str(book_id),))
+    #review = cur.fetchall()
+    cur.close()
+    return render_template("info.html", book=book) #, review = review)
 
 
 @app.route('/reserve/<int:book_id>')
@@ -194,18 +196,26 @@ def reserve(book_id):
     if res >= lim:
         flash("You have exceeded the limit of reservations.")
         return redirect(url_for("books"))
-    msg = 'Your reservation has been registered.'
     try:
-        query = """INSERT INTO service (user_id, book_id, service_type, waiting) 
-            VALUES (%s, %s, 'r', 0)"""
-        values = (str(session.get('user_id')), str(book_id),)
+        query ="UPDATE availability SET copies=copies-1 WHERE book_id=%s AND school_id=%s"
+        values = (book_id, session['school_id'],)
         cur.execute(query, values)
-        db.connection.commit()
-    except Exception as e:        
-        msg = "Reservation failed."
+    except Exception as e:
+        flash("Not enough copies.")
+        return redirect(url_for('books'))
+    try:
+        query = "INSERT INTO service (user_id, book_id, service_type) VALUES (%s, %s, %s)"
+        values = (session.get('user_id'), book_id, 'r',)
+        cur.execute(query, values)
+    except Exception as e:
+        flash("You have already reserved or are currently in possession of this title.")
+        return redirect(url_for('books'))
+    db.connection.commit()
     cur.close()
-    flash(msg)
+    flash("Your reservation has been registered.")
     return redirect(url_for('books'))
+
+
 
 @app.route('/applications')
 def applications():
@@ -215,12 +225,7 @@ def applications():
     else:
         cur = db.connection.cursor()
         if session.get('user_role') == 'a':
-            query = """SELECT u.user_id, u.username, u.first_name, u.last_name, 
-            sch.name, u.birth_date, u.user_role 
-            FROM lib_user u
-            INNER JOIN school_unit sch 
-            ON sch.school_id=u.school_id 
-            WHERE active=FALSE AND pending=TRUE AND user_role='l'"""
+            query = "SELECT user_id, username, first_name, last_name, birth_date, user_role from lib_user WHERE active=FALSE AND pending=TRUE AND user_role='l'"
             values = ()
         else:
             query = "SELECT user_id, username, first_name, last_name, birth_date, user_role from lib_user WHERE active=FALSE AND pending=TRUE AND school_id=%s"
@@ -259,6 +264,7 @@ def decline_app(user_id):
         return redirect(url_for("applications"))
 
 
+
 @app.route('/reservations')
 def reservations():
     if session.get('user_role') != 'l':
@@ -266,39 +272,11 @@ def reservations():
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "SELECT * from service_info WHERE school_id=%s AND service_type='r' AND waiting=0"
+        query = "SELECT * from loan_app WHERE school_id=%s"
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
         return render_template('reservations.html', list=list)
-
-
-@app.route('/borrows')
-def borrows():
-    if session.get('user_role') != 'l':
-        flash("You do not have authorization to view this page.")
-        return redirect(url_for("home"))
-    else:
-        cur = db.connection.cursor()
-        query = "SELECT * from service_info WHERE school_id=%s AND service_type= 'b'"
-        cur.execute(query, (session.get('school_id'),))
-        list = cur.fetchall()
-        cur.close()
-        return render_template('borrows.html', list=list)
-
-
-@app.route('/return/<user_id>+<book_id>')
-def return_book(user_id,book_id):
-    if session['user_role'] != 'l':
-        flash("You do not have authorization to view this page.")
-        return redirect(url_for("home"))
-    else:
-        cur = db.connection.cursor()
-        query = "DELETE FROM service WHERE user_id=%s AND book_id=%s"
-        cur.execute(query, (user_id,book_id,))
-        db.connection.commit()
-        cur.close()
-        return redirect(url_for("borrows"))
 
 
 @app.route('/reservations/accept/<user_id>+<book_id>')
@@ -329,7 +307,6 @@ def decline_reserv(user_id,book_id):
         cur.close()
         return redirect(url_for("reservations"))
 
-
 @app.route('/reviews')
 def reviews():
     if session.get('user_role') != 'l':
@@ -353,7 +330,6 @@ def accept_review(user_id,book_id):
         db.connection.commit()
         cur.close()
         return redirect(url_for("info", book_id=book_id))
-
 
 @app.route('/reviews/decline/<user_id>+<book_id>')
 def decline_review(user_id,book_id):
@@ -391,31 +367,6 @@ def add_review(book_id):
     else:
         return render_template("add_review.html", form=form)
 
-
-@app.route('/review/delete/<int:book_id>', methods=['POST','GET'])
-def delete_review(book_id):
-    if request.method == 'GET':
-        flash('You do not have authorization to view this page.')
-        return redirect(url_for('home'))
-    cur = db.connection.cursor()
-    query = "DELETE FROM review WHERE user_id=%s AND book_id=%s"
-    values = (session.get('user_id'), book_id,)
-    cur.execute(query, values)
-    db.connection.commit()
-    return redirect(url_for('info', book_id=book_id))
-
-
-@app.route('/loans')
-def loans():
-    if session.get('user_role') != 'l':
-        flash("You do not have authorization to view this page.")
-        return redirect(url_for("home"))
-    else:
-        cur = db.connect.cursor()
-        cur.execute("SELECT username, first_name, last_name, user_role from lib_user WHERE ")
-        list = cur.fetchall()
-        cur.close()
-        return render_template('loans.html')
 
 
 @app.route('/add_book',methods=['GET', 'POST'])
@@ -455,206 +406,48 @@ def add_book():
             return redirect(url_for('home'))
     return render_template('add_book.html', form = form)
 
-
-@app.route('/change_book/<book_id>', methods=['GET','POST'])
-def change_book(book_id):
-    form = Edit_Book_form()
-    if request.method == 'POST':
+@app.route('/profile')
+def profile():
+    if (session.get('user_role') in ['s','t']):
         cur = db.connection.cursor()
-        values = ()
-        list = []
-        if form.isbn.data:
-            list.append("isbn=%s")
-            values += (form.isbn.data,)
-        if form.title.data:
-            list.append("title=%s")
-            values += (form.title.data,)
-        if form.author_first_name.data and form.author_last_name.data:
-            auth_first = form.author_first_name.data.split(", ")
-            auth_last = form.author_last_name.data.split(", ")
-            cur.execute("DELETE FROM book_author WHERE book_id = %s", (book_id,))            
-            for a1, a2 in zip(auth_first,auth_last): 
-                auth = a1 + ' ' + a2
-                query = "INSERT IGNORE INTO author (author_first_name, author_last_name) VALUES (%s,%s)"
-                Values = (a1, a2,)
-                cur.execute(query,Values) 
-                cur.execute("INSERT INTO book_author (author_id, book_id) VALUES ((SELECT author_id FROM author WHERE CONCAT(author_first_name, ' ', author_last_name) = %s), %s)", (auth,book_id,))
-        if form.copies.data:
-            cur.execute("UPDATE availability SET copies = %s WHERE book_id = %s AND school_id = %s", (form.copies.data,book_id, session.get('school_id'),))
-        if form.publisher.data:
-            cur.execute("INSERT IGNORE INTO publisher (publisher_name) VALUES (%s)",(form.publisher.data,))
-            cur.execute("""UPDATE book_publisher SET publisher_id = (SELECT publisher_id 
-                FROM publisher WHERE publisher_name = %s) WHERE book_id = %s""", (form.publisher.data, book_id))        
-        if form.category.data:
-            cur.execute("DELETE FROM book_category WHERE book_id = %s", (book_id,))
-            cat = form.category.data.split(", ")
-            for c in cat:
-                cur.execute("INSERT IGNORE INTO category (category_name) VALUES (%s)",(c,))
-                cur.execute("INSERT INTO book_category (category_id, book_id) VALUES ((SELECT category_id FROM category WHERE category_name = %s), %s)",(c,book_id,))            
-        if form.page_number.data:
-            list.append("page_number = %s")
-            values += (form.page_number.data,)
-        if form.summary.data:
-            list.append("summary=%s")
-            values += (form.summary.data)
-        if form.lang.data:
-            list.append("lang=%s")
-            values += (form.lang.data)
-        if form.key_words.data:
-            list.append("key_words=%s")
-            values += (form.key_words.data)
-        if list: 
-            query = "UPDATE book SET " + ', '.join(list) + " WHERE book_id=%s"
-            values += (book_id,)
-            cur.execute(query, values)
-        db.connection.commit()
-        cur.close()
-        return redirect(url_for('info', book_id=book_id))
-    else:
-        return render_template('change_book.html', form=form)
-
-
-
-@app.route('/users')
-def users():
-    if session.get('user_role') != 'l':
-        flash("You do not have authorization to view this page.")
-        return redirect(url_for('home'))
-    cur = db.connection.cursor()
-    query = """SELECT ui.*, u.school_id from user_info ui 
-        INNER JOIN lib_user u ON u.user_id=ui.user_id WHERE u.school_id=%s"""
-    values = (str(session.get('school_id')),)
-    cur.execute(query, values)
-    data = cur.fetchall()
-    return render_template('users.html', data=data)
-
-
-@app.route('/profile/<user_id>', methods=['POST','GET'])
-def profile(user_id):
-        msg = ''
-        if session.get('user_role') != 'l' and str(session.get('user_id')) != user_id:
-            flash("You do not have authorization to view this page.")
-            return redirect(url_for("home"))
-        cur = db.connection.cursor()
-        if request.method =='POST':
-            if request.form.get('button') == "Deactivate":
-                try:
-                    query = "UPDATE lib_user SET active=0 WHERE user_id=%s"
-                    values = (user_id,)
-                    cur.execute(query, values)
-                    db.connection.commit()
-                    msg = "Deactivation successful."
-                except Exception as e:
-                    msg = "Deactivation unsuccessful."
-
-            elif request.form.get('button') == "Delete":
-                try:
-                    query = "DELETE FROM lib_user WHERE user_id=%s"
-                    values = (user_id,)
-                    cur.execute(query, values)
-                    db.connection.commit()
-                    msg = "Account successfully deleted."
-                except Exception as e:
-                    msg = "Account could not be deleted."
-
-            
-            flash(msg)
-            return redirect(url_for("home"))
-
-        query = "SELECT school_id FROM lib_user WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        sch = cur.fetchone()
-        if sch[0] != session['school_id']:
-            flash("You do not have authorization to view this page.")
-            return redirect(url_for("home"))
 
         query = "SELECT * from user_info WHERE user_id=%s"
-        values = (user_id,)
+        values = (session.get('user_id'),)
         cur.execute(query, values)
         data = cur.fetchall()
 
         query = "SELECT * FROM service_info WHERE user_id=%s"
-        values = (user_id,)
+        values = (str(session.get('user_id')),)
         cur.execute(query, values)
         ser = cur.fetchall()
         
         query = "SELECT * FROM log_info WHERE user_id=%s"
-        values = (user_id,)
+        values = (session.get('user_id'),)
         cur.execute(query, values)
         log = cur.fetchall()
 
         cur.close()
-        return render_template("profile.html", data=data, ser=ser, log=log)    
-
-@app.route('/reservation/cancel/<int:user_id>+<int:book_id>', methods=['GET','POST'])
-def cancel(user_id,book_id):
-    msg = ''
-    try:
-        cur = db.connection.cursor()
-        query = "DELETE FROM service WHERE user_id=%s AND book_id=%s AND service_type='r'"
-        values = (user_id,book_id,)
-        cur.execute(query, values)
-        db.connection.commit()
-        cur.close()
-        msg = "Reservation was successfully canceled."
-    except:
-        msg = "No such reservation found."
-    flash(msg)
-    return redirect(url_for('profile', user_id=user_id))
-
+        return render_template("profile.html", data=data, ser=ser, log=log)
+    else:
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
 
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
     form = Change_password_form()
     if (request.method=='POST'):
-        try:
-            cur = db.connection.cursor()
-            print(form.new_password.data)
-            query = """UPDATE lib_user SET password=%s WHERE username=%s
-            AND password=(SELECT password WHERE username=%s AND password=%s)"""
-            values = (form.new_password.data, session.get('username'), session.get('username'), form.current_password.data,)
-            cur.execute(query, values)
+        cur = db.connection.cursor()
+        cur.execute("SELECT (password) FROM lib_user WHERE username=%s",(session.get('username'),))
+        password = cur.fetchall()
+        if password[0][0] == form.current_password.data:
+            cur.execute("UPDATE lib_user SET password=%s WHERE username=%s", (form.new_password.data, session.get('username')))
             db.connection.commit()
             cur.close()
-            flash("Password changed successfully.")
-            return redirect(url_for('profile',user_id=str(session.get('user_id'))))
-        except Exception as e:
-            print(e)
+            return redirect(url_for('profile'))
+        else :
             flash('Wrong password!')
             return redirect(url_for('change_password'))
     return render_template("change_password.html",form=form)
-
-
-@app.route('/change_info', methods=['GET','POST'])
-def change_info():
-    form = Change_info_form()
-    if request.method == 'POST':
-        cur = db.connection.cursor()
-        values = ()
-        list = []
-        if form.username.data:
-            list.append("username=%s")
-            values += (form.username.data,)
-        if form.first_name.data:
-            list.append("first_name=%s")
-            values += (form.first_name.data,)
-        if form.last_name.data:
-            list.append("last_name=%s")
-            values += (form.last_name.data,)
-        if form.date_of_birth.data:
-            list.append("birth_date=%s")
-            values += (str(form.date_of_birth.data),)
-        if list: 
-            query = "UPDATE lib_user SET " + ', '.join(list) + " WHERE user_id=%s"
-            values += (session.get('user_id'),)
-            cur.execute(query, values)
-            db.connection.commit()
-            cur.close()
-        return redirect(url_for('profile', user_id=session.get('user_id')))
-    else:
-        return render_template('change_info.html', form=form)
-
 
 @app.route('/add_school', methods=['GET', 'POST'])
 def add_school():
@@ -673,15 +466,14 @@ def add_school():
                 print("school")
                 db.connection.commit()
                 cur.close()
-                flash("School has been added successfully.")
+                flash("School have been added")
                 return redirect(url_for("home"))
         except Exception as e:
             print("Problem inserting into db: " + str(e))
             return render_template("add_school.html", form=form)
         else:
             return render_template("add_school.html", form=form)
-
-
+    
 @app.route("/statistics", methods=['GET','POST'])
 def statistics():
     delay_form = Delay_form()
@@ -723,11 +515,11 @@ def delay(f,l,d):
     if d == '.*':
         query = """SELECT * FROM delay_info WHERE school_id = %s
         AND REGEXP_LIKE(first_name,%s) AND REGEXP_LIKE(last_name,%s) 
-        AND DATEDIFF(CURDATE(), service_date) > 7
+        AND DATEDIFF(CURDATE(), service_date) > 14
         """
         values = (session['school_id'], f, l,)
     else:
-        val = int(d)+7
+        val = int(d)+14
         query = """SELECT * FROM delay_info WHERE school_id = %s
         AND REGEXP_LIKE(first_name,%s) AND REGEXP_LIKE(last_name,%s)
         AND DATEDIFF(CURDATE(), service_date) = %s
@@ -764,138 +556,106 @@ def avg_rating(username,cat):
     return render_template("avg_rating.html", data=data)
 
 
-@app.route('/information', methods=['POST','GET'])
+@app.route('/information')
 def information():
-        tot_loans_form = TotLoans_form()
-        category_form = Category_form()
-        if request.method == 'POST':
-            if 'search_category' in request.form:
-                cat = category_form.category.data
-                return redirect(url_for('result2', cat=cat))
-            elif 'search_tot_loans' in request.form:
-                month = tot_loans_form.month.data
-                year = tot_loans_form.year.data
-                return redirect(url_for('result1', q=1, m=month, y=year))
-        else:
+        cur = db.connection.cursor()
+
+        # Execute the query to retrieve category names
+        query = "SELECT category_name FROM category"
+        cur.execute(query)
+
+        # Fetch all the category names
+        category_names = [row[0] for row in cur.fetchall()]
+        session['category_names'] = category_names
+
+        cur.close()
+       
+        return render_template('information.html', category_names=category_names)
+
+@app.route('/run_queries', methods=['POST'])
+def run_queries():
+    category_names = session.get('category_names')
+    result = [] 
+    result1 = []
+
+    cur = db.connection.cursor()
+
+    if 'button1' in request.form:
+        if request.method == 'POST' and 'year' in request.form and 'month' in request.form:
+            year = request.form['year']
+            month = request.form['month']
+
+            
+            query_3_1_1 = "SELECT sch.name AS 'School Name', " \
+                    "COUNT(*) AS 'Number of Loans' " \
+                    "FROM school_unit sch " \
+                    "INNER JOIN lib_user u ON u.school_id = sch.school_id " \
+                    "INNER JOIN borrow_log b ON b.user_id = u.user_id " \
+                    "WHERE YEAR(b.borrow_date) = %s AND MONTH(b.borrow_date) = %s " \
+                    "GROUP BY sch.name"
+
+            cur.execute(query_3_1_1, (year, month))
+            result = cur.fetchall()
+
+            cur.close() 
+    elif 'button2' in request.form:
+        if request.method == 'POST' and 'category' in request.form:
+            category = request.form['category']
+
             cur = db.connection.cursor()
-            query = "SELECT * from category ORDER BY category_name"
-            cur.execute(query, ())
-            data = cur.fetchall()
-            list = []
-            for el in data:
-                list.append(el)
-            category_form.category.choices = list
-        return render_template('information.html', tot_loans_form=tot_loans_form, category_form=category_form)
-
-
-@app.route('/result/<int:q>')
-def result(q):
-    if session.get('user_role') != 'a':
-        flash("You do not have authorization to view this page.")
-        return(redirect(url_for("home")))
-    cur = db.connection.cursor()
-    q = int(q)
-    if q == 3:
-        query = """SELECT CONCAT(u.first_name, ' ', u.last_name) AS teacher_name, 
-            COUNT(bl.book_id) AS book_nmbr
-            FROM lib_user u
-            INNER JOIN borrow_log bl ON u.user_id = bl.user_id
-            WHERE DATEDIFF(CURDATE(), u.birth_date)/365 < 40 AND u.user_role = 't'
-            GROUP BY bl.user_id
-            ORDER BY book_nmbr DESC
-            LIMIT 10;"""
-    elif q == 4:
-        query = """SELECT CONCAT(author_first_name, ' ', author_last_name) AS author_name
-            FROM author WHERE author_id NOT IN (
-            SELECT DISTINCT author_id FROM book_author WHERE book_id IN 
-            (SELECT book_id FROM borrow_log));"""
-    elif q == 6:
-        query = """SELECT COUNT(bl.book_id) AS loan_nmbr, 
-            CONCAT(c1.category_name, ', ', c2.category_name) AS category_pair
-            FROM category c1 INNER JOIN book_category bc1 ON c1.category_id = bc1.category_id
-            INNER JOIN book_category bc2
-            ON bc1.book_id = bc2.book_id AND bc1.category_id < bc2.category_id
-            INNER JOIN category c2 ON c2.category_id = bc2.category_id
-            INNER JOIN borrow_log bl ON bl.book_id = bc1.book_id
-            GROUP BY bc1.category_id, bc2.category_id
-            ORDER BY COUNT(bl.book_id) DESC
-            LIMIT 3;"""
-    elif q == 7:
-        query = """SELECT author FROM author_books 
-        WHERE author_books.total_books <= (SELECT MAX(total_books) 
-        FROM author_books) - 5;"""
-    else:
-        flash("Invalid argument.")
-        return redirect(url_for('home'))
-    cur.execute(query, ())
-    data = cur.fetchall()
-    return render_template('result.html', q=q, data=data)
-
-
-@app.route('/result/<int:q>/<m>+<y>')
-def result1(q,m,y):
-    if session.get('user_role') != 'a':
-        flash("You do not have authorization to view this page.")
-        return(redirect(url_for("home")))
-    elif int(q) not in [1,5]:
-        flash("Invalid arguments.")
-        return(redirect(url_for("home")))
-    elif int(q) == 1:
-        cur = db.connection.cursor()
-        query = "SELECT * FROM tot_loans WHERE b_year=%s"
-        values = (y,)
-        if m != 'Whole year':
-            query += " AND b_month=%s;"
-            values += (m,)
-    else:
-        cur = db.connection.cursor()
-        query = """SELECT * FROM (
-                SELECT lm.username, CONCAT(lm.first_name, ' ', lm.last_name) AS lib_man_name, sch.name, 
-                COUNT(bl.user_id) AS loan_nmbr, YEAR(bl.borrow_date) AS loan_year
-                FROM school_unit sch
-                INNER JOIN lib_user u ON sch.school_id = u.school_id
-                INNER JOIN borrow_log bl ON bl.user_id = u.user_id
-                INNER JOIN lib_user lm ON lm.school_id = sch.school_id
-                WHERE lm.user_role = 'l'
-                GROUP BY lm.username, sch.school_id, loan_year) AS lib_loan
-            WHERE lib_loan.loan_nmbr > 20 AND lib_loan.loan_year = %s
-            ORDER BY loan_nmbr DESC;"""
-        values = (y,)
-    cur.execute(query, values)
-    data = cur.fetchall()
-    cur.close()
-    return render_template("result.html", q=q, data=data)
-
-
-@app.route('/result/2/<int:cat>')
-def result2(cat):
-    if session.get('user_role') != 'a':
-        flash("You do not have authorization to view this page.")
-        return redirect(url_for('home'))
     
-    cur = db.connection.cursor()
-    query = """SELECT author FROM
-        (SELECT DISTINCT c.category_id AS category, CONCAT(a.author_first_name, ' ', a.author_last_name) AS author
-        FROM author a INNER JOIN book_author ba ON ba.author_id = a.author_id
-        INNER JOIN book b ON b.book_id = ba.book_id
-        INNER JOIN book_category bc ON bc.book_id = b.book_id
-        INNER JOIN category c ON c.category_id = bc.category_id) AS cat_auth
-        WHERE cat_auth.category = %s;"""
-    values = (cat,)
-    cur.execute(query, values)
-    data = cur.fetchall()
+            # Query 3.1.2_1
+            query_3_1_2_1 = "SELECT DISTINCT a.author_first_name, a.author_last_name " \
+                        "FROM author a " \
+                        "JOIN book_author ba ON a.author_id = ba.author_id " \
+                        "JOIN book_category bc ON ba.book_id = bc.book_id " \
+                        "JOIN category c ON bc.category_id = c.category_id " \
+                        "WHERE c.category_name = %s"
+            cur.execute(query_3_1_2_1, (category,))
+            result = cur.fetchall()
 
-    query = """SELECT username, CONCAT(first_name, ' ', last_name) AS teacher_name 
-        FROM lib_user WHERE user_id IN
-        (SELECT DISTINCT user_id FROM borrow_log WHERE 
-        DATEDIFF(current_date(), borrow_date)/365 <= 1
-        and book_id in (SELECT book_id FROM book_category WHERE category_id in 
-        (SELECT category_id FROM category WHERE category_id = %s) )
-        ) and user_role = 't';"""
-    cur.execute(query, values)
-    data2 = cur.fetchall()
+            # Query 3.1.2_2
+            query_3_1_2_2 = "SELECT DISTINCT u.first_name, u.last_name " \
+                "FROM lib_user u " \
+                "JOIN borrow_log bl ON u.user_id = bl.user_id " \
+                "JOIN book b ON bl.book_id = b.book_id " \
+                "JOIN book_category bc ON b.book_id = bc.book_id " \
+                "JOIN category c ON bc.category_id = c.category_id " \
+                "WHERE c.category_name = %s " \
+                "AND bl.borrow_date >= DATE_SUB(CURDATE(), INTERVAL 10 YEAR) " \
+                "AND u.user_role = 't'"
 
-    cur.close()
-    return render_template('result.html', q=2, data=data, data2=data2)
+                  
+            cur.execute(query_3_1_2_2, (category,))
+            result1 = cur.fetchall()
+            cur.close() 
 
+    elif 'button3' in request.form:
+
+        cur.execute("SELECT * FROM view_3_1_3")
+        result = cur.fetchall()
+        cur.close() 
+
+    elif 'button4' in request.form:
+        cur.execute("SELECT * FROM view_3_1_4")
+        result = cur.fetchall()
+        cur.close() 
+
+    elif 'button5' in request.form:
+        cur.execute("SELECT * FROM view_3_1_5")
+        result = cur.fetchall()
+        cur.close() 
+
+    elif 'button6' in request.form:
+        cur.execute("SELECT * FROM view_3_1_6")
+        result = cur.fetchall()
+        cur.close() 
+
+    elif 'button7' in request.form:
+        cur.execute("SELECT * FROM view_3_1_7")
+        result = cur.fetchall()
+        cur.close()
+
+
+    return render_template('query_result.html', result=result, result1=result1, category_names=category_names)
 
