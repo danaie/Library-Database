@@ -1,12 +1,10 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, abort, session
-from forms import *
+from .forms import *
 from flask_mysqldb import MySQL
 from .__init__ import app, db
 import subprocess
 import os
 
-app = Flask(__name__) 
-db = MySQL(app)
 
 @app.route('/')
 def home():
@@ -409,8 +407,8 @@ def add_book():
             return redirect(url_for('home'))
     return render_template('add_book.html', form = form)
 
-@app.route('/profile')
-def profile():
+@app.route('/change_book')
+def change_book():
     if (session.get('user_role') in ['s','t']):
         cur = db.connection.cursor()
         values = ()
@@ -535,9 +533,7 @@ def profile(user_id):
 
         cur.close()
         return render_template("profile.html", data=data, ser=ser, log=log)
-    else:
-        flash("You do not have authorization to view this page.")
-        return redirect(url_for("home"))
+
 
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
