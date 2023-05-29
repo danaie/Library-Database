@@ -478,8 +478,7 @@ def change_book(book_id):
                 query = "INSERT IGNORE INTO author (author_first_name, author_last_name) VALUES (%s,%s)"
                 Values = (a1, a2,)
                 cur.execute(query,Values) 
-                cur.execute("""INSERT INTO book_author (author_id, book_id) VALUES ((SELECT author_id FROM author  
-                    WHERE CONCAT(author_first_name, ' ', author_last_name) = %s), %s)""", (auth,book_id,))
+                cur.execute("INSERT INTO book_author (author_id, book_id) VALUES ((SELECT author_id FROM author WHERE CONCAT(author_first_name, ' ', author_last_name) = %s), %s)", (auth,book_id,))
         if form.copies.data:
             cur.execute("UPDATE availability SET copies = %s WHERE book_id = %s AND school_id = %s", (form.copies.data,book_id, session.get('school_id'),))
         if form.publisher.data:

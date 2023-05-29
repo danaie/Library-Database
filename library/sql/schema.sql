@@ -58,7 +58,8 @@ CREATE TABLE author (
     author_id INT NOT NULL AUTO_INCREMENT,
     author_first_name VARCHAR(20) NOT NULL,
     author_last_name VARCHAR(20) NOT NULL,
-    PRIMARY KEY (author_id)
+    PRIMARY KEY (author_id),
+	CONSTRAINT UNIQUE (author_first_name, author_last_name)
 );
 
 CREATE TABLE book_author (
