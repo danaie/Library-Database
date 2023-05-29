@@ -132,7 +132,7 @@ class AvgRating_form(FlaskForm):
 
 class TotLoans_form(FlaskForm):
 	month = SelectField('Month', choices=['Whole year']+[month for month in range(1,13)])
-	year = SelectField('Year', validators=[DataRequired()], choices=[year for year in range(2010, datetime.date.today().year)])
+	year = SelectField('Year', validators=[DataRequired()], choices=[year for year in range(2019, datetime.date.today().year +1)])
 	search_tot_loans = SubmitField('View')
 
 class Category_form(FlaskForm):
