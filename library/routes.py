@@ -597,7 +597,7 @@ def profile(user_id):
         if request.method =='POST':
             
             if request.form.get('button') == 'Card':
-                return render_template('lib_card.html, data=data)
+                return render_template('lib_card.html', data=data)
                                        
             elif request.form.get('button') == "Deactivate":
                 try:
