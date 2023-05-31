@@ -408,6 +408,51 @@ def delete_review(book_id):
     db.connection.commit()
     return redirect(url_for('info', book_id=book_id))
 
+@app.route('/lend/<int:book_id>', methods=['POST','GET'])
+def lend(book_id):
+    lend_form = Lend_form()
+    if request.method == 'POST':
+        
+            username = lend_form.username.data
+            cur = db.connection.cursor()
+
+            query = """SELECT COUNT(*) FROM service 
+                    WHERE user_id = (SELECT user_id from lib_user WHERE username=%s) 
+                    AND service_type='b'"""
+            values = (username,)
+            cur.execute(query, values)
+            res = cur.fetchall()[0][0]
+            print(res)
+
+            query = """SELECT user_role FROM lib_user WHERE username=%s"""
+            values = (username,)
+            cur.execute(query, values)
+            role = cur.fetchall()
+            print(role)
+
+            if role[0][0] == 't':
+                val = 1
+            elif role[0][0] == 's':
+                val = 2
+            else:
+                flash("Invalid arguments.")
+                return redirect(url_for('home'))
+            if res < val:
+                try:
+                    query = """INSERT INTO service (user_id, book_id, service_type)
+                            VALUES ((SELECT user_id FROM lib_user WHERE username=%s), %s, 'b')"""
+                    values = (username, book_id,)
+                    cur.execute(query, values)
+                    db.connection.commit()
+                    flash('Lending the book was successful.')
+                except:
+                    flash('Lending the book was unsuccessful.')
+            else:
+                flash("User has exceeded the limit of loans or is already in possession of this book.")
+            return redirect(url_for('books'))
+    return render_template('lend.html', lend_form=lend_form)
+
+
 
 @app.route('/add_book',methods=['GET', 'POST'])
 def add_book():
