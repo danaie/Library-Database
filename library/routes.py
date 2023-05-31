@@ -272,11 +272,13 @@ def reservations():
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "SELECT * from loan_app WHERE school_id=%s"
+        query = """SELECT * from service_info WHERE school_id=%s 
+                AND service_type='r' AND waiting=0"""
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
         return render_template('reservations.html', list=list)
+
 
 
 @app.route('/reservations/accept/<user_id>+<book_id>')
@@ -286,7 +288,8 @@ def accept(user_id,book_id):
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "UPDATE service SET service_type='b', service_date=CURDATE() WHERE user_id=%s AND book_id=%s"
+        query = """UPDATE service SET service_type='b', service_date=CURDATE() 
+                WHERE user_id=%s AND book_id=%s"""
         values = (user_id, book_id,)
         cur.execute(query, values)
         db.connection.commit()
@@ -307,6 +310,8 @@ def decline_reserv(user_id,book_id):
         cur.close()
         return redirect(url_for("reservations"))
 
+
+    
 @app.route('/reviews')
 def reviews():
     if session.get('user_role') != 'l':
@@ -331,6 +336,7 @@ def accept_review(user_id,book_id):
         cur.close()
         return redirect(url_for("info", book_id=book_id))
 
+    
 @app.route('/reviews/decline/<user_id>+<book_id>')
 def decline_review(user_id,book_id):
     if session['user_role'] != 'l':
@@ -367,6 +373,7 @@ def add_review(book_id):
     else:
         return render_template("add_review.html", form=form)
 
+    
 @app.route('/review/delete/<int:book_id>', methods=['POST','GET'])
 def delete_review(book_id):
     if request.method == 'GET':
@@ -461,6 +468,7 @@ def add_book():
             flash("Book was added.")
             return redirect(url_for('home'))
     return render_template('add_book.html', form = form)
+
 
 @app.route('/change_book')
 def change_book():
