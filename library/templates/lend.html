@@ -1,0 +1,29 @@
+{% extends "layout.html"%}
+
+{% block content %}
+<div>
+        <form method="POST" action="">
+            {{ lend_form.hidden_tag() }}
+            <fieldset>
+                <legend>Lend book</legend>
+                <div>
+                    {{ lend_form.username.label() }}
+                    {% if lend_form.username.errors %}
+                        {{ lend_form.username }}
+                        <div>
+                            {% for error in lend_form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    {{ lend_form.username }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div>
+                {{ lend_form.submit }}
+            </div>
+        </form>
+        </div>
+    </div>
+{% endblock %}
