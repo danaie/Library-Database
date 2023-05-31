@@ -219,6 +219,7 @@ def reserve(book_id):
     flash(msg)
     return redirect(url_for('books'))
 
+
 @app.route('/applications')
 def applications():
     if session.get('user_role') not in ['l', 'a']:
@@ -592,8 +593,13 @@ def profile(user_id):
             flash("You do not have authorization to view this page.")
             return redirect(url_for("home"))
         cur = db.connection.cursor()
+        
         if request.method =='POST':
-            if request.form.get('button') == "Deactivate":
+            
+            if request.form.get('button') == 'Card':
+                return render_template('lib_card.html, data=data)
+                                       
+            elif request.form.get('button') == "Deactivate":
                 try:
                     query = "UPDATE lib_user SET active=0 WHERE user_id=%s"
                     values = (user_id,)
