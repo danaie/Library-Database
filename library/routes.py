@@ -13,6 +13,7 @@ def home():
 def about():
     return render_template("about.html")
 
+
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
     if not session.get('username'):
@@ -100,6 +101,9 @@ def logout():
 
 @app.route('/books')
 def books():
+    if session.get('user_role') == 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for('home'))
     cur = db.connect.cursor()
     cur.execute("""SELECT book_id, ISBN, title, auth, copies FROM school_book_info 
                 WHERE school_id = %s ORDER BY title""", (session.get('school_id'),))
@@ -110,6 +114,9 @@ def books():
 
 @app.route('/info/<int:book_id>')
 def info(book_id):
+    if session.get('user_role') == 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for('home'))
     cur = db.connect.cursor()
     cur.execute("SELECT * FROM book_info WHERE book_id=%s",(str(book_id),))
     book = cur.fetchall()
@@ -121,6 +128,9 @@ def info(book_id):
 
 @app.route('/search',methods=['GET', 'POST'])
 def search():
+    if session.get('user_role') == 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for('home'))
     cur = db.connection.cursor()
     cur.execute("SELECT category_name FROM category")
     r = cur.fetchall()
