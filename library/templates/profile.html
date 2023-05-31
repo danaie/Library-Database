@@ -35,13 +35,6 @@
     </table>
 
     <br>
-    {% if session.get('user_role') == 'l' %}
-            <form action="" method="POST">
-                <input name="button" type="submit" value="Card">
-            </form>
-            <br>
-       {% endif %}
-
     {% if data[0][0] == session.get('user_id') %}
         {% if session.get('user_role') == 't' %}
             <form action="/change_info" method="GET">
@@ -54,6 +47,13 @@
             </form>
        <br>
     {% endif %}
+    {% if session.get('user_role') == 'l' %}
+            <a href="/card/{{data[0][0]}}">
+                <button>Card</button>
+            </a>
+
+            <br>
+       {% endif %}
 
     <h4>Current services</h4>
     {% if not ser %}
