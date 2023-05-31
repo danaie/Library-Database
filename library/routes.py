@@ -299,6 +299,9 @@ def return_book(user_id,book_id):
         cur = db.connection.cursor()
         query = "DELETE FROM service WHERE user_id=%s AND book_id=%s"
         cur.execute(query, (user_id,book_id,))
+        query = f"""CALL no_more_wait({book_id}, (SELECT school_id FROM lib_user 
+                WHERE user_id = {user_id}));"""
+        cur.execute(query, ())
         db.connection.commit()
         cur.close()
         return redirect(url_for("borrows"))
@@ -329,6 +332,9 @@ def decline_reserv(user_id,book_id):
         cur = db.connection.cursor()
         query = "DELETE FROM service WHERE user_id=%s AND book_id=%s"
         cur.execute(query, (user_id,book_id,))
+        query = f"""CALL no_more_wait({book_id}, (SELECT school_id FROM lib_user 
+                WHERE user_id = {user_id}));"""
+        cur.execute(query, ())
         db.connection.commit()
         cur.close()
         return redirect(url_for("reservations"))
@@ -635,6 +641,9 @@ def cancel(user_id,book_id):
         query = "DELETE FROM service WHERE user_id=%s AND book_id=%s AND service_type='r'"
         values = (user_id,book_id,)
         cur.execute(query, values)
+        query = f"""CALL no_more_wait({book_id}, (SELECT school_id FROM lib_user 
+                WHERE user_id = {user_id}));"""
+        cur.execute(query, ())
         db.connection.commit()
         cur.close()
         msg = "Reservation was successfully canceled."
