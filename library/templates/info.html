@@ -16,8 +16,14 @@
 		<b>Key words:</b> {{ book[0][10] }} <br>
 		<br>
     
-	</p>
+
 	<br><br><br><br><br>
+	{% if session.get('user_role') == 'l' %}
+    <a href="/change_book/{{book[0][0]}}">
+    	<button type="button">Change book</button>
+	</a>
+	</p>
+	{% endif %}
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 	<h4>Reviews</h4> 
