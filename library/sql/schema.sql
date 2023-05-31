@@ -241,7 +241,7 @@ CREATE VIEW service_info AS
     
 
 CREATE VIEW delay_info AS
-	SELECT u.school_id, u.user_id, u.first_name, u.last_name, s.service_date, datediff(curdate(), service_date)-14 AS delay
+	SELECT u.school_id, u.user_id, u.first_name, u.last_name, s.service_date, datediff(curdate(), service_date)-7 AS delay
     FROM lib_user u 
     INNER JOIN service s
     ON s.user_id = u.user_id
