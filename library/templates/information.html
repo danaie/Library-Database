@@ -3,6 +3,7 @@
 {% block content %}
     <h1>Information Test</h1>
     <div class="button-container">
+        <h5>Borrowed books per school</h5>
         <form action="/run_queries" method="POST" class="button-form">
             <div class="input-group">
                 <div class="left-section">
@@ -13,10 +14,11 @@
                     <label for="month">Select a month:</label>
                     <input type="number" id="month" name="month" min="1" max="12" step="1">
                 </div>
-                <button type="submit" name="button1" value="button1" title="Borrowed books per school">Run query 1</button>
+                <button type="submit" name="button1" value="button1" title="See the result in the right">Run query 1</button>
             </div>
         </form>
         <hr>
+        <h5>Authors with books and teachers with the biggest number of borrowed books in the selected category</h5>
         <form action="/run_queries" method="POST" class="button-form">
             <div class="input-group">
                 <label for="category">Select a category:</label>
@@ -26,29 +28,34 @@
                     {% endfor %}
                 </select> 
                 <div class="right-section">
-                    <button type="submit" name="button2" value="button2" title="Authors with books and teachers with the biggest number of borrowed books in the selected category">Run query 2</button>
+                    <button type="submit" name="button2" value="button2" title="See the result in the right, first authors and second teachers">Run query 2</button>
                 </div>
             </div>
         </form>
         <hr>
+        <h5>Teachers with the biggest amount of borrowed books</h5>
         <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button3" value="button3" title="Teachers with the biggest amount of borrowed books">Run query 3</button>
+            <button type="submit" name="button3" value="button3" title="See the result in the right">Run query 3</button>
         </form>
         <hr>
+        <h5>Authors with no books been borrowed</h5>
         <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button4" value="button4" title="Authors with no books been borrowed">Run query 4</button>
+            <button type="submit" name="button4" value="button4" title="See the result in the right">Run query 4</button>
         </form>
         <hr>
+        <h5>Users having borrowed the same amount of books greater than 20 in the last year</h5>
         <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button5" value="button5" title="Users having borrowed the same amount of books greater than 20 in the last year">Run query 5</button>
+            <button type="submit" name="button5" value="button5" title="See the result in the right">Run query 5</button>
         </form>
         <hr>
+        <h5>Best pairs of categories</h5>
         <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button6" value="button6" title="Best pairs of categories">Run query 6</button>
+            <button type="submit" name="button6" value="button6" title="See the result in the right">Run query 6</button>
         </form>
         <hr>
+        <h5>Authors with books less than the books of the author with the most books plus 5</h5>
         <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button7" value="button7" title="Authors with books less than the books of the author with the most books plus 5">Run query 7</button>
+            <button type="submit" name="button7" value="button7" title="See the result in the right">Run query 7</button>
         </form>
     </div>
 {% endblock %}
