@@ -157,3 +157,6 @@ class Category_form(FlaskForm):
 	category = SelectField('Category', validators=[DataRequired()], choices=[])
 	search_category = SubmitField('View')
 
+class Lend_form(FlaskForm):
+	username = StringField('Username', validators=[DataRequired(), Length(min=2,max=15)])
+	submit = SubmitField('Lend')
