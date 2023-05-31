@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, flash, redirect, url_for, abo
 from .forms import *
 from flask_mysqldb import MySQL
 from .__init__ import app, db
-import subprocess
 import os
 
 
@@ -528,7 +527,8 @@ def users():
         return redirect(url_for('home'))
     cur = db.connection.cursor()
     query = """SELECT ui.*, u.school_id from user_info ui 
-        INNER JOIN lib_user u ON u.user_id=ui.user_id WHERE u.school_id=%s"""
+        INNER JOIN lib_user u ON u.user_id=ui.user_id WHERE u.school_id=%s
+         AND u.pending=0 AND u.active=1"""
     values = (str(session.get('school_id')),)
     cur.execute(query, values)
     data = cur.fetchall()
