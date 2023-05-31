@@ -268,7 +268,8 @@ def reservations():
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "SELECT * from service_info WHERE school_id=%s AND service_type='r' AND waiting=0"
+        query = """SELECT * from service_info WHERE school_id=%s 
+                AND service_type='r' AND waiting=0"""
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
@@ -310,7 +311,8 @@ def accept(user_id,book_id):
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "UPDATE service SET service_type='b', service_date=CURDATE() WHERE user_id=%s AND book_id=%s"
+        query = """UPDATE service SET service_type='b', service_date=CURDATE() 
+                WHERE user_id=%s AND book_id=%s"""
         values = (user_id, book_id,)
         cur.execute(query, values)
         db.connection.commit()
@@ -330,6 +332,7 @@ def decline_reserv(user_id,book_id):
         db.connection.commit()
         cur.close()
         return redirect(url_for("reservations"))
+
 
 @app.route('/reviews')
 def reviews():
