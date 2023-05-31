@@ -593,28 +593,6 @@ def profile(user_id):
             flash("You do not have authorization to view this page.")
             return redirect(url_for("home"))
         cur = db.connection.cursor()
-        query = "SELECT school_id FROM lib_user WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        sch = cur.fetchone()
-        if sch[0] != session['school_id']:
-            flash("You do not have authorization to view this page.")
-
-        query = "SELECT * from user_info WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        data = cur.fetchall()
-
-        query = "SELECT book_id, ISBN, title, service_type, service_date, waiting FROM service_info WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        ser = cur.fetchall()
-        
-        query = "SELECT * FROM log_info WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        log = cur.fetchall()
-
         if request.method =='POST' :
             if request.form.get('button') == "Deactivate":
                 try:
@@ -635,15 +613,43 @@ def profile(user_id):
                     msg = "Account successfully deleted."
                 except Exception as e:
                     msg = "Account could not be deleted."          
-            elif request.form.get('button') == "Card":
-                return render_template('lib_card.html', data=data)
-                #return redirect("/about")          
             flash(msg)
             return redirect(url_for("home"))
 
-        cur.close()
+        query = "SELECT school_id FROM lib_user WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        sch = cur.fetchone()
+        if sch[0] != session['school_id']:
+            flash("You do not have authorization to view this page.")
+            return redirect(url_for("home"))
 
-        return render_template("profile.html", data=data, ser=ser, log=log)
+        query = "SELECT * from user_info WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        data = cur.fetchall()
+
+        query = "SELECT book_id, ISBN, title, service_type, service_date, waiting FROM service_info WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        ser = cur.fetchall()
+        
+        query = "SELECT * FROM log_info WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        log = cur.fetchall()
+
+        cur.close()
+        return render_template("profile.html", data=data, ser=ser, log=log)  
+
+@app.route('/card/<user_id>')
+def card(user_id):
+    cur =db.connection.cursor()
+    query = "SELECT * FROM user_info WHERE user_id=%s"
+    values = (user_id,)
+    cur.execute(query, values)
+    data = cur.fetchall()
+    return render_template("lib_card.html", data=data)
 
 @app.route('/reservation/cancel/<int:user_id>+<int:book_id>', methods=['GET','POST'])
 def cancel(user_id,book_id):
