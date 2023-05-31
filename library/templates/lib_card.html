@@ -36,25 +36,25 @@
 
 <body>
     
-  <div id="divPrint">
     <div class="card">
       <h1 style="text-align: center;">Library Card</h1>
         <div class="avatar">
         <i class="fa fa-user" aria-hidden="true"></i>
         </div>
-        <h1>{{ data[2] }} {{ data[3] }}</h1>
+        <h1>{{ data[0][2] }} {{ data[0][3] }}</h1>
         <div class="designation">
-            {% if data[4] == "s"%}
-              <p><b>Role:</b> Student</p>
+            {% if data[0][4] == "s"%}
+              <p><b>Role: </b>Student</p>
             {% else %}
-              <p><b>Role:</b> Teacher</p>
+              <p><b>Role: </b>Teacher</p>
             {% endif %}
-        </div>
         
-        <P><b>School :</b> {{ data[5] }}</P>
-        <p><b>Birth Date :</b>{{ data[6] }}</p>    
-    </div>          
-  </div>
- <a href="/applications">Back</a>
-
+        <p><b>School: </b>{{ data[0][5] }}</p>
+        <p><b>Birth Date: </b>{{ data[0][6] }}</p>   
+        </div> 
+    </div> 
+    <br><br><br><br>         
+ <div style="text-align: center;" >
+ <a href="/profile/{{ data[0][0] }}">Back</a>
+</div>
 </html>
