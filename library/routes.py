@@ -283,7 +283,7 @@ def borrows():
         return redirect(url_for("home"))
     else:
         cur = db.connection.cursor()
-        query = "SELECT * from service_info WHERE school_id=%s AND service_type= 'b'"
+        query = "SELECT user_id, book_id, username, first_name, last_name, user_role, title, copies from service_info WHERE school_id=%s AND service_type= 'b'"
         cur.execute(query, (session.get('school_id'),))
         list = cur.fetchall()
         cur.close()
@@ -332,6 +332,7 @@ def decline_reserv(user_id,book_id):
         db.connection.commit()
         cur.close()
         return redirect(url_for("reservations"))
+
 
 
 @app.route('/reviews')
@@ -407,6 +408,7 @@ def delete_review(book_id):
     cur.execute(query, values)
     db.connection.commit()
     return redirect(url_for('info', book_id=book_id))
+
 
 @app.route('/lend/<int:book_id>', methods=['POST','GET'])
 def lend(book_id):
