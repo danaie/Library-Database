@@ -27,7 +27,7 @@
                                 <button type="button">Reserve</button>
                             </a>
                         </td>
-                    {% elif session['user_role'] == 'l' %}
+                    {% elif session['user_role'] == 'l' and row[-1] != 0 %}
                         <td>
                             <a href="/lend/{{ row[0] }}">
                                 <button type="button">Lend</button>
