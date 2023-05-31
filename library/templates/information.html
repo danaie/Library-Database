@@ -1,57 +1,96 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 
 {% block content %}
-    <h1>Information Test</h1>
-    <div class="button-container">
-        <form action="/run_queries" method="POST" class="button-form">
-            <div class="input-group">
-                <div class="left-section">
-                    <label for="year">Select a year:</label>
-                    <input type="number" id="year" name="year" min="2000" max="2023" step="1">
-                </div>
-                <div class="left-section">
-                    <label for="month">Select a month:</label>
-                    <input type="number" id="month" name="month" min="1" max="12" step="1">
-                </div>
-                <button type="submit" name="button1" value="button1" title="Borrowed books per school">Run query 1</button>
-            </div>
-        </form>
-        <hr>
-        <form action="/run_queries" method="POST" class="button-form">
-            <div class="input-group">
-                <label for="category">Select a category:</label>
-                <select name="category" id="category">
-                    {% for category_name in category_names %}
-                        <option value="{{ category_name }}">{{ category_name }}</option>
+<h1>Information</h1>
+
+<h4>Number of loans per school</h4>
+<form method="POST" action="">
+    {{ tot_loans_form.hidden_tag() }}
+    <fieldset>
+        <div>
+            {{ tot_loans_form.month.label() }}
+            {% if tot_loans_form.month.errors %}
+                {{ tot_loans_form.month }}
+                <div>
+                    {% for error in tot_loans_form.month.errors %}
+                        <span>{{ error }}</span>
                     {% endfor %}
-                </select> 
-                <div class="right-section">
-                    <button type="submit" name="button2" value="button2" title="Authors with books and teachers with the biggest number of borrowed books in the selected category">Run query 2</button>
                 </div>
-            </div>
-        </form>
-        <hr>
-        <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button3" value="button3" title="Teachers with the biggest amount of borrowed books">Run query 3</button>
-        </form>
-        <hr>
-        <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button4" value="button4" title="Authors with no books been borrowed">Run query 4</button>
-        </form>
-        <hr>
-        <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button5" value="button5" title="Users having borrowed the same amount of books greater than 20 in the last year">Run query 5</button>
-        </form>
-        <hr>
-        <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button6" value="button6" title="Best pairs of categories">Run query 6</button>
-        </form>
-        <hr>
-        <form action="/run_queries" method="POST" class="button-form">
-            <button type="submit" name="button7" value="button7" title="Authors with books less than the books of the author with the most books plus 5">Run query 7</button>
-        </form>
+            {% else %}
+            {{ tot_loans_form.month }}
+            {% endif %}
+        </div>
+        <div>
+            {{ tot_loans_form.year.label() }}
+            {% if tot_loans_form.year.errors %}
+                {{ tot_loans_form.year }}
+                <div>
+                    {% for error in tot_loans_form.year.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+            {{ tot_loans_form.year }}
+            {% endif %}
+        </div>
+    </fieldset>
+    <div>
+        {{ tot_loans_form.search_tot_loans }}
     </div>
+    </form>
+
+
+<h4>Authors who have written books in a specific category and teachers 
+    who have borrowed books in this category during the last one year</h4>
+
+    <form method="POST" action="">
+        {{ category_form.hidden_tag() }}
+        <fieldset>
+            <div>
+                {{ category_form.category.label() }}
+                {% if category_form.category.errors %}
+                    {{ category_form.category }}
+                    <div>
+                        {% for error in category_form.category.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                {{ category_form.category }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div>
+            {{ category_form.search_category }}
+        </div>
+        </form>
+
+<h4>10 young teachers (younger than 40 years old) who have borrowed the most books 
+    and the number of books they have borrowed</h4>
+    <form action="/result/3" method="GET">
+        <input name='button' type="submit" value="View">
+    </form>
+
+<h4>Authors with no borrowed books</h4>
+    <form action="/result/4" method="GET">
+        <input name='button' type="submit" value="View">
+    </form>
+
+<h4>Library managers who have lent the same number of books in a year 
+    with more than 20 loans</h4>
+    <form action="/result/5/1+2020" method="GET">
+        <input name='button' type="submit" value="View">
+    </form>
+
+<h4>Top 3 category pairs that appear most often in loans</h4>
+    <form action="/result/6" method="GET">
+        <input name='button' type="submit" value="View">
+    </form>
+
+<h4>Authors who have written at least 5 books less than the author 
+    who has written the most books</h4>
+    <form action="/result/7" method="GET">
+        <input name='button' type="submit" value="View">
+    </form>
+
 {% endblock %}
-
-
-

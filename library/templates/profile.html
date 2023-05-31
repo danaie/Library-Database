@@ -59,35 +59,36 @@
                     <th>Title</th>
                     <th>Service type</th>
                     <th>Service date</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in ser %} 
                     <tr>
+                        {% for el in row[1:] %}
                         <td>
-                            {{ row[8] }}
-                        </td>
-                        <td>
-                            {{ row[6] }}
-                        </td>
-                        <td>
-                            {% if row[9] == 'b' %}
-                            Borrowed
+                            {% if el == 'b'%}
+                                Borrowed
+                            {% elif el == 'r' %}
+                                Reserved
+                            {% elif el == 1 %}
+                                On hold
+                            {% elif el == 0 %}
+                                Registered
                             {% else %}
-                            Resserved
+                                {{ el }}
                             {% endif %}
                         </td>
+                        {% endfor %}
+            
                         <td>
-                            {{ row[10] }}
-                        </td>
-                        <td>
-                        {% if session['user_role'] in ['s','t'] and row[1] == session.get('user_id') and row[9] == 'r'%}
+                        {% if session['user_role'] in ['s','t'] and row[3] == 'r'%}
                            
-                                <form action="/reservation/cancel/{{row[2]}}+{{row[8]}}" method="POST">
+                                <form action="/reservation/cancel/{{data[0][0]}}+{{row[0]}}" method="POST">
                                     <input name='button' type="submit" value="Cancel">
                                 </form>      
                         {% endif %}
-                    </td>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -138,6 +139,7 @@
     <form action="/profile/{{data[0][0]}}" method="POST">
         <input name="button" type="submit" value="Delete">
     </form>
+    <small>Warning! Deleting an account is permanent and will affect statistics.</small>
     {% endif %}
 
 {% endblock %}

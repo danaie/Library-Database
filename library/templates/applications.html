@@ -8,7 +8,9 @@
     <table border="1">
         <thead>
             <tr>
-                <th>School</th>
+                {% if session.get('user_role') == 'a' %}
+                    <th>School</th>
+                {% endif %}
                 <th>Username</th>
                 <th>First name</th>
                 <th>Last name</th>
@@ -21,10 +23,7 @@
         <tbody>
             {% for row in list %} 
                 <tr>
-                    <td>
-                        <a>{{ row[0] }}</a>
-                    </td>
-                    {% for el in row[2:] %}
+                    {% for el in row[1:] %}
                         <td>
                             {% if el=='s' %}
                                 Student
