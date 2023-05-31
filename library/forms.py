@@ -148,14 +148,6 @@ class AvgRating_form(FlaskForm):
 	category = SelectField('Category', choices=[(0,'')], validate_choice=True)
 	search2 = SubmitField('Search')
 
-class TotLoans_form(FlaskForm):
-	month = SelectField('Month', choices=['Whole year']+[month for month in range(1,13)])
-	year = SelectField('Year', validators=[DataRequired()], choices=[year for year in range(2019, datetime.date.today().year +1)])
-	search_tot_loans = SubmitField('View')
-
-class Category_form(FlaskForm):
-	category = SelectField('Category', validators=[DataRequired()], choices=[])
-	search_category = SubmitField('View')
 
 class Lend_form(FlaskForm):
 	username = StringField('Username', validators=[DataRequired(), Length(min=2,max=15)])
