@@ -625,6 +625,38 @@ def change_password():
             return redirect(url_for('change_password'))
     return render_template("change_password.html",form=form)
 
+
+@app.route('/change_info', methods=['GET','POST'])
+def change_info():
+    form = Change_info_form()
+    if request.method == 'POST':
+        cur = db.connection.cursor()
+        values = ()
+        list = []
+        if form.username.data:
+            list.append("username=%s")
+            values += (form.username.data,)
+        if form.first_name.data:
+            list.append("first_name=%s")
+            values += (form.first_name.data,)
+        if form.last_name.data:
+            list.append("last_name=%s")
+            values += (form.last_name.data,)
+        if form.date_of_birth.data:
+            list.append("birth_date=%s")
+            values += (str(form.date_of_birth.data),)
+        if list:
+            cur = db.connection.cursor()
+            query = "UPDATE lib_user SET " + ', '.join(list) + " WHERE user_id=%s"
+            values += (session.get('user_id'),)
+            cur.execute(query, values)
+            db.connection.commit()
+            cur.close()
+        return redirect(url_for('profile', user_id=session.get('user_id')))
+    else:
+        return render_template('change_info.html', form=form)
+
+
 @app.route('/add_school', methods=['GET', 'POST'])
 def add_school():
     if session.get('user_role') != 'a':
@@ -833,6 +865,7 @@ def run_queries():
         cur.close()
     return render_template('query_result.html', result=result, result1=result1, category_names=category_names)
 
+
 @app.route('/backup', methods=['GET','POST'])
 def backup():
     if request.method == 'POST':
@@ -840,25 +873,20 @@ def backup():
         username = app.config["MYSQL_USER"]
         password = app.config["MYSQL_PASSWORD"]
         database_name = app.config["MYSQL_DB"]
-        cur = db.connection.cursor()
         if request.form.get('button') == 'Backup':
             try:
                 os.system(f'mysqldump -h {host} -u{username} --password={password} {database_name} > "backup.sql"')
-                '''
-                mysqldump_cmd = f"mysqldump -h {host} -u {username} -p {database_name} > 'backup.sql'"
-                process = subprocess.check_output(mysqldump_cmd, shell=True)
-                '''
                 flash("""Backup completed successfully. 
-                            You can find the backup in your current working dirctory""")
+                            You can find the backup in your current working directory.""")
                 return  redirect (url_for('home'))
-            except subprocess.CalledProcessError as e:
-                return f"Error executing backup command: {e}"
-                msg = 'Backup'
+            except:
+                flash("Error executing backup command")
         elif request.form.get('button') == 'Restore':
-                    msg = 'Restore'
-                    db.connection.commit()
-                    cur.close()
-                    flash(msg)
-                    return redirect(url_for('backup'))
+            try:
+                os.system(f'mysql -h {host} -u{username} --password={password} {database_name} < "backup.sql"')
+                flash("Restore successful")
+            except:
+                flash("Error executing restore command")
+                return redirect(url_for('home'))
     return render_template('backup.html')
 
