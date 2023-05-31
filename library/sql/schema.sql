@@ -285,7 +285,20 @@ CREATE VIEW author_books AS
     LEFT JOIN book_author ON author.author_id = book_author.author_id
     GROUP BY author.author_id, author.author_first_name, author.author_last_name;
         
-        
+CREATE VIEW tot_loans_year (school_id, school_name, no_loans, b_year) AS
+    SELECT 
+        sch.school_id,
+        sch.name AS 'School Name',
+        COUNT(*) AS 'Number of Loans',
+        YEAR(b.borrow_date) AS 'Year'
+    FROM
+        school_unit sch
+            INNER JOIN
+        lib_user u ON u.school_id = sch.school_id
+            INNER JOIN
+        borrow_log b ON b.user_id = u.user_id
+    GROUP BY sch.school_id, YEAR(b.borrow_date), sch.name;
+
 
 -- -------
 -- Indexes
@@ -336,6 +349,17 @@ END IF;
 END; $$
 delimiter ;
 
+delimiter $$
+CREATE TRIGGER no_more_wait AFTER UPDATE ON availability
+FOR EACH ROW
+BEGIN
+    UPDATE service SET waiting=0
+    WHERE book_id = NEW.book_id
+    AND service_type='r'
+    ORDER BY service_date ASC
+    LIMIT 1;
+END; $$
+delimiter ;
 
 
 -- ------
