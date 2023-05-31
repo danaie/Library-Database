@@ -327,6 +327,7 @@ END; $$
 delimiter ;
 
 
+
 delimiter $$
 CREATE TRIGGER increase_copies BEFORE DELETE ON service
 FOR EACH ROW
@@ -349,17 +350,24 @@ END IF;
 END; $$
 delimiter ;
 
-delimiter $$
-CREATE TRIGGER no_more_wait AFTER UPDATE ON availability
-FOR EACH ROW
+
+-- ----------
+-- Procedures
+-- ----------
+DELIMITER $$
+CREATE PROCEDURE no_more_wait(IN b_id INT, IN sch_id INT)
 BEGIN
-    UPDATE service SET waiting=0
-    WHERE book_id = NEW.book_id
-    AND service_type='r'
-    ORDER BY service_date ASC
-    LIMIT 1;
-END; $$
-delimiter ;
+        UPDATE service
+        SET waiting = 0
+        WHERE book_id = b_id
+            AND service_type = 'r'
+            AND user_id IN (SELECT user_id FROM lib_user WHERE school_id = sch_id)
+        ORDER BY service_date ASC
+        LIMIT 1;
+END $$
+DELIMITER ;
+
+
 
 
 -- ------
@@ -371,3 +379,4 @@ DO
     DELETE FROM service WHERE DATEDIFF(CURRENT_DATE, service_date) > 7 
     AND service_type='r'
     AND waiting=0;
+
