@@ -593,13 +593,30 @@ def profile(user_id):
             flash("You do not have authorization to view this page.")
             return redirect(url_for("home"))
         cur = db.connection.cursor()
+        query = "SELECT school_id FROM lib_user WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        sch = cur.fetchone()
+        if sch[0] != session['school_id']:
+            flash("You do not have authorization to view this page.")
+
+        query = "SELECT * from user_info WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        data = cur.fetchall()
+
+        query = "SELECT book_id, ISBN, title, service_type, service_date, waiting FROM service_info WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        ser = cur.fetchall()
         
-        if request.method =='POST':
-            
-            if request.form.get('button') == 'Card':
-                return render_template('lib_card.html', data=data)
-                                       
-            elif request.form.get('button') == "Deactivate":
+        query = "SELECT * FROM log_info WHERE user_id=%s"
+        values = (user_id,)
+        cur.execute(query, values)
+        log = cur.fetchall()
+
+        if request.method =='POST' :
+            if request.form.get('button') == "Deactivate":
                 try:
                     query = "UPDATE lib_user SET active=0 WHERE user_id=%s"
                     values = (user_id,)
@@ -617,37 +634,16 @@ def profile(user_id):
                     db.connection.commit()
                     msg = "Account successfully deleted."
                 except Exception as e:
-                    msg = "Account could not be deleted."
-
-            
+                    msg = "Account could not be deleted."          
+            elif request.form.get('button') == "Card":
+                return render_template('lib_card.html', data=data)
+                #return redirect("/about")          
             flash(msg)
             return redirect(url_for("home"))
 
-        query = "SELECT school_id FROM lib_user WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        sch = cur.fetchone()
-        if sch[0] != session['school_id']:
-            flash("You do not have authorization to view this page.")
-            return redirect(url_for("home"))
-
-        query = "SELECT * from user_info WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        data = cur.fetchall()
-
-        query = "SELECT book_id, ISBN, title, service_type, service_date, waiting FROM service_info WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        ser = cur.fetchall()
-        
-        query = "SELECT * FROM log_info WHERE user_id=%s"
-        values = (user_id,)
-        cur.execute(query, values)
-        log = cur.fetchall()
-
         cur.close()
-        return render_template("profile.html", data=data, ser=ser, log=log)  
+
+        return render_template("profile.html", data=data, ser=ser, log=log)
 
 @app.route('/reservation/cancel/<int:user_id>+<int:book_id>', methods=['GET','POST'])
 def cancel(user_id,book_id):
