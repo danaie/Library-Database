@@ -590,7 +590,24 @@ def profile(user_id):
         cur.close()
         return render_template("profile.html", data=data, ser=ser, log=log)
 
-
+    
+@app.route('/reservation/cancel/<int:user_id>+<int:book_id>', methods=['GET','POST'])
+def cancel(user_id,book_id):
+    msg = ''
+    try:
+        cur = db.connection.cursor()
+        query = "DELETE FROM service WHERE user_id=%s AND book_id=%s AND service_type='r'"
+        values = (user_id,book_id,)
+        cur.execute(query, values)
+        db.connection.commit()
+        cur.close()
+        msg = "Reservation was successfully canceled."
+    except:
+        msg = "No such reservation found."
+    flash(msg)
+    return redirect(url_for('profile', user_id=user_id))
+    
+    
 @app.route('/change_password',methods=['GET', 'POST'])
 def change_password():
     form = Change_password_form()
