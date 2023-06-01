@@ -399,10 +399,16 @@ DELIMITER ;
 -- ------
 -- Events
 -- ------
+delimiter $$
 CREATE EVENT reserv_event
 ON SCHEDULE EVERY 1 DAY
 DO
+BEGIN
     DELETE FROM service WHERE DATEDIFF(CURRENT_DATE, service_date) > 7 
     AND service_type='r'
     AND waiting=0;
-
+    
+    UPDATE service SET waiting=1
+    WHERE service_type='b' AND DATEDIFF(CURRENT_DATE, service_date) > 7;
+END $$
+delimiter ;
