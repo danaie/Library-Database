@@ -909,14 +909,31 @@ INSERT INTO availability(school_id, book_id, copies) VALUES
 (1,100,15),
 (2,100,18);
 
-INSERT INTO service (user_id, book_id, service_type, service_date) VALUES
-	(2, 45, 'b', '2023-04-20'),
-    (10, 3, 'b', '2023-04-10'),
-    (25, 18, 'b', '2023-04-18'),
-    (36, 34, 'b', '2023-04-21'),
-    (47, 9, 'r', '2023-04-14'),
-    (20, 39, 'r', '2023-04-01'),
-    (50, 49, 'b', '2023-04-12');
+
+INSERT INTO service (user_id, book_id, service_type, service_date, waiting) VALUES
+    (10, 3, 'b',CAST(curdate() AS date), 0),
+    (25, 18, 'b', CAST(curdate()-interval 2 day AS date), 0),
+    (36, 34, 'b', CAST(curdate()-interval 3 day AS date), 0),
+    (47, 9, 'r', CAST(curdate()-interval 5 day AS date), 0),
+    (20, 39, 'r', CAST(curdate() AS date), 0),
+    (50, 49, 'b', CAST(curdate()-interval 1 day AS date), 0),
+	(5, 19, 'b', CAST(curdate()-interval 6 day AS date), 0),
+    (15, 20, 'r', CAST(curdate()-interval 1 day AS date), 0),
+    (22, 59, 'b', CAST(curdate()-interval 10 day AS date), 1),
+    (41, 60, 'r', CAST(curdate() AS date), 0),
+    (48, 31, 'b', CAST(curdate()-interval 5 day AS date), 0),
+    (54, 14, 'b', CAST(curdate()-interval 11 day AS date), 1),
+    (20, 1, 'r', CAST(curdate()-interval 3 day AS date), 0),
+    (49, 23, 'r', CAST(curdate()-interval 6 day AS date), 0),
+    (42, 48, 'b', CAST(curdate()-interval 10 day AS date), 1),
+    (55, 72, 'b', CAST(curdate() AS date), 0),
+    (45, 89, 'r', CAST(curdate()-interval 2 day AS date), 0),
+    (2, 100, 'b', CAST(curdate()-interval 10 day AS date), 1),
+    (34, 8, 'r', CAST(curdate()-interval 4 day AS date), 0),
+    (13, 60, 'b', CAST(curdate()-interval 8 day AS date), 1),
+    (44, 99, 'r', CAST(curdate()-interval 5 day AS date), 0),
+    (28, 55, 'b', CAST(curdate() AS date), 0);
+
     
 INSERT INTO borrow_log (user_id, book_id, borrow_date) VALUES
     (1, 1, '2023-01-01'),  
