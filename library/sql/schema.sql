@@ -350,6 +350,32 @@ END IF;
 END; $$
 delimiter ;
 
+delimiter $$
+CREATE TRIGGER ins_service
+BEFORE INSERT ON service
+FOR EACH ROW
+BEGIN
+	IF (SELECT COUNT(*)
+    FROM service
+    WHERE service_type = 'b' AND waiting = 1 AND user_id = NEW.user_id) >= 1 THEN
+        UPDATE dummy SET foo=0 WHERE fun=1; -- dummy statement that causes trigger to fail
+    END IF;
+END; $$
+delimiter ;
+
+delimiter $$
+CREATE TRIGGER upd_service
+BEFORE UPDATE ON service
+FOR EACH ROW
+BEGIN
+    IF (SELECT COUNT(*)
+    FROM service
+    WHERE service_type = 'b' AND waiting = 1 AND user_id = NEW.user_id) >= 1 THEN
+        UPDATE dummy SET foo=0 WHERE fun=1; -- dummy statement that causes trigger to fail
+    END IF;
+END; $$
+delimiter ;
+
 
 -- ----------
 -- Procedures
