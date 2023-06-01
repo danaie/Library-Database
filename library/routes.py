@@ -831,22 +831,23 @@ def avg_rating(username,cat):
     data = cur.fetchall()
     return render_template("avg_rating.html", data=data)
 
-
 @app.route('/information')
 def information():
-        cur = db.connection.cursor()
+    cur = db.connection.cursor()
 
-        # Execute the query to retrieve category names
-        query = "SELECT category_name FROM category"
-        cur.execute(query)
+    current_year = datetime.date.today().year
 
-        # Fetch all the category names
-        category_names = [row[0] for row in cur.fetchall()]
-        session['category_names'] = category_names
+    # Execute the query to retrieve category names
+    query = "SELECT category_name FROM category"
+    cur.execute(query)
 
-        cur.close()
-       
-        return render_template('information.html', category_names=category_names)
+    # Fetch all the category names
+    category_names = [row[0] for row in cur.fetchall()]
+    #session['category_names'] = category_names
+
+    cur.close()
+    
+    return render_template('information.html', category_names=category_names, current_year = current_year )
 
 @app.route('/run_queries', methods=['POST'])
 def run_queries():
@@ -857,23 +858,32 @@ def run_queries():
     cur = db.connection.cursor()
 
     if 'button1' in request.form:
-        if request.method == 'POST' and 'year' in request.form and 'month' in request.form:
+        if request.method == 'POST' and 'year' in request.form:
             year = request.form['year']
-            month = request.form['month']
+            month = request.form.get('month')
 
-            
             query_3_1_1 = """SELECT sch.name AS 'School Name',
                     COUNT(*) AS 'Number of Loans'
                     FROM school_unit sch
                     INNER JOIN lib_user u ON u.school_id = sch.school_id
                     INNER JOIN borrow_log b ON b.user_id = u.user_id 
-                    WHERE YEAR(b.borrow_date) = %s AND MONTH(b.borrow_date) = %s
-                    GROUP BY sch.name"""
+                    WHERE YEAR(b.borrow_date) = %s"""
 
-            cur.execute(query_3_1_1, (year, month))
+            if month:
+                query_3_1_1 += " AND MONTH(b.borrow_date) = %s"
+
+            query_3_1_1 += " GROUP BY sch.name"
+
+            if month:
+                cur.execute(query_3_1_1, (year, month))
+            else:
+                cur.execute(query_3_1_1, (year,))
+            
             result = cur.fetchall()
 
-            cur.close() 
+            cur.close()
+
+
     elif 'button2' in request.form:
         if request.method == 'POST' and 'category' in request.form:
             category = request.form['category']
