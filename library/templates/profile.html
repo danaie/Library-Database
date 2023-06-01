@@ -78,8 +78,10 @@
                                 Borrowed
                             {% elif el == 'r' %}
                                 Reserved
-                            {% elif el == 1 %}
+                            {% elif el == 1 and row[3] == 'r'%}
                                 On hold
+                            {% elif el == 1 and row[3] == 'b'%}
+                                Delayed
                             {% elif el == 0 %}
                                 Registered
                             {% else %}
