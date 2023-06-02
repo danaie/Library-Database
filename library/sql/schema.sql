@@ -399,6 +399,9 @@ DELIMITER ;
 -- ------
 -- Events
 -- ------
+
+SET GLOBAL event_scheduler = ON;
+
 delimiter $$
 CREATE EVENT reserv_event
 ON SCHEDULE EVERY 1 DAY
