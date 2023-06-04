@@ -943,15 +943,12 @@ def run_queries():
             result = cur.fetchall()
 
             # Query 3.1.2_2
-            query_3_1_2_2 = """SELECT DISTINCT u.first_name, u.last_name 
-                FROM lib_user u
-                JOIN borrow_log bl ON u.user_id = bl.user_id 
-                JOIN book b ON bl.book_id = b.book_id 
-                JOIN book_category bc ON b.book_id = bc.book_id 
-                JOIN category c ON bc.category_id = c.category_id 
-                WHERE c.category_name = %s 
-                AND bl.borrow_date >= DATE_SUB(CURDATE(), INTERVAL 10 YEAR) 
-                AND u.user_role = 't'"""
+            query_3_1_2_2 = """select username, CONCAT(first_name, ' ', last_name) AS teacher_name
+ from lib_user where user_id in (
+select distinct user_id from borrow_log where DATEDIFF(current_date(), borrow_date)/365 <= 1
+and book_id in (select book_id from book_category where category_id in 
+(select category_id from category where category_name = %s) )
+) and user_role = 't';"""
 
                   
             cur.execute(query_3_1_2_2, (category,))
