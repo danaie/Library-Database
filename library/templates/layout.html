@@ -26,7 +26,6 @@
 			<a href="/borrows">Borrows</a> |
 			<a href="/reviews">Reviews</a> |
 			<a href="/add_book">Add a book</a> |
-			<a href="/lend_book">Lend a book</a> |
 			<a href="/statistics">Statistics</a> |
 		{% elif session.get('user_role') in ['s','t'] %}
 			<a href="/profile/{{session.get('user_id')}}">Profile</a> |
