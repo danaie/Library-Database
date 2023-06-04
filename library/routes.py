@@ -881,7 +881,7 @@ def information():
 
     # Fetch all the category names
     category_names = [row[0] for row in cur.fetchall()]
-    #session['category_names'] = category_names
+    session['category_names'] = category_names
 
     cur.close()
     
