@@ -309,6 +309,8 @@ CREATE INDEX author_idx ON author (author_last_name, author_first_name);
 
 CREATE INDEX borrow_log_idx ON borrow_log (user_id);
 
+CREATE INDEX username_idx ON lib_user (username);
+
 -- --------
 -- Triggers
 -- --------
