@@ -139,10 +139,10 @@ CREATE TABLE service (
     service_date DATE NOT NULL DEFAULT (CURRENT_DATE),
     FOREIGN KEY (user_id)
         REFERENCES lib_user (user_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
+        ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT UNIQUE (user_id, book_id)
 );
 
@@ -152,10 +152,10 @@ CREATE TABLE borrow_log (
     borrow_date DATE NOT NULL,
     FOREIGN KEY (user_id)
         REFERENCES lib_user (user_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (book_id)
         REFERENCES book (book_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
