@@ -163,6 +163,9 @@ def search():
 
 @app.route('/search/for/copies/<cp>')
 def search_for_copies(cp):
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for('home'))
     cur = db.connection.cursor()
     cur.execute("""SELECT book_id, ISBN, title, auth, copies FROM school_book_info 
         WHERE school_id = %s AND copies = %s""", (session['school_id'], cp,))
@@ -177,6 +180,9 @@ def search_for_copies(cp):
 
 @app.route('/search/for/<t>+<a>+<c>')
 def search_for(t,a,c):
+    if session.get('user_role') == 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for('home'))
     cur = db.connection.cursor()
     query = """SELECT book_id, ISBN, title, auth, copies FROM school_book_info 
     WHERE school_id = %s AND REGEXP_LIKE(title,%s) AND REGEXP_LIKE(auth,%s) AND REGEXP_LIKE(cat,%s)"""
@@ -370,6 +376,9 @@ def reviews():
 
 @app.route('/reviews/accept/<user_id>+<book_id>')
 def accept_review(user_id,book_id):
+        if session.get('user_role') != 'l':
+            flash("You do not have authorization to view this page.")
+            return redirect(url_for("home"))
         cur = db.connection.cursor()
         query = "UPDATE review SET pending=0 WHERE user_id=%s AND book_id=%s"
         values = (user_id, book_id,)
@@ -431,6 +440,9 @@ def delete_review(book_id):
 
 @app.route('/lend/<int:book_id>', methods=['POST','GET'])
 def lend(book_id):
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
     lend_form = Lend_form()
     if request.method == 'POST':
         
@@ -512,9 +524,10 @@ def add_book():
             return redirect(url_for('home'))
     return render_template('add_book.html', form = form)
 
+
 @app.route('/change_book/<book_id>',methods=['GET', 'POST'])
 def change_book(book_id):
-    if (session.get('user_role') in ['s','t']):
+    if (session.get('user_role') != 'l'):
         flash("You do not have authorization to view this page.")
         return redirect(url_for("home"))
     form = Edit_Book_form()
@@ -646,6 +659,9 @@ def profile(user_id):
 
 @app.route('/card/<user_id>')
 def card(user_id):
+    if session.get('user_role') != 'l' and int(session.get('user_id')) != int(user_id):
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
     cur =db.connection.cursor()
     query = "SELECT * FROM user_info WHERE user_id=%s"
     values = (user_id,)
@@ -653,8 +669,12 @@ def card(user_id):
     data = cur.fetchall()
     return render_template("lib_card.html", data=data)
 
+
 @app.route('/reservation/cancel/<int:user_id>+<int:book_id>', methods=['GET','POST'])
 def cancel(user_id,book_id):
+    if int(session.get('user_id')) != int(user_id):
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
     msg = ''
     try:
         cur = db.connection.cursor()
@@ -697,6 +717,9 @@ def change_password():
 
 @app.route('/change_info', methods=['GET','POST'])
 def change_info():
+    if session.get('user_role') == 's':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
     form = Change_info_form()
     if request.method == 'POST':
         cur = db.connection.cursor()
@@ -754,6 +777,9 @@ def add_school():
 
 @app.route("/statistics", methods=['GET','POST'])
 def statistics():
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
     delay_form = Delay_form()
     avgrating_form = AvgRating_form()
     cur = db.connect.cursor()
@@ -789,6 +815,9 @@ def statistics():
 
 @app.route("/statistics/delay/<f>+<l>+<d>")
 def delay(f,l,d):
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
     cur = db.connect.cursor()
     if d == '.*':
         query = """SELECT * FROM delay_info WHERE school_id = %s
@@ -815,6 +844,9 @@ def delay(f,l,d):
 
 @app.route("/statistics/rating/<username>+<cat>")
 def avg_rating(username,cat):
+    if session.get('user_role') != 'l':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
     cur = db.connection.cursor()
     query = "SELECT AVG(rating) FROM rating_info WHERE 1=1"
     values = ()
@@ -835,6 +867,10 @@ def avg_rating(username,cat):
 
 @app.route('/information')
 def information():
+    if session.get('user_role') != 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    
     cur = db.connection.cursor()
 
     current_year = datetime.date.today().year
@@ -853,6 +889,10 @@ def information():
 
 @app.route('/run_queries', methods=['POST'])
 def run_queries():
+    if session.get('user_role') != 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    
     category_names = session.get('category_names')
     result = [] 
     result1 = []
@@ -976,6 +1016,10 @@ def run_queries():
 
 @app.route('/backup', methods=['GET','POST'])
 def backup():
+    if session.get('user_role') != 'a':
+        flash("You do not have authorization to view this page.")
+        return redirect(url_for("home"))
+    
     if request.method == 'POST':
         host = app.config["MYSQL_HOST"]
         username = app.config["MYSQL_USER"]
